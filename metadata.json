@@ -1,0 +1,6 @@
+{
+  "name": "Hasanth Engineering",
+  "description": "Premium electronics and mechanical product design paired with advanced manufacturing support.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
