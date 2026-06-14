@@ -231,3 +231,38 @@ export function LiveRippleText() {
     </div>
   );
 }
+
+interface UnifiedButtonProps {
+  variant?: 'primary' | 'secondary';
+  children: React.ReactNode;
+  icon?: React.ComponentType<{ size?: number; className?: string }>;
+  className?: string;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  id?: string;
+  disabled?: boolean;
+  type?: 'button' | 'submit' | 'reset';
+}
+
+export function UnifiedButton({ 
+  variant = 'primary', 
+  children, 
+  icon: Icon, 
+  className = '', 
+  ...props 
+}: UnifiedButtonProps) {
+  const baseStyle = "px-4 py-2.5 text-xs font-sans tracking-wide uppercase transition-colors duration-150 rounded flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 select-none font-medium";
+  const variants = {
+    primary: "bg-[#0056b3] text-white hover:bg-white hover:text-[#0056b3] border border-[#0056b3]",
+    secondary: "bg-white text-[#0056b3] hover:bg-[#0056b3] hover:text-white border border-[#0056b3]"
+  };
+
+  return (
+    <button 
+      className={`${baseStyle} ${variants[variant]} ${className}`}
+      {...props}
+    >
+      {Icon && <Icon size={13} />}
+      <span>{children}</span>
+    </button>
+  );
+}

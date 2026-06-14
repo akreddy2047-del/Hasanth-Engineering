@@ -78,48 +78,68 @@ export default function FacilityShowcase() {
           </span>
         </div>
 
-        {/* Masonry / Structured Grid Layout */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-12 gap-6">
+        {/* 3-Column Static Grid of Uniform White Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {galleryItems.map((item, idx) => {
-            let colSpan = 'xl:col-span-4';
-            if (idx === 0) colSpan = 'xl:col-span-8';
-            if (idx === 3) colSpan = 'xl:col-span-6';
-            if (idx === 4) colSpan = 'xl:col-span-6';
-
             return (
               <div
                 key={idx}
-                onClick={() => setActiveImage(idx)}
-                className={`group relative h-72 rounded overflow-hidden cursor-pointer border border-[#e2e8f0] hover:border-[#0056b3] transition-colors duration-150 ${colSpan}`}
-                id={`gallery-item-${idx}`}
+                className="bg-white border border-[#e2e8f0] rounded overflow-hidden flex flex-col justify-between hover:border-[#0056b3] transition-all duration-150"
+                id={`facility-card-${idx}`}
               >
-                {/* Visual Thumbnail */}
-                <img 
-                  src={item.imageUrl} 
-                  alt={item.title}
-                  loading="lazy"
-                  className="w-full h-full object-cover filter brightness-90 saturate-100"
-                  referrerPolicy="no-referrer"
-                />
-                
-                {/* Clean dark overlay bottom gradient */}
-                <div className="absolute inset-x-0 bottom-0 bg-black/60 p-5 flex flex-col justify-end" />
-                
-                {/* Image labels */}
-                <div className="absolute bottom-5 left-5 right-5 flex justify-between items-end z-10">
-                  <div>
-                    <span className="text-[9px] font-sans text-white uppercase tracking-wider block mb-1">
-                      {item.category}
-                    </span>
-                    <h3 className="text-sm sm:text-base font-sans text-white uppercase tracking-wide">
+                <div>
+                  {/* Aspect Ratio Image at the Top */}
+                  <div className="relative h-48 w-full bg-slate-100 overflow-hidden border-b border-[#e2e8f0]">
+                    <img 
+                      src={item.imageUrl} 
+                      alt={item.title}
+                      loading="lazy"
+                      className="w-full h-full object-cover filter saturate-[0.8] brightness-100"
+                      referrerPolicy="no-referrer"
+                    />
+                    <div className="absolute top-3 left-3">
+                      <span className="text-[9px] font-sans font-semibold text-white bg-[#0056b3] px-2 py-1 uppercase tracking-wider rounded">
+                        {item.category}
+                      </span>
+                    </div>
+                    <div className="absolute top-3 right-3">
+                      <span className="text-[9px] font-mono font-semibold text-white bg-slate-900/80 px-2 py-1 uppercase tracking-wider rounded">
+                        CELL_0{idx+1}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Card Content body */}
+                  <div className="p-6">
+                    <h3 className="text-base font-sans text-[#1e293b] font-semibold uppercase tracking-tight mb-2">
                       {item.title}
                     </h3>
+                    
+                    <div className="flex items-center gap-1.5 text-[10px] text-[#0056b3] font-sans mb-4">
+                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      <span>Metric Audit: {item.calibration}</span>
+                    </div>
+
+                    <ul className="space-y-2 mt-4">
+                      {item.specs.map((spec, sIdx) => (
+                        <li key={sIdx} className="flex gap-2 text-xs text-[#1e293b]">
+                          <span className="text-[#0056b3] font-bold">•</span>
+                          <span>{spec}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                  <span className="text-[10px] font-sans text-white bg-[#0056b3] border border-[#0056b3] p-1 rounded">
-                    CELL_0{idx+1}
-                  </span>
                 </div>
 
+                {/* Inspect Action */}
+                <div className="p-6 pt-0 border-t border-[#e2e8f0]/40 mt-4">
+                  <button 
+                    onClick={() => setActiveImage(idx)}
+                    className="w-full py-2 bg-white hover:bg-[#0056b3] hover:text-white transition-colors duration-150 border border-[#0056b3] text-[#0056b3] font-sans text-[10px] tracking-wider uppercase rounded flex items-center justify-center gap-1.5 cursor-pointer font-medium"
+                  >
+                    <span>Inspect Cell Specs</span>
+                  </button>
+                </div>
               </div>
             );
           })}

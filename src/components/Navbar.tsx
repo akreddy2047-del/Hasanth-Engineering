@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Menu, X } from 'lucide-react';
+import { UnifiedButton } from './Common';
 
 interface NavbarProps {
   onOpenConsultation: () => void;
@@ -8,17 +9,7 @@ interface NavbarProps {
 }
 
 export default function Navbar({ onOpenConsultation, currentPage, onPageChange }: NavbarProps) {
-  const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   const navMenuItems = [
     { label: 'Home', id: 'home' },
@@ -31,18 +22,18 @@ export default function Navbar({ onOpenConsultation, currentPage, onPageChange }
   const handleMenuClick = (e: React.MouseEvent, pageId: string) => {
     e.preventDefault();
     onPageChange(pageId);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: 'auto' });
   };
 
   const handleMobileClick = (pageId: string) => {
     setIsMobileMenuOpen(false);
     onPageChange(pageId);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: 'auto' });
   };
 
   return (
     <nav 
-      className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-[#e2e8f0] py-2 font-sans"
+      className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-[#e2e8f0] py-3.5 font-sans"
       id="main-navigation"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -61,7 +52,7 @@ export default function Navbar({ onOpenConsultation, currentPage, onPageChange }
               <span className="text-[#1e293b] font-sans text-xs tracking-wide leading-none font-semibold">
                 HASANTH ENGINEERING
               </span>
-              <span className="text-[#0056b3] font-sans text-[9px] uppercase tracking-wider mt-0.5 font-medium">
+              <span className="text-[#0056b3] font-sans text-[9px] uppercase tracking-wider mt-1 font-medium">
                 (OPC) PVT LTD • EST. 2016
               </span>
             </div>
@@ -73,10 +64,10 @@ export default function Navbar({ onOpenConsultation, currentPage, onPageChange }
               <button
                 key={item.label}
                 onClick={(e) => handleMenuClick(e, item.id)}
-                className={`py-1 text-xs font-sans tracking-wide uppercase transition-colors cursor-pointer font-medium ${
+                className={`py-1 text-xs font-sans tracking-wide uppercase font-semibold cursor-pointer ${
                   currentPage === item.id 
-                    ? 'text-[#0056b3] border-b-2 border-[#0056b3] rounded-none' 
-                    : 'text-[#1e293b] hover:text-[#0056b3] border-b-2 border-transparent'
+                    ? 'text-[#0056b3] border-b border-[#0056b3]' 
+                    : 'text-[#1e293b]'
                 }`}
               >
                 {item.label}
@@ -86,20 +77,20 @@ export default function Navbar({ onOpenConsultation, currentPage, onPageChange }
  
           {/* CTA Trigger */}
           <div className="hidden lg:flex items-center">
-            <button
+            <UnifiedButton
+              variant="primary"
               onClick={onOpenConsultation}
-              className="px-4 py-2 rounded bg-[#0056b3] hover:bg-white hover:text-[#0056b3] border border-[#0056b3] transition-colors duration-150 text-white font-sans text-xs tracking-wide uppercase cursor-pointer"
               id="cta-nav-button"
             >
               Get Consultation
-            </button>
+            </UnifiedButton>
           </div>
 
           {/* Hamburger Menu Controls */}
           <div className="flex lg:hidden items-center">
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="text-[#1e293b] hover:text-[#0056b3] focus:outline-none p-1"
+              className="text-[#1e293b] focus:outline-none p-1"
               id="btn-toggle-menu"
               aria-label="Toggle Navigation Menu"
             >
@@ -118,7 +109,7 @@ export default function Navbar({ onOpenConsultation, currentPage, onPageChange }
               <button
                 key={item.label}
                 onClick={() => handleMobileClick(item.id)}
-                className={`text-left w-full py-2.5 text-xs font-sans uppercase tracking-wider ${
+                className={`text-left w-full py-2.5 text-xs font-sans uppercase tracking-wider font-semibold ${
                   currentPage === item.id ? 'text-[#0056b3]' : 'text-[#1e293b]'
                 }`}
               >

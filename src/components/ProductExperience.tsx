@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, FileText, Download, CheckCircle } from 'lucide-react';
+import { UnifiedButton } from './Common';
 
 export default function ProductExperience() {
   const [selectedProduct, setSelectedProduct] = useState<null | number>(null);
@@ -188,19 +189,21 @@ export default function ProductExperience() {
                 </div>
                 
                 <div className="grid grid-cols-2 gap-2 mt-1">
-                  <button
+                  <UnifiedButton
+                    variant="secondary"
                     onClick={() => {
                       setSelectedProduct(idx);
                       setDownloadSuccess(false);
                     }}
-                    className="w-full py-2 bg-white hover:bg-[#0056b3] hover:text-white transition-colors duration-150 border border-[#0056b3] text-[#0056b3] font-sans text-[10px] tracking-wider uppercase rounded flex items-center justify-center gap-1.5 cursor-pointer"
+                    className="w-full py-2 text-[10px]"
                     id={`btn-view-datasheet-${idx}`}
+                    icon={FileText}
                   >
-                    <FileText size={11} aria-hidden="true" />
-                    <span>Specs</span>
-                  </button>
+                    Specs
+                  </UnifiedButton>
                   
-                  <button
+                  <UnifiedButton
+                    variant="primary"
                     onClick={() => {
                       setDownloadingIdx(idx);
                       setTimeout(() => {
@@ -209,18 +212,16 @@ export default function ProductExperience() {
                       }, 1000);
                     }}
                     disabled={downloadingIdx === idx}
-                    className="w-full py-2 bg-[#0056b3] text-white hover:bg-white hover:text-[#0056b3] border border-[#0056b3] transition-colors duration-150 font-sans text-[10px] tracking-wider uppercase rounded flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                    className="w-full py-2 text-[10px]"
                     id={`btn-download-brochure-${idx}`}
+                    icon={Download}
                   >
-                    <Download size={11} aria-hidden="true" />
-                    <span>
-                      {downloadingIdx === idx 
-                        ? 'Writing...' 
-                        : downloadedList.includes(idx) 
-                          ? 'Get copy ✓' 
-                          : 'Brochure'}
-                    </span>
-                  </button>
+                    {downloadingIdx === idx 
+                      ? 'Writing...' 
+                      : downloadedList.includes(idx) 
+                        ? 'Get copy ✓' 
+                        : 'Brochure'}
+                  </UnifiedButton>
                 </div>
               </div>
 
@@ -342,14 +343,15 @@ export default function ProductExperience() {
                     Technical Manual download request assigned! Check your terminal soon.
                   </span>
                 ) : (
-                  <button
+                  <UnifiedButton
+                    variant="primary"
                     onClick={() => handleDownload(productList[selectedProduct].datasheet.model)}
-                    className="px-5 py-2.5 bg-[#0056b3] text-white font-sans text-xs uppercase tracking-wider rounded flex items-center justify-center gap-1.5 cursor-pointer font-bold"
+                    className="px-5 py-2.5 font-bold"
                     id="btn-download-datasheet"
+                    icon={Download}
                   >
-                    <Download size={13} aria-hidden="true" />
-                    <span>Download Engineering Schema</span>
-                  </button>
+                    Download Engineering Schema
+                  </UnifiedButton>
                 )}
               </div>
 

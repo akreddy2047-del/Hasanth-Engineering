@@ -1,5 +1,6 @@
 import React from 'react';
 import { Mail, Phone, MapPin, MessageSquare } from 'lucide-react';
+import { UnifiedButton } from './Common';
 
 export default function ContactSection() {
   const openWhatsApp = () => {
@@ -98,14 +99,15 @@ export default function ContactSection() {
               <p className="text-xs text-[#1e293b] leading-relaxed font-sans">
                 Coordinate immediately with an on-call mechanical designer or electronic systems planner. Send drawing drafts or parameter logs directly.
               </p>
-              <button
+              <UnifiedButton
+                variant="primary"
                 onClick={openWhatsApp}
-                className="w-full py-3 bg-[#0056b3] text-white font-sans text-xs uppercase tracking-wide rounded flex items-center justify-center gap-2 cursor-pointer font-bold"
+                className="w-full py-3"
                 id="btn-whatsapp-chat"
+                icon={MessageSquare}
               >
-                <MessageSquare size={14} aria-hidden="true" />
-                <span>Open WhatsApp Chat</span>
-              </button>
+                Open WhatsApp Chat
+              </UnifiedButton>
             </div>
 
           </div>

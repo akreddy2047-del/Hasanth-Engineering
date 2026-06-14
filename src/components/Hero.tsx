@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ArrowRight, Compass, Factory, Cpu, Settings } from 'lucide-react';
+import { UnifiedButton } from './Common';
 
 interface HeroProps {
   onOpenConsultation: () => void;
@@ -58,22 +59,24 @@ export default function Hero({ onOpenConsultation, onPageChange }: HeroProps) {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center pt-2">
-            <button
+            <UnifiedButton
+              variant="primary"
               onClick={onOpenConsultation}
-              className="px-6 py-3 bg-[#0056b3] text-white hover:bg-white hover:text-[#0056b3] border border-[#0056b3] font-sans text-xs uppercase tracking-wide rounded flex items-center justify-center gap-2 cursor-pointer transition-colors duration-150"
               id="hero-primary-cta"
+              icon={ArrowRight}
+              className="px-6 py-3 font-semibold"
             >
-              <span>Get Consultation</span>
-              <ArrowRight size={14} aria-hidden="true" />
-            </button>
+              Get Consultation
+            </UnifiedButton>
             
-            <button
+            <UnifiedButton
+              variant="secondary"
               onClick={handleExploreClick}
-              className="px-6 py-3 bg-transparent text-white border border-white hover:border-[#0056b3] hover:text-[#0056b3] font-sans text-xs uppercase tracking-wide rounded flex items-center justify-center cursor-pointer transition-colors duration-150"
               id="hero-secondary-cta"
+              className="px-6 py-3 font-semibold"
             >
               Explore Capabilities
-            </button>
+            </UnifiedButton>
           </div>
 
         </div>
