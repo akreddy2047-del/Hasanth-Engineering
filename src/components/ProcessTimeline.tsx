@@ -1,5 +1,6 @@
 import React from 'react';
 import { Check } from 'lucide-react';
+import { motion } from 'motion/react';
 
 export default function ProcessTimeline() {
   const stepsList = [
@@ -50,72 +51,82 @@ export default function ProcessTimeline() {
   return (
     <section 
       id="process" 
-      className="py-16 bg-slate-50/60 font-sans border-b border-[#e2e8f0] scroll-mt-20 relative overflow-hidden"
+      className="py-24 bg-slate-50/60 font-sans border-b border-slate-100 scroll-mt-20 relative overflow-hidden"
     >
       {/* Subtle blueprints visual mesh */}
-      <div className="absolute inset-0 z-0 opacity-5 bg-[linear-gradient(to_right,#0056b3_1px,transparent_1px),linear-gradient(to_bottom,#0056b3_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
+      <div className="absolute inset-0 z-0 opacity-[0.03] bg-[linear-gradient(to_right,#0056b3_1px,transparent_1px),linear-gradient(to_bottom,#0056b3_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Section Header */}
-        <div className="text-left mb-12">
-          <span className="text-xs font-sans text-[#0056b3] tracking-wide uppercase mb-2 block font-semibold">
+        <motion.div 
+          initial={{ opacity: 0, y: 30, filter: 'blur(6px)' }}
+          whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+          viewport={{ once: true, margin: "-40px" }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="text-left mb-16 space-y-2"
+        >
+          <span className="text-[10px] font-sans text-[#0056b3] font-semibold tracking-widest uppercase block">
             DEVELOPMENT CYCLE
           </span>
-          <h2 className="text-3xl font-sans text-[#1e293b] uppercase tracking-tight font-semibold">
+          <h2 className="text-3xl sm:text-4xl font-sans font-semibold text-slate-900 uppercase tracking-tight">
             Comprehensive Process Flow
           </h2>
-          <p className="text-sm text-slate-600 mt-3 max-w-3xl leading-relaxed">
+          <p className="text-xs sm:text-sm text-slate-500 max-w-2xl leading-relaxed">
             A precise, error-minimizing workflow designed to translate complex engineering criteria into reliable static hardware assemblies step-by-step.
           </p>
-        </div>
+        </motion.div>
 
         {/* Beautiful Static Grid of Sequential Steps */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {stepsList.map((st, idx) => (
-            <div 
+            <motion.div 
               key={idx}
-              className="bg-white border border-[#e2e8f0] border-l-4 border-l-[#0056b3] rounded p-6 md:p-8 flex flex-col justify-between hover:border-[#0056b3] transition-all duration-150 shadow-xs"
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: idx * 0.08 }}
+              className="bg-white border border-slate-200 border-l-4 border-l-[#0056b3] rounded-2xl p-6 md:p-8 flex flex-col justify-between hover:border-[#0056b3] hover:shadow-lg transition-all duration-300"
             >
               <div>
                 <div className="flex items-center justify-between mb-4 pb-4 border-b border-slate-100">
-                  <span className="text-2xl font-mono text-[#0056b3] font-bold">
+                  <span className="text-2xl font-sans text-[#0056b3] font-bold">
                     {st.stepNum}
                   </span>
-                  <span className="text-[10px] font-sans uppercase text-slate-500 tracking-wider bg-slate-100 px-2 py-0.5 rounded font-semibold">
+                  <span className="text-[9px] font-sans uppercase text-slate-400 tracking-widest bg-slate-50 border border-slate-100 px-2.5 py-1 rounded-full font-bold">
                     Phase {st.stepNum}
                   </span>
                 </div>
 
-                <span className="text-[10px] font-sans text-[#0056b3] uppercase tracking-wide block font-semibold">
+                <span className="text-[10px] font-sans text-[#0056b3]/70 uppercase tracking-widest block font-bold">
                   {st.subtitle}
                 </span>
                 
-                <h3 className="text-base sm:text-lg font-sans text-[#1e293b] uppercase tracking-tight mt-1 font-semibold">
+                <h3 className="text-base sm:text-lg font-sans text-slate-900 uppercase tracking-tight mt-1.5 font-semibold">
                   {st.title}
                 </h3>
                 
-                <p className="text-xs text-slate-600 mt-3 leading-relaxed">
+                <p className="text-xs text-slate-500 mt-3 leading-relaxed font-sans">
                   {st.desc}
                 </p>
               </div>
 
               {/* Milestones listed simply inside card */}
-              <div className="mt-6 pt-4 border-t border-slate-100">
-                <span className="text-[9px] font-sans text-slate-400 uppercase tracking-widest block mb-2 font-semibold">
-                  AUDITED DELIVERABLES:
+              <div className="mt-6 pt-5 border-t border-slate-100">
+                <span className="text-[9px] font-sans text-slate-400 uppercase tracking-widest block mb-2.5 font-bold">
+                  AUDITED DELIVERABLES
                 </span>
                 <ul className="space-y-1.5">
                   {st.milestones.map((mi, mIdx) => (
-                    <li key={mIdx} className="flex items-start gap-2 text-[11px] text-[#1e293b]">
-                      <Check size={11} className="text-[#0056b3] mt-0.5 flex-shrink-0" aria-hidden="true" />
-                      <span>{mi}</span>
+                    <li key={mIdx} className="flex items-start gap-2 text-xs text-slate-600">
+                      <Check size={12} className="text-[#0056b3] mt-0.5 shrink-0" aria-hidden="true" />
+                      <span className="leading-tight font-medium">{mi}</span>
                     </li>
                   ))}
                 </ul>
               </div>
 
-            </div>
+            </motion.div>
           ))}
         </div>
 
@@ -123,3 +134,4 @@ export default function ProcessTimeline() {
     </section>
   );
 }
+

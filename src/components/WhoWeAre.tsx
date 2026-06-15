@@ -1,80 +1,142 @@
 import React from 'react';
-import { CheckCircle2 } from 'lucide-react';
+import { motion } from 'motion/react';
+import { CheckCircle2, Factory, Cpu, Compass } from 'lucide-react';
 
 export default function WhoWeAre() {
   const targetIndustries = [
-    { name: 'Railway', code: 'RLY' },
-    { name: 'Automotive', code: 'AUT' },
-    { name: 'HVAC', code: 'HVC' },
-    { name: 'Industrial', code: 'IND' },
-    { name: 'Defense', code: 'DEF' },
-    { name: 'Manufacturing', code: 'MFG' },
-    { name: 'Electronics', code: 'ELC' },
+    { name: 'Railway Systems', code: 'RLY', detail: 'EN50155 Standards' },
+    { name: 'Automotive & EV', code: 'AUT', detail: 'DC-DC & Motor Control' },
+    { name: 'HVAC Solutions', code: 'HVC', detail: 'Sensor Automation' },
+    { name: 'Industrial Controls', code: 'IND', detail: 'SCADA & PLCs' },
+    { name: 'Defense Aerospace', code: 'DEF', detail: 'Mil-spec Test Jigs' },
+    { name: 'OEM Manufacturing', code: 'MFG', detail: 'High-Tolerance Gears' },
+    { name: 'Embedded Electronics', code: 'ELC', detail: 'Multilayer PCB Node' },
   ];
 
   return (
-    <section id="about" className="relative py-16 bg-white font-sans scroll-mt-20 border-b border-[#e2e8f0]">
+    <section id="about" className="relative py-24 bg-slate-50 font-sans scroll-mt-20 border-b border-slate-100 overflow-hidden">
+      {/* Decorative clean line accents */}
+      <div className="absolute top-0 right-0 w-1/3 h-full border-l border-slate-100 pointer-events-none" />
+      
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
           
-          {/* Left Block: Beautiful High-Resolution Static Image */}
-          <div className="lg:col-span-6 relative">
-            <div className="relative rounded overflow-hidden border border-[#e2e8f0]">
+          {/* Left Block: High-End Laboratory Image Frame */}
+          <motion.div 
+            initial={{ opacity: 0, y: 30, filter: 'blur(6px)' }}
+            whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+            viewport={{ once: true, margin: "-40px" }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="lg:col-span-6 relative"
+          >
+            <div className="relative rounded-2xl overflow-hidden border border-slate-200/60 shadow-xl group">
+              <div className="absolute inset-0 bg-slate-950/20 group-hover:bg-slate-950/10 transition-colors duration-500 z-10" />
               <img 
                 src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1200&q=80" 
                 alt="Hasanth Prototyping Laboratory" 
-                className="w-full h-[320px] md:h-[420px] object-cover filter brightness-95 saturate-100"
+                className="w-full h-[380px] md:h-[480px] object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                 referrerPolicy="no-referrer"
               />
               
-              {/* Internal simple dark overlay on the bottom */}
-              <div className="absolute inset-x-0 bottom-0 bg-black/60 p-6">
-                <span className="text-[10px] font-sans text-white uppercase tracking-wide block mb-1">PROTOTYPING LAB</span>
-                <span className="text-sm font-sans text-white block">Hasanth R&D Engineering Center</span>
+              {/* Internal absolute status indicators overlay */}
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent p-6 z-20">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="text-[10px] font-sans font-medium text-white uppercase tracking-widest">ISO 9001:2015 CERTIFIED FACILITY</span>
+                </div>
+                <span className="text-lg font-sans font-semibold text-white block uppercase">Hasanth R&D Center</span>
+                <span className="text-xs text-slate-400 block mt-0.5">Peenya Industrial Area, Bangalore</span>
               </div>
             </div>
-          </div>
+          </motion.div>
 
-          {/* Right Block: Clean and Legible Content Column */}
-          <div className="lg:col-span-6 space-y-6">
+          {/* Right Block: Content Column */}
+          <div className="lg:col-span-6 space-y-8">
             
-            <div>
-              <span className="text-xs font-sans text-[#0056b3] tracking-wide uppercase">
-                WHO WE ARE
+            <motion.div 
+              initial={{ opacity: 0, y: 30, filter: 'blur(6px)' }}
+              whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              viewport={{ once: true, margin: "-40px" }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              className="space-y-3"
+            >
+              <span className="text-[10px] font-sans text-[#0056b3] font-bold tracking-widest uppercase block">
+                ENGINEERING STANDARDS
               </span>
-              <h2 className="text-3xl font-sans text-[#1e293b] uppercase mt-2 tracking-tight">
-                Complete End-To-End <br />
-                <span className="text-[#0056b3]">Engineering Solutions</span>
+              <h2 className="text-3xl sm:text-4xl font-sans font-semibold text-slate-900 uppercase tracking-tight leading-none">
+                End-To-End Development <br />
+                <span className="text-[#0056b3]">With Absolute Rigor</span>
               </h2>
+            </motion.div>
+
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-sans font-medium">
+              We translate abstract blueprint criteria into ready physical components. By bridging raw electronic CAD models with active CNC shop floor tooling, we minimize sub-contractor coordination errors on-site.
+            </p>
+
+            {/* Structured Value Points */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="flex gap-3">
+                <div className="p-2 bg-blue-50 text-[#0056b3] rounded h-fit">
+                  <Cpu size={16} />
+                </div>
+                <div>
+                  <h4 className="text-xs font-sans font-bold text-slate-900 uppercase">PCB & System Layouts</h4>
+                  <p className="text-[11px] text-slate-500 leading-normal mt-0.5">Multilayer routed PCB setups optimized for signal fidelity.</p>
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <div className="p-2 bg-blue-50 text-[#0056b3] rounded h-fit">
+                  <Factory size={16} />
+                </div>
+                <div>
+                  <h4 className="text-xs font-sans font-bold text-slate-900 uppercase">Mechanical Fixturing</h4>
+                  <p className="text-[11px] text-slate-500 leading-normal mt-0.5">High tonnage milling, heavy turning, and laser checks.</p>
+                </div>
+              </div>
             </div>
 
-            <p className="text-sm text-[#1e293b] leading-relaxed font-sans">
-              HASANTH ENGINEERING provides comprehensive, high-precision engineering solutions for electronics and mechanical products. From initial concept, CAD modeling, and custom firmware development to mechanical fixturing, PCB assembly, and turnkey strategic component sourcing, we translate client criteria into production-ready static components.
-            </p>
-
-            <p className="text-xs text-[#1e293b] leading-relaxed font-sans">
-              Founded on strict precision tolerances and standard compliance, we bridge the gap between abstract design principles and shop floor production. We act as an integrated manufacturing support partner for critical sectors requiring elite hardware performance.
-            </p>
-
-            {/* Target Sectors Grid */}
-            <div className="pt-6 border-t border-[#e2e8f0]">
-              <span className="text-xs font-sans text-[#0056b3] uppercase tracking-wide">
-                Industries Serviced:
+            {/* Target Sectors Directory */}
+            <div className="pt-6 border-t border-slate-200">
+              <span className="text-[10px] font-mono text-slate-400 font-bold uppercase tracking-widest block mb-3">
+                Sectors Directory
               </span>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-3">
+              <motion.div 
+                variants={{
+                  hidden: { opacity: 0 },
+                  show: {
+                    opacity: 1,
+                    transition: {
+                      staggerChildren: 0.08,
+                    }
+                  }
+                }}
+                initial="hidden"
+                whileInView="show"
+                viewport={{ once: true, margin: "-40px" }}
+                className="grid grid-cols-2 sm:grid-cols-3 gap-2.5"
+              >
                 {targetIndustries.map((ind, i) => (
-                  <div 
+                  <motion.div 
                     key={i}
-                    className="flex items-center gap-2 p-3 bg-white border border-[#e2e8f0] hover:border-[#0056b3] transition-colors duration-150 rounded"
+                    variants={{
+                      hidden: { opacity: 0, y: 15 },
+                      show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } }
+                    }}
+                    whileHover={{ translateY: -1 }}
+                    className="p-3 bg-white border border-slate-200/80 hover:border-[#0056b3]/30 transition-colors duration-250 rounded-lg flex flex-col justify-between"
                   >
-                    <CheckCircle2 size={13} className="text-[#0056b3] flex-shrink-0" />
-                    <div className="flex flex-col">
-                      <span className="text-xs text-[#1e293b] leading-none">{ind.name}</span>
-                      <span className="text-[9px] font-sans text-[#1e293b] mt-1">{ind.code}</span>
+                    <div className="flex items-center gap-1.5">
+                      <CheckCircle2 size={11} className="text-[#0056b3] shrink-0" />
+                      <span className="text-xs text-slate-800 font-bold tracking-tight">{ind.name}</span>
                     </div>
-                  </div>
+                    <div className="flex items-center justify-between mt-2 pt-1 border-t border-slate-50 text-[9px] font-mono font-semibold text-slate-400">
+                      <span>{ind.code}</span>
+                      <span className="text-[#0056b3]/60">{ind.detail}</span>
+                    </div>
+                  </motion.div>
                 ))}
-              </div>
+              </motion.div>
             </div>
 
           </div>
@@ -84,3 +146,4 @@ export default function WhoWeAre() {
     </section>
   );
 }
+

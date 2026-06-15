@@ -27,7 +27,6 @@
   }
 
   p, li, span, a, label, input, textarea, select, button {
-    font-weight: 400 !important;
     font-family: var(--font-sans);
   }
 
@@ -66,4 +65,13 @@
 
 .glass-card:hover {
   border-color: #0056b3;
+}
+
+@keyframes grid-move {
+  from { background-position: 0 0; }
+  to { background-position: 40px 40px; }
+}
+
+.animate-grid {
+  animation: grid-move 5s linear infinite;
 }

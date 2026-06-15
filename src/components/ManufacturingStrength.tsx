@@ -1,5 +1,6 @@
 import React from 'react';
 import { Settings, Zap, Compass, Shield, Activity, Eye, Layers, Maximize } from 'lucide-react';
+import { motion } from 'motion/react';
 
 export default function ManufacturingStrength() {
   const mfgCards = [
@@ -72,77 +73,107 @@ export default function ManufacturingStrength() {
   return (
     <section 
       id="manufacturing" 
-      className="py-16 bg-white font-sans scroll-mt-20 border-b border-[#e2e8f0]"
+      className="relative py-24 bg-white font-sans scroll-mt-20 border-b border-slate-100 overflow-hidden"
     >
+      {/* Blueprint Grid Accent */}
+      <div className="absolute inset-0 z-0 opacity-[0.02] bg-[radial-gradient(#0056b3_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none" />
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Section Header */}
-        <div className="text-left mb-12">
-          <span className="text-xs font-sans text-[#0056b3] tracking-wide uppercase mb-2 block">
+        <motion.div 
+          initial={{ opacity: 0, y: 30, filter: 'blur(6px)' }}
+          whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+          viewport={{ once: true, margin: "-40px" }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="text-left mb-16 space-y-2"
+        >
+          <span className="text-[10px] font-sans text-[#0056b3] font-semibold tracking-widest uppercase block">
             SHOP FLOOR SPECIFICATIONS
           </span>
-          <h2 className="text-3xl font-sans text-[#1e293b] uppercase tracking-tight">
+          <h2 className="text-3xl sm:text-4xl font-sans font-semibold text-slate-900 uppercase tracking-tight">
             Precision Manufacturing Capability
           </h2>
-          <p className="text-sm text-[#1e293b] mt-3 max-w-3xl leading-relaxed">
+          <p className="text-xs sm:text-sm text-slate-500 max-w-2xl leading-relaxed">
             Hasanth Engineering coordinates reliable, modern machining processes to convert complex multi-axis CAD designs into compliant hardware batches.
           </p>
-        </div>
+        </motion.div>
 
         {/* Manufacturing Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <motion.div 
+          variants={{
+            hidden: { opacity: 0 },
+            show: {
+              opacity: 1,
+              transition: {
+                staggerChildren: 0.1,
+              }
+            }
+          }}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: "-60px" }}
+          className="grid grid-cols-1 md:grid-cols-3 gap-8"
+        >
           {mfgCards.map((mfg, idx) => {
             const IconComponent = mfg.icon;
             return (
-              <div 
+              <motion.div 
                 key={idx}
-                className="relative rounded bg-white border border-[#e2e8f0] hover:border-[#0056b3] transition-colors duration-150 overflow-hidden flex flex-col justify-between"
+                variants={{
+                  hidden: { opacity: 0, y: 25 },
+                  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
+                }}
+                whileHover={{ y: -5, scale: 1.015 }}
+                transition={{ type: 'spring', stiffness: 240, damping: 20 }}
+                className="group relative rounded-2xl bg-white border border-slate-200 hover:border-[#0056b3] hover:shadow-xl overflow-hidden flex flex-col justify-between"
               >
                 {/* Visual Thumbnail */}
-                <div className="relative h-44 w-full overflow-hidden border-b border-[#e2e8f0]">
+                <div className="relative h-52 w-full overflow-hidden border-b border-slate-150">
+                  <div className="absolute inset-0 bg-slate-950/15 group-hover:bg-slate-950/0 transition-colors duration-300 z-10" />
                   <img 
                     src={mfg.imageUrl} 
                     alt={mfg.name}
-                    className="w-full h-full object-cover filter brightness-90 saturate-100"
+                    className="w-full h-full object-cover filter brightness-95 saturate-[0.8] contrast-105 group-hover:scale-105 transition-transform duration-500 ease-out"
                     referrerPolicy="no-referrer"
                   />
                   
                   {/* Icon Badge */}
-                  <div className="absolute top-4 left-4 p-2 bg-white border border-[#e2e8f0] rounded text-[#0056b3] shadow-sm">
-                    <IconComponent size={16} aria-hidden="true" />
+                  <div className="absolute top-4 left-4 p-2 bg-white/90 backdrop-blur-md border border-slate-200 rounded-xl text-[#0056b3] shadow-sm z-20">
+                    <IconComponent size={15} aria-hidden="true" />
                   </div>
                 </div>
 
                 {/* Content Details */}
-                <div className="p-5 flex-grow flex flex-col justify-between">
+                <div className="p-6 flex-grow flex flex-col justify-between">
                   <div>
-                    <h3 className="text-base sm:text-lg font-sans text-[#1e293b] uppercase tracking-wide">
+                    <h3 className="text-base font-sans text-slate-900 font-semibold uppercase tracking-tight group-hover:text-[#0056b3] transition-colors">
                       {mfg.name}
                     </h3>
-                    <p className="text-xs text-[#1e293b] mt-2 leading-relaxed h-16 overflow-hidden">
+                    <p className="text-xs text-slate-500 mt-2.5 leading-relaxed font-sans h-14 overflow-hidden">
                       {mfg.desc}
                     </p>
                   </div>
 
                   {/* Operational Metrics */}
-                  <div className="mt-4 pt-3 border-t border-[#e2e8f0] grid grid-cols-2 gap-2 text-[10px] font-sans">
+                  <div className="mt-6 pt-4 border-t border-slate-100 grid grid-cols-2 gap-3 text-[10px] font-sans">
                     <div className="flex flex-col">
-                      <span className="text-[#1e293b] uppercase tracking-wider text-[9px]">Tolerance</span>
-                      <span className="text-[#0056b3] mt-0.5">{mfg.tolerance}</span>
+                      <span className="text-slate-400 uppercase tracking-widest text-[8px] font-bold">Tolerance</span>
+                      <span className="text-[#0056b3] font-bold mt-1 text-xs">{mfg.tolerance}</span>
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-[#1e293b] uppercase tracking-wider text-[9px]">Envelope</span>
-                      <span className="text-[#1e293b] truncate mt-0.5" title={mfg.capacity}>
+                      <span className="text-slate-400 uppercase tracking-widest text-[8px] font-bold">Envelope</span>
+                      <span className="text-slate-700 font-bold truncate mt-1 text-xs" title={mfg.capacity}>
                         {mfg.capacity}
                       </span>
                     </div>
                   </div>
                 </div>
 
-              </div>
+              </motion.div>
             );
           })}
-        </div>
+        </motion.div>
 
       </div>
     </section>

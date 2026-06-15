@@ -1,5 +1,7 @@
 import React from 'react';
 import { Compass, Factory, Cpu, ArrowRight } from 'lucide-react';
+import { motion } from 'motion/react';
+import { MetricReveal } from './MetricReveal';
 
 interface HomeNavigationCardsProps {
   onPageChange: (pageId: string) => void;
@@ -36,81 +38,118 @@ export default function HomeNavigationCards({ onPageChange }: HomeNavigationCard
     }
   ];
 
-  const handleNavigate = (e: React.MouseEvent, pageId: string) => {
-    e.preventDefault();
+  const handleNavigate = (pageId: string) => {
     onPageChange(pageId);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
-    <section className="py-16 bg-slate-50 font-sans border-b border-[#e2e8f0]">
+    <section className="py-24 bg-white font-sans border-b border-slate-100 relative overflow-hidden">
+      {/* Blueprint Grid Accent */}
+      <div className="absolute inset-0 opacity-[0.02] bg-[radial-gradient(#0056b3_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none" />
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
-        <div className="text-left mb-12">
-          <span className="text-xs font-sans text-[#0056b3] tracking-wide uppercase mb-2 block">
+        <motion.div 
+          initial={{ opacity: 0, y: 30, filter: 'blur(6px)' }}
+          whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+          viewport={{ once: true, margin: "-40px" }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="text-left mb-16 space-y-2"
+        >
+          <span className="text-[10px] font-sans text-[#0056b3] font-semibold tracking-widest uppercase block">
             PORTAL DIRECTORIES
           </span>
-          <h2 className="text-3xl font-sans text-[#1e293b] uppercase tracking-tight">
-            Dive Deeper Into Our Operations
+          <h2 className="text-3xl sm:text-4xl font-sans font-semibold text-slate-900 uppercase tracking-tight">
+            Explore Active Division Hubs
           </h2>
-          <p className="text-sm text-[#1e293b] mt-3 max-w-2xl leading-relaxed">
+          <p className="text-xs sm:text-sm text-slate-500 max-w-2xl leading-relaxed">
             Hasanth Engineering separates its high-reliability divisions into dedicated technical bureaus. Select a section below to investigate our specifications, machines, or hardware catalog.
           </p>
-        </div>
+        </motion.div>
 
         {/* Portals Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <motion.div 
+          variants={{
+            hidden: { opacity: 0 },
+            show: {
+              opacity: 1,
+              transition: {
+                staggerChildren: 0.12,
+              }
+            }
+          }}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: "-60px" }}
+          className="grid grid-cols-1 md:grid-cols-3 gap-8"
+        >
           {cards.map((card, idx) => {
             const IconComp = card.icon;
             return (
-              <div 
-                key={idx}
-                className="group relative bg-white rounded border border-[#e2e8f0] overflow-hidden flex flex-col justify-between hover:border-[#0056b3] transition-colors duration-150"
-              >
-                {/* Image Frame with Overlay */}
-                <div className="h-44 w-full overflow-hidden relative border-b border-[#e2e8f0]">
-                  <img 
-                    src={card.image} 
-                    alt={card.title} 
-                    className="w-full h-full object-cover filter saturate-75"
-                    referrerPolicy="no-referrer"
-                  />
-                  <div className="absolute top-4 left-4 text-[9px] font-sans bg-white border border-[#e2e8f0] text-[#0056b3] px-2 py-0.5 rounded uppercase tracking-wider">
-                    {card.category}
-                  </div>
-                </div>
-
-                {/* Content Box */}
-                <div className="p-6 flex flex-col justify-between flex-grow">
-                  <div className="space-y-2 mb-6">
-                    <div className="flex items-center gap-2 text-[#0056b3]">
-                      <IconComp size={14} aria-hidden="true" />
-                      <span className="text-[10px] uppercase tracking-widest">{card.category}</span>
+              <MetricReveal key={idx}>
+                <motion.div 
+                  variants={{
+                    hidden: { opacity: 0, y: 30 },
+                    show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
+                  }}
+                  whileHover={{ y: -6, scale: 1.01 }}
+                  transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+                  className="group relative bg-white rounded-2xl border border-slate-200/80 overflow-hidden flex flex-col justify-between hover:border-[#0056b3] hover:shadow-xl min-h-[480px]"
+                >
+                  {/* Image Frame with Overlay - Custom premium style */}
+                  <div className="h-52 w-full overflow-hidden relative border-b border-slate-150">
+                    <div className="absolute inset-0 bg-slate-950/20 group-hover:bg-slate-950/10 transition-colors duration-350 z-10" />
+                    <img 
+                      src={card.image} 
+                      alt={card.title} 
+                      className="w-full h-full object-cover filter saturate-[0.8] contrast-105 group-hover:scale-105 transition-transform duration-500 ease-out"
+                      referrerPolicy="no-referrer"
+                    />
+                    
+                    {/* Decorative modern glass node item */}
+                    <div className="absolute top-4 left-4 z-20 text-[9px] font-sans font-semibold bg-white/90 backdrop-blur-md border border-slate-200 text-[#0056b3] px-2.5 py-1 rounded-full uppercase tracking-widest">
+                      {card.category}
                     </div>
-                    <h3 className="text-lg font-sans text-[#1e293b] uppercase tracking-wide">
-                      {card.title}
-                    </h3>
-                    <p className="text-xs sm:text-sm text-[#1e293b] leading-relaxed">
-                      {card.desc}
-                    </p>
                   </div>
 
-                  {/* Primary card action */}
-                  <button
-                    onClick={(e) => handleNavigate(e, card.target)}
-                    className="w-full py-2.5 rounded bg-white hover:bg-[#0056b3] text-[#0056b3] hover:text-white border border-[#0056b3] font-sans text-xs uppercase tracking-wider inline-flex items-center justify-center gap-2 transition-colors cursor-pointer"
-                  >
-                    <span>{card.btnText}</span>
-                    <ArrowRight size={13} aria-hidden="true" />
-                  </button>
-                </div>
-              </div>
+                  {/* Content Box */}
+                  <div className="p-6 flex flex-col justify-between flex-grow bg-white">
+                    <div className="space-y-2.5">
+                      <div className="flex items-center gap-1.5 text-slate-400">
+                        <IconComp size={12} className="text-[#0056b3]" aria-hidden="true" />
+                        <span className="text-[10px] font-sans font-semibold tracking-wider uppercase">{card.category}</span>
+                      </div>
+                      
+                      <h3 className="text-base sm:text-lg font-sans font-semibold text-slate-900 uppercase tracking-tight group-hover:text-[#0056b3] transition-colors duration-250">
+                        {card.title}
+                      </h3>
+                      
+                      <p className="text-xs text-slate-600 leading-relaxed font-sans">
+                        {card.desc}
+                      </p>
+                    </div>
+
+                    {/* Primary card action */}
+                    <div className="pt-6">
+                      <button
+                        onClick={() => handleNavigate(card.target)}
+                        className="w-full py-3 rounded-lg bg-slate-50 hover:bg-[#0056b3] text-slate-700 hover:text-white border border-slate-200/80 hover:border-[#0056b3] font-sans text-[11px] tracking-wider uppercase font-semibold inline-flex items-center justify-center gap-2 transition-all duration-300 cursor-pointer"
+                      >
+                        <span>{card.btnText}</span>
+                        <ArrowRight size={12} className="group-hover:translate-x-1 transition-transform" aria-hidden="true" />
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              </MetricReveal>
             );
           })}
-        </div>
+        </motion.div>
 
       </div>
     </section>
   );
 }
+

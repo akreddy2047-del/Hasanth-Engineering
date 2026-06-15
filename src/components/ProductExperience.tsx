@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
-import { X, FileText, Download, CheckCircle } from 'lucide-react';
+import { X, FileText, CheckCircle } from 'lucide-react';
 import { UnifiedButton } from './Common';
+import { motion } from 'motion/react';
 
 export default function ProductExperience() {
   const [selectedProduct, setSelectedProduct] = useState<null | number>(null);
-  const [downloadSuccess, setDownloadSuccess] = useState(false);
-  const [downloadingIdx, setDownloadingIdx] = useState<number | null>(null);
-  const [downloadedList, setDownloadedList] = useState<number[]>([]);
 
   const productList = [
     {
@@ -101,19 +99,21 @@ export default function ProductExperience() {
     }
   ];
 
-  const handleDownload = (model: string) => {
-    setDownloadSuccess(true);
-    setTimeout(() => {
-      setDownloadSuccess(false);
-    }, 4500);
-  };
-
   return (
-    <section id="products" className="py-16 bg-white font-sans border-b border-[#e2e8f0] scroll-mt-20">
+    <section id="products" className="relative py-16 bg-white font-sans border-b border-[#e2e8f0] scroll-mt-20 overflow-hidden">
+      {/* Blueprint Grid Accent */}
+      <div className="absolute inset-0 z-0 opacity-[0.02] bg-[radial-gradient(#0056b3_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none" />
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Section Header */}
-        <div className="text-left mb-12">
+        <motion.div 
+          initial={{ opacity: 0, y: 30, filter: 'blur(6px)' }}
+          whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+          viewport={{ once: true, margin: "-40px" }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="text-left mb-12"
+        >
           <span className="text-xs font-sans text-[#0056b3] tracking-wide uppercase mb-2 block">
             ENGINEERED HARDWARE PORTFOLIO
           </span>
@@ -123,14 +123,34 @@ export default function ProductExperience() {
           <p className="text-sm text-[#1e293b] mt-3 max-w-2xl leading-relaxed">
             Hasanth Engineering builds hardware units that meet rigorous operating requirements. Inspect our primary products and technical specification sheets below.
           </p>
-        </div>
+        </motion.div>
 
         {/* Products Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <motion.div 
+          variants={{
+            hidden: { opacity: 0 },
+            show: {
+              opacity: 1,
+              transition: {
+                staggerChildren: 0.1,
+              }
+            }
+          }}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: "-60px" }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+        >
           {productList.map((prod, idx) => (
-            <div 
+            <motion.div 
               key={idx}
-              className="relative rounded bg-white border border-[#e2e8f0] hover:border-[#0056b3] transition-colors duration-150 overflow-hidden flex flex-col justify-between"
+              variants={{
+                hidden: { opacity: 0, y: 30 },
+                show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
+              }}
+              whileHover={{ y: -5, scale: 1.015 }}
+              transition={{ type: 'spring', stiffness: 240, damping: 20 }}
+              className="relative rounded bg-white border border-[#e2e8f0] hover:border-[#0056b3] overflow-hidden flex flex-col justify-between"
               id={`product-card-${idx}`}
             >
               <div>
@@ -180,54 +200,32 @@ export default function ProductExperience() {
 
               {/* Action area */}
               <div className="p-6 pt-0 border-t border-[#e2e8f0] mt-4 flex flex-col gap-2.5">
-                <div className="flex justify-between items-center text-[9px] font-sans text-[#1e293b] uppercase tracking-wider pt-2.5">
+                <div className="flex justify-between items-center text-[9px] font-sans text-slate-500 uppercase tracking-wider pt-2.5">
                   <span className="flex items-center gap-1">
                     <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#0056b3] animate-pulse" />
-                    ISO-9001 Production
+                    ISO-9001 Production Center
                   </span>
-                  <span className="text-slate-400 font-mono">BROCHURE v2.6</span>
+                  <span className="text-slate-400 font-mono">SPECIFICATION SHEETS</span>
                 </div>
                 
-                <div className="grid grid-cols-2 gap-2 mt-1">
+                <div className="mt-1">
                   <UnifiedButton
                     variant="secondary"
                     onClick={() => {
                       setSelectedProduct(idx);
-                      setDownloadSuccess(false);
                     }}
-                    className="w-full py-2 text-[10px]"
+                    className="w-full py-2.5 text-xs font-semibold"
                     id={`btn-view-datasheet-${idx}`}
                     icon={FileText}
                   >
-                    Specs
-                  </UnifiedButton>
-                  
-                  <UnifiedButton
-                    variant="primary"
-                    onClick={() => {
-                      setDownloadingIdx(idx);
-                      setTimeout(() => {
-                        setDownloadingIdx(null);
-                        setDownloadedList(prev => [...prev, idx]);
-                      }, 1000);
-                    }}
-                    disabled={downloadingIdx === idx}
-                    className="w-full py-2 text-[10px]"
-                    id={`btn-download-brochure-${idx}`}
-                    icon={Download}
-                  >
-                    {downloadingIdx === idx 
-                      ? 'Writing...' 
-                      : downloadedList.includes(idx) 
-                        ? 'Get copy ✓' 
-                        : 'Brochure'}
+                    View Technical Specifications
                   </UnifiedButton>
                 </div>
               </div>
 
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
 
       </div>
 
@@ -332,27 +330,18 @@ export default function ProductExperience() {
 
               </div>
 
-              {/* Action buttons inside interactive datasheet */}
+              {/* Footer inside interactive datasheet */}
               <div className="mt-8 pt-4 border-t border-[#e2e8f0] flex flex-col sm:flex-row justify-between items-center gap-4">
-                <span className="text-[9px] font-sans text-[#1e293b] hidden sm:block font-bold">
-                  Verified Est. 2016
+                <span className="text-[10px] font-sans text-slate-500 uppercase tracking-wider font-semibold">
+                  Hasanth Engineering Physical Systems Division • Estd 2016
                 </span>
-                
-                {downloadSuccess ? (
-                  <span className="text-xs font-sans text-[#0056b3] font-bold px-4 py-2 border border-[#0056b3] bg-white rounded">
-                    Technical Manual download request assigned! Check your terminal soon.
-                  </span>
-                ) : (
-                  <UnifiedButton
-                    variant="primary"
-                    onClick={() => handleDownload(productList[selectedProduct].datasheet.model)}
-                    className="px-5 py-2.5 font-bold"
-                    id="btn-download-datasheet"
-                    icon={Download}
-                  >
-                    Download Engineering Schema
-                  </UnifiedButton>
-                )}
+                <button
+                  onClick={() => setSelectedProduct(null)}
+                  className="px-5 py-2.5 bg-[#0056b3] text-white hover:bg-slate-800 transition-colors text-xs uppercase tracking-wider font-bold rounded cursor-pointer"
+                  id="btn-close-datasheet-footer"
+                >
+                  Close Specifications
+                </button>
               </div>
 
             </div>

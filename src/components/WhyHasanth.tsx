@@ -1,5 +1,6 @@
 import React from 'react';
 import { ShieldCheck, Compass, Users2, Settings, Zap, Award } from 'lucide-react';
+import { motion } from 'motion/react';
 
 export default function WhyHasanth() {
   const reasons = [
@@ -29,73 +30,110 @@ export default function WhyHasanth() {
     },
     {
       id: '05',
-      title: 'Industrial Standard Experience',
-      desc: 'We design according to strict regulatory frameworks such as EN50155 for Railways and mil-specs for Defense, ensuring compliance with thermal, shock, and EMC audits.',
+      title: 'Strict Quality Control Standards',
+      desc: 'Calibrated micro-meters, coordinate measuring machines (CMMs), and environmental test units guarantee components align with active specs before leaving Peenya.',
       icon: ShieldCheck
     },
     {
       id: '06',
-      title: 'Reliable Engineering Execution',
-      desc: 'We pride ourselves on technical rigor and structural safety. Every CAD sheet, firmware line, and milled steel block is subject to strict verification checks.',
+      title: 'Registered Industrial Vendor',
+      desc: 'We operate as an authorized supplier to tier-1 OEMs and governmental railway divisions. We supply certified physical layouts on scheduled turnaround times.',
       icon: Award
     }
   ];
 
   return (
-    <section id="why-us" className="py-16 bg-white font-sans scroll-mt-20 border-b border-[#e2e8f0]">
+    <section 
+      id="why-hasanth" 
+      className="py-24 bg-slate-50/40 font-sans border-b border-slate-100 relative overflow-hidden"
+    >
+      {/* Blueprint Grid Accent */}
+      <div className="absolute inset-0 opacity-[0.02] bg-[radial-gradient(#0056b3_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none" />
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Section Header */}
-        <div className="text-left mb-12">
-          <span className="text-xs font-sans text-[#0056b3] tracking-wide uppercase font-bold mb-2 block">
-            CORPORATE ASSURANCE
+        <motion.div 
+          initial={{ opacity: 0, y: 30, filter: 'blur(6px)' }}
+          whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+          viewport={{ once: true, margin: "-40px" }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="text-left mb-16 space-y-2"
+        >
+          <span className="text-[10px] font-sans text-[#0056b3] font-semibold tracking-widest uppercase block">
+            THE HASANTH ADVANTAGE
           </span>
-          <h2 className="text-3xl font-sans font-semibold text-[#1e293b] uppercase tracking-tight">
-            Why Hasanth Engineering
+          <h2 className="text-3xl sm:text-4xl font-sans font-semibold text-[#1e293b] uppercase tracking-tight">
+            Why Systems Architects Choose Us
           </h2>
-          <p className="text-sm text-[#1e293b] mt-3 max-w-2xl leading-relaxed">
-            Discover why tier-1 OEMs and heavy equipment industries rely on our design offices and shop floors to execute critical product launches.
+          <p className="text-xs sm:text-sm text-slate-500 max-w-2xl leading-relaxed">
+            Hasanth Engineering acts as an integrated manufacturing partner for high-reliability systems built to survive extreme thermal, mechanical, and power loads.
           </p>
-        </div>
+        </motion.div>
 
-        {/* Numbered Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {/* Bento/Grid Layout of Benefits */}
+        <motion.div 
+          variants={{
+            hidden: { opacity: 0 },
+            show: {
+              opacity: 1,
+              transition: {
+                staggerChildren: 0.1,
+              }
+            }
+          }}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: "-60px" }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+        >
           {reasons.map((re, idx) => {
             const IconComp = re.icon;
             return (
-              <div 
+              <motion.div 
                 key={idx}
-                className="relative rounded bg-white border border-[#e2e8f0] p-6 flex flex-col justify-between"
+                variants={{
+                  hidden: { opacity: 0, y: 25 },
+                  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
+                }}
+                whileHover={{ y: -5, scale: 1.015 }}
+                transition={{ type: 'spring', stiffness: 240, damping: 20 }}
+                className="bg-white border border-slate-200 hover:border-[#0056b3] p-6 rounded-2xl flex flex-col justify-between hover:shadow-lg transition-shadow duration-300 group"
               >
                 <div className="space-y-4">
                   {/* Top Header Group */}
-                  <div className="flex justify-between items-center pb-4 border-b border-[#e2e8f0]">
-                    <span className="text-2xl font-sans font-extrabold text-[#0056b3]/30">
+                  <div className="flex justify-between items-center pb-4 border-b border-slate-100">
+                    <span className="text-2xl font-sans font-bold text-slate-250 group-hover:text-[#0056b3]/20 transition-colors">
                       {re.id}
                     </span>
-                    <IconComp size={16} className="text-[#0056b3]" aria-hidden="true" />
+                    <div className="p-2 bg-blue-50 text-[#0056b3] rounded-lg">
+                      <IconComp size={15} aria-hidden="true" />
+                    </div>
                   </div>
 
                   {/* Description Box */}
                   <div>
-                    <h3 className="text-base sm:text-lg font-sans font-semibold text-[#1e293b] uppercase tracking-wide">
+                    <h3 className="text-base font-sans font-semibold text-[#1e293b] uppercase tracking-tight group-hover:text-[#0056b3] transition-colors">
                       {re.title}
                     </h3>
-                    <p className="text-xs sm:text-sm text-[#1e293b] mt-2.5 leading-relaxed font-sans">
+                    <p className="text-xs text-slate-500 mt-2.5 leading-relaxed font-sans">
                       {re.desc}
                     </p>
                   </div>
                 </div>
 
-                <div className="mt-8 pt-4 border-t border-[#e2e8f0] font-sans text-[10px] text-[#1e293b] flex justify-between select-none font-bold">
-                  <span>Hasanth Engineering</span>
-                  <span>QC Status Verified</span>
+                <div className="mt-8 pt-4 border-t border-slate-50 font-sans text-[10px] text-[#0056b3] flex justify-between select-none font-bold">
+                  <span className="uppercase tracking-wider">Hasanth Operations</span>
+                  <span className="flex items-center gap-1">
+                    <span className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
+                    QC Passed
+                  </span>
                 </div>
 
-              </div>
+              </motion.div>
             );
           })}
-        </div>
+        </motion.div>
 
       </div>
     </section>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'motion/react';
 
 export default function Clients() {
   const [activeCategory, setActiveCategory] = useState<'All' | 'OEM' | 'Railway' | 'Defense' | 'Industrial' | 'Automation'>('All');
@@ -30,7 +31,13 @@ export default function Clients() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Section Header */}
-        <div className="text-left mb-12">
+        <motion.div 
+          initial={{ opacity: 0, y: 30, filter: 'blur(6px)' }}
+          whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+          viewport={{ once: true, margin: "-40px" }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="text-left mb-12"
+        >
           <span className="text-xs font-sans text-[#0056b3] tracking-wide uppercase font-bold mb-2 block">
             ESTABLISHED CREDENTIALS
           </span>
@@ -40,14 +47,33 @@ export default function Clients() {
           <p className="text-sm text-[#1e293b] mt-3 max-w-3xl leading-relaxed">
             Hasanth Engineering supplies custom manufactured parts, circuit sub-systems, and calibrated test structures to demanding industrial, railway, and defense corporations.
           </p>
-        </div>
+        </motion.div>
 
         {/* Static Brand Client Directory Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-16">
+        <motion.div 
+          variants={{
+            hidden: { opacity: 0 },
+            show: {
+              opacity: 1,
+              transition: {
+                staggerChildren: 0.05,
+              }
+            }
+          }}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: "-40px" }}
+          className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-16"
+        >
           {clientsList.map((c, idx) => (
-            <div 
+            <motion.div 
               key={idx}
-              className="flex flex-col items-center justify-center p-6 rounded bg-white border border-[#e2e8f0]"
+              variants={{
+                hidden: { opacity: 0, scale: 0.95, y: 10 },
+                show: { opacity: 1, scale: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } }
+              }}
+              whileHover={{ y: -2, hoverborderColor: '#0056b3' }}
+              className="flex flex-col items-center justify-center p-6 rounded-xl bg-white border border-[#e2e8f0] hover:border-[#0056b3]/30 hover:shadow-sm transition-all duration-200"
             >
               <span className="text-xs font-sans text-[#0056b3] uppercase tracking-wider mb-1 font-bold">
                 {c.code}
@@ -55,9 +81,9 @@ export default function Clients() {
               <span className="text-sm font-sans font-semibold text-[#1e293b] text-center">
                 {c.name}
               </span>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
 
         {/* Client Categories Exploration selector */}
         <div className="pt-8 border-t border-[#e2e8f0]">
@@ -83,11 +109,18 @@ export default function Clients() {
           </div>
 
           {/* Deliverables grid based on sector */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          <motion.div 
+            layout
+            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"
+          >
             {filteredClients.map((c, i) => (
-              <div 
-                key={i}
-                className="bg-white border border-[#e2e8f0] p-5 rounded"
+              <motion.div 
+                layout
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3 }}
+                key={c.name}
+                className="bg-white border border-[#e2e8f0] p-5 rounded-xl hover:shadow-xs transition-shadow duration-200"
               >
                 <div className="flex justify-between items-start">
                   <span className="text-[10px] font-sans text-[#1e293b] uppercase font-bold">
@@ -100,12 +133,12 @@ export default function Clients() {
                 <h3 className="text-base font-sans font-semibold text-[#1e293b] mt-2 leading-none">
                   {c.name}
                 </h3>
-                <p className="text-xs text-[#1e293b] mt-2 font-sans select-none leading-relaxed">
+                 <p className="text-xs text-slate-500 mt-2 font-sans select-none leading-relaxed">
                   Supplied custom compliance nodes and precision mechanical brackets.
                 </p>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
 
       </div>

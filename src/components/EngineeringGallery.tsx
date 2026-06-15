@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'motion/react';
 
 export default function EngineeringGallery() {
   const [activeCategory, setActiveCategory] = useState('All');
@@ -62,11 +63,20 @@ export default function EngineeringGallery() {
     : projects.filter(p => p.category === activeCategory);
 
   return (
-    <section id="gallery" className="py-16 bg-white font-sans scroll-mt-20 border-b border-[#e2e8f0]">
+    <section id="gallery" className="relative py-16 bg-white font-sans scroll-mt-20 border-b border-[#e2e8f0] overflow-hidden">
+      {/* Blueprint Grid Accent */}
+      <div className="absolute inset-0 z-0 opacity-[0.02] bg-[radial-gradient(#0056b3_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none" />
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Section Header */}
-        <div className="text-left mb-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 pb-6 border-b border-[#e2e8f0]">
+        <motion.div 
+          initial={{ opacity: 0, y: 30, filter: 'blur(6px)' }}
+          whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+          viewport={{ once: true, margin: "-40px" }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="text-left mb-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 pb-6 border-b border-[#e2e8f0]"
+        >
           <div>
             <span className="text-xs font-sans text-[#0056b3] tracking-wide uppercase font-bold block">
               PORTFOLIO ARCHIVES
@@ -96,13 +106,35 @@ export default function EngineeringGallery() {
               </button>
             ))}
           </div>
-        </div>
+        </motion.div>
 
         {/* Structured Corporate Catalogue Card Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <motion.div 
+          layout
+          variants={{
+            hidden: { opacity: 0 },
+            show: {
+              opacity: 1,
+              transition: {
+                staggerChildren: 0.1,
+              }
+            }
+          }}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: "-60px" }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        >
           {filteredProjects.map((p, idx) => (
-            <div 
-              key={idx}
+            <motion.div 
+              layout
+              key={p.title}
+              variants={{
+                hidden: { opacity: 0, y: 25 },
+                show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
+              }}
+              whileHover={{ y: -5, scale: 1.015 }}
+              transition={{ type: 'spring', stiffness: 240, damping: 20 }}
               className="relative rounded bg-white border border-[#e2e8f0] overflow-hidden flex flex-col justify-between"
               id={`gallery-project-card-${idx}`}
             >
@@ -148,9 +180,9 @@ export default function EngineeringGallery() {
                 </div>
               </div>
 
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
 
       </div>
     </section>

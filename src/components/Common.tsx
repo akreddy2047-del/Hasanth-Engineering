@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, Send, CheckCircle } from 'lucide-react';
+import { motion } from 'motion/react';
 
 interface ConsultationModalProps {
   isOpen: boolean;
@@ -264,5 +265,105 @@ export function UnifiedButton({
       {Icon && <Icon size={13} />}
       <span>{children}</span>
     </button>
+  );
+}
+
+export function PrecisionBackdrop() {
+  return (
+    <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none select-none">
+      <svg
+        className="w-full h-full text-sky-400 opacity-20"
+        viewBox="0 0 1200 600"
+        preserveAspectRatio="none"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        {/* Slow-moving high-precision drawing lines */}
+        <motion.path
+          d="M -100 250 C 300 120, 500 480, 1300 320"
+          stroke="currentColor"
+          strokeWidth="0.8"
+          initial={{ pathLength: 0 }}
+          animate={{ pathLength: [0.6, 1, 0.6], strokeDashoffset: [0, 40, 0] }}
+          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+        />
+        <motion.path
+          d="M -50 420 C 400 280, 700 120, 1250 220"
+          stroke="currentColor"
+          strokeWidth="0.5"
+          strokeDasharray="4 8"
+          initial={{ pathLength: 0 }}
+          animate={{ pathLength: [0.8, 1, 0.8] }}
+          transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+        />
+
+        {/* Slow-moving drafting helper lines */}
+        <motion.path
+          d="M 150 0 L 150 600 M 450 0 L 450 600 M 750 0 L 750 600 M 1050 0 L 1050 600"
+          stroke="currentColor"
+          strokeWidth="0.3"
+          strokeDasharray="2 4"
+        />
+
+        {/* Dynamic precision coordinate particles */}
+        {[
+          { cx: 200, cy: 120, r: 2.5 },
+          { cx: 850, cy: 160, r: 1.5 },
+          { cx: 350, cy: 420, r: 2 },
+          { cx: 1000, cy: 480, r: 2 },
+          { cx: 600, cy: 280, r: 1 },
+        ].map((pt, i) => (
+          <motion.g key={i}>
+            <motion.circle
+              cx={pt.cx}
+              cy={pt.cy}
+              r={pt.r}
+              fill="currentColor"
+              animate={{
+                y: [0, -20, 0],
+                x: [0, 12, 0],
+                opacity: [0.2, 0.7, 0.2]
+              }}
+              transition={{
+                duration: 10 + i * 2,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            />
+            {/* Subtle concentric radius lines helper rings */}
+            <motion.circle
+              cx={pt.cx}
+              cy={pt.cy}
+              r={pt.r * 6}
+              stroke="currentColor"
+              strokeWidth="0.3"
+              strokeDasharray="1 2"
+              animate={{
+                scale: [0.9, 1.3, 0.9],
+                opacity: [0.2, 0.6, 0.2]
+              }}
+              transition={{
+                duration: 7 + i * 3,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            />
+          </motion.g>
+        ))}
+
+        {/* CAD calibration crosses */}
+        {[
+          { x: 100, y: 140 },
+          { x: 1050, y: 180 },
+          { x: 550, y: 440 },
+          { x: 920, y: 380 },
+        ].map((cross, i) => (
+          <g key={i} className="opacity-30">
+            <line x1={cross.x - 10} y1={cross.y} x2={cross.x + 10} y2={cross.y} stroke="currentColor" strokeWidth="0.5" />
+            <line x1={cross.x} y1={cross.y - 10} x2={cross.x} y2={cross.y + 10} stroke="currentColor" strokeWidth="0.5" />
+          </g>
+        ))}
+      </svg>
+    </div>
   );
 }

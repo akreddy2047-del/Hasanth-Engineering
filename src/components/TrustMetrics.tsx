@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'motion/react';
 
 export default function TrustMetrics() {
   const metrics = [
@@ -9,29 +10,55 @@ export default function TrustMetrics() {
   ];
 
   return (
-    <section className="relative py-16 bg-white border-b border-[#e2e8f0] font-sans">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+    <section className="relative py-12 bg-slate-950 border-b border-slate-900 font-sans overflow-hidden">
+      {/* Blueprint grid lines highlight */}
+      <div className="absolute inset-0 z-0 opacity-[0.03] bg-[linear-gradient(to_right,#38bdf8_1px,transparent_1px)] bg-[size:40px_40px]" />
+      
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <motion.div 
+          variants={{
+            hidden: { opacity: 0 },
+            show: {
+              opacity: 1,
+              transition: {
+                staggerChildren: 0.1,
+              }
+            }
+          }}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: "-50px" }}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+        >
           {metrics.map((metric, index) => (
-            <div 
+            <motion.div 
               key={index}
-              className="text-left p-6 rounded bg-white border border-[#e2e8f0] hover:border-[#0056b3] transition-colors duration-150"
+              variants={{
+                hidden: { opacity: 0, y: 25 },
+                show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
+              }}
+              whileHover={{ y: -4, borderColor: '#38bdf8' }}
+              className="relative text-left p-6 rounded-xl bg-slate-900/60 border border-slate-800 hover:bg-slate-900 group transition-all duration-300 shadow-[0_4px_30px_rgba(0,0,0,0.1)] overflow-hidden"
             >
-              <div className="text-4xl sm:text-5xl font-sans text-[#0056b3] tracking-tight">
-                {metric.value}
-              </div>
+              {/* Top highlight bar */}
+              <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#0056b3] to-transparent group-hover:via-[#38bdf8] transition-all duration-500" />
               
-              <h4 className="text-xs font-sans text-[#1e293b] mt-3 uppercase tracking-wide">
+              <span className="text-4xl sm:text-5xl font-sans font-semibold text-white tracking-tight block">
+                {metric.value}
+              </span>
+              
+              <h4 className="text-[11px] font-sans text-[#38bdf8] mt-3 uppercase tracking-wider font-semibold">
                 {metric.label}
               </h4>
               
-              <p className="text-xs text-[#1e293b] mt-1.5 leading-relaxed">
+              <p className="text-xs text-slate-400 mt-2 leading-relaxed font-sans">
                 {metric.desc}
               </p>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
 }
+
