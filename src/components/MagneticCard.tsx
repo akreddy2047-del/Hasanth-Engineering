@@ -143,6 +143,8 @@ export const MagneticCard = ({
               ref={imgRef}
               src={finalImg}
               referrerPolicy="no-referrer"
+              loading="lazy"
+              decoding="async"
               alt=""
               onError={() => setImgError(true)}
               className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 pointer-events-none ${

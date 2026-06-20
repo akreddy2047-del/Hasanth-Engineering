@@ -152,6 +152,8 @@ export default function HomeNavigationCards({ onPageChange, onOpenConsultation }
                     <img 
                       src={card.image} 
                       alt={card.title} 
+                      loading="lazy"
+                      decoding="async"
                       className="w-full h-full object-cover filter saturate-[0.8] contrast-105 group-hover:scale-105 transition-transform duration-500 ease-out"
                       referrerPolicy="no-referrer"
                     />

@@ -162,6 +162,10 @@ export default function AboutUsPage() {
                 <div className="border-4 border-white/10 p-3 rounded-3xl bg-white/5 shadow-2xl">
                   <img 
                     src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80" 
+                    srcSet="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=400&q=70 400w, https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80 800w"
+                    sizes="(max-width: 768px) 400px, 800px"
+                    loading="lazy"
+                    decoding="async"
                     alt="Industrial Automation Facility" 
                     className="rounded-2xl object-cover w-full h-[320px] filter saturate-50 contrast-125"
                     referrerPolicy="no-referrer"

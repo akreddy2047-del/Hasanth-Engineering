@@ -204,6 +204,8 @@ export default function FacilityShowcase() {
                 <img 
                   src={galleryItems[activeImage].imageUrl} 
                   alt={galleryItems[activeImage].title}
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-full object-cover"
                   referrerPolicy="no-referrer"
                 />

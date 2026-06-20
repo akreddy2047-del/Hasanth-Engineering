@@ -42,6 +42,11 @@ export default function Hero({ onOpenConsultation, onPageChange }: HeroProps) {
         />
         <img 
           src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1920&q=80" 
+          srcSet="https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=768&q=70 768w, https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1920&q=85 1920w"
+          sizes="100vw"
+          loading="eager"
+          // @ts-ignore - fetchPriority is standard React property but may require TS ignore in some v18 environments
+          fetchPriority="high"
           alt="Precision Industrial Workshop Floor" 
           onLoad={() => setImageLoaded(true)}
           className={`w-full h-full object-cover filter saturate-[0.1] brightness-[0.4] contrast-125 transition-opacity duration-1000 ${
@@ -96,17 +101,7 @@ export default function Hero({ onOpenConsultation, onPageChange }: HeroProps) {
               </UnifiedButton>
             </div>
 
-            {/* Value Pillars List with elegant borders */}
-            <div className="pt-6 border-t border-[#ffffff]/10 grid grid-cols-2 gap-4 max-w-lg">
-              <div className="flex items-start gap-2">
-                <span className="text-white mt-0.5">•</span>
-                <span className="text-xs text-[#ffffff]/70 font-sans uppercase tracking-wider font-semibold">ISO-9001:2015 Compliant</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <span className="text-white mt-0.5">•</span>
-                <span className="text-xs text-[#ffffff]/70 font-sans uppercase tracking-wider font-semibold">Hyderabad R&D Center</span>
-              </div>
-            </div>
+            {/* Value Pillars List removed at user's request */}
 
           </div>
 

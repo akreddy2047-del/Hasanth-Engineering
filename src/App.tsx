@@ -290,7 +290,7 @@ const arenas = [
     id: 4,
     name: "MANUFACTURING & AUTOMATION",
     detail: "Sub-micron CNC tooling, PLC ladders, and SCADA control panels.",
-    bgUrl: "https://images.unsplash.com/photo-1537462715879-360eeb61a0bc?auto=format&fit=crop&w=600&q=80",
+    bgUrl: "https://images.unsplash.com/photo-1565891741441-64926e441838?auto=format&fit=crop&w=600&q=80",
     linkId: "services",
     icon: (
       <div className="w-12 h-12 flex items-center justify-center rounded-2xl bg-slate-100 text-[#4b5563] font-black text-xs border border-slate-200">
@@ -404,7 +404,7 @@ export default function App() {
         <meta name="twitter:title" content={seo.title} />
         <meta name="twitter:description" content={seo.description} />
       </Helmet>
-      <JSONLD />
+      <JSONLD currentPage={currentPage} />
       <GlossarySidebar />
     <div className="relative min-h-screen bg-white text-[#002b5c] selection:bg-[#002b5c] selection:text-white font-sans overflow-x-hidden">
       
@@ -458,7 +458,7 @@ export default function App() {
                     </p>
                   </div>
 
-                  <GSAPSection className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 max-w-7xl mx-auto">
+                  <GSAPSection className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-6 max-w-7xl mx-auto">
                     {arenas.map((sol, solIdx) => (
                       <MagneticCard
                         key={sol.id} 
@@ -467,13 +467,7 @@ export default function App() {
                         themeColor={sol.themeColor}
                         className="bg-[#01162d] text-white p-6 rounded-[24px] h-[310px] flex flex-col justify-between hover:scale-[1.03] transition-all duration-500 relative overflow-hidden text-left cursor-pointer group border-transparent"
                       >
-                        {/* Dynamic Top accent glowing color line to emphasize and highlight the individual card */}
-                        <div 
-                          className="absolute top-0 left-0 right-0 h-1.5 opacity-60 group-hover:opacity-100 transition-opacity duration-300"
-                          style={{ backgroundColor: sol.themeColor, boxShadow: `0 2px 10px ${sol.themeColor}` }}
-                        />
-
-                        <div className="space-y-4 mt-2">
+                        <div className="space-y-4">
                           <span className="block select-none transform group-hover:scale-105 transition-transform duration-500 ease-out" role="img" aria-label={sol.name}>
                             <div 
                               className="w-12 h-12 flex items-center justify-center rounded-2xl text-white font-black text-xs border backdrop-blur-md transition-all duration-300"
@@ -495,8 +489,8 @@ export default function App() {
                         </div>
 
                         {/* Statically highlighted technical tag instead of unrequested details button */}
-                        <div className="mt-4 flex items-center justify-between text-[7.5px] font-mono font-bold text-white/50 uppercase tracking-widest bg-white/5 px-2.5 py-1.5 rounded-lg border border-white/5 w-fit">
-                          <span className="w-1 h-1 rounded-full bg-emerald-400 animate-pulse mr-1.5" />
+                        <div className="mt-4 flex items-center justify-between text-[9px] sm:text-[10px] font-sans font-extrabold text-white/50 uppercase tracking-wider bg-white/5 px-3 py-1.5 rounded-lg border border-white/5 w-fit">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse mr-2" />
                           <span style={{ color: sol.themeColor }}>{sol.tag || 'SYSTEM_CORE'}</span>
                         </div>
                       </MagneticCard>

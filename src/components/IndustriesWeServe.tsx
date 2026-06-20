@@ -100,6 +100,7 @@ export default function IndustriesWeServe() {
                 <img 
                   src={sec.imageUrl} 
                   alt={sec.name} 
+                  loading="lazy"
                   className="w-full h-full object-cover group-hover:scale-105 transition-all duration-500 ease-out brightness-95 group-hover:brightness-100"
                   referrerPolicy="no-referrer"
                 />

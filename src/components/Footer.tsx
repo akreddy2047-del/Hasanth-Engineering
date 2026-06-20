@@ -103,40 +103,53 @@ export default function Footer({ onOpenConsultation, onPageChange }: FooterProps
             </div>
           </div>
 
-          {/* HIGHLIGHTED NEWSLETTER SECTION - SMALLER & ULTRA-COMPACT */}
-          <div className="lg:col-span-4 flex flex-col gap-4 bg-white/5 border border-white/10 p-5 rounded-xl shadow-lg relative overflow-hidden backdrop-blur-md">
-            <div className="space-y-1 relative z-10">
-              <span className="text-[8.5px] font-sans text-white/95 uppercase tracking-widest block font-black">
-                SUBSCRIBE TO TECHNICAL UPDATES
+          {/* HIGHLIGHTED NEWSLETTER SECTION - ULTRA-MODERN & MINIMALIST */}
+          <div className="lg:col-span-4 flex flex-col gap-5 bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 p-6 rounded-[20px] shadow-2xl relative overflow-hidden group/newsletter backdrop-blur-lg">
+            {/* Subtle premium background grid accent */}
+            <div className="absolute inset-0 opacity-10 bg-[linear-gradient(to_right,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:14px_14px]" />
+            <div className="absolute -right-12 -bottom-12 w-32 h-32 rounded-full bg-blue-500/10 blur-2xl group-hover/newsletter:bg-blue-500/20 transition-all duration-700 pointer-events-none" />
+            
+            <div className="space-y-2 relative z-10">
+              <span className="text-[9px] font-sans text-blue-400 uppercase tracking-widest block font-black">
+                ENGINEERING INTELLIGENCE
               </span>
-              <p className="text-[11px] text-white/80 font-sans leading-relaxed font-semibold">
-                Receive our quarterly design reports, component audits, and stress guidelines.
+              <h5 className="text-white font-sans text-xs uppercase tracking-wider font-extrabold">
+                Newsletter Subscription
+              </h5>
+              <p className="text-[11px] text-white/70 font-sans leading-relaxed font-semibold">
+                Receive our latest engineering breakthroughs, custom electronics project updates, and precision manufacturing deep-dives.
               </p>
             </div>
             
-            <div className="w-full relative z-10">
+            <div className="w-full relative z-10 mt-1">
               {subscribed ? (
-                <div className="text-xs font-mono text-emerald-400 font-bold bg-emerald-900/30 border border-emerald-500/20 px-3 py-2 rounded-xl inline-flex items-center gap-2 justify-center w-full">
-                  <CheckCircle size={12} />
+                <div className="text-xs font-mono text-emerald-400 font-semibold bg-emerald-950/40 border border-emerald-500/20 px-3.5 py-3 rounded-xl flex items-center gap-2.5 justify-center w-full animate-fadeIn">
+                  <CheckCircle size={14} className="stroke-[2.5]" />
                   <span>Subscribed Successfully</span>
                 </div>
               ) : (
-                <form onSubmit={handleSubscribeSubmit} className="flex w-full items-center gap-2">
-                  <input 
-                    type="email" 
-                    required
-                    value={emailValue}
-                    onChange={(e) => setEmailValue(e.target.value)}
-                    placeholder="engineering@firm.com"
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-white font-sans placeholder-white/40 font-semibold"
-                  />
-                  <button 
-                    type="submit"
-                    className="bg-white text-[#002b5c] hover:bg-white/90 transition-colors p-2.5 rounded-xl cursor-pointer flex items-center justify-center flex-shrink-0"
-                    title="Subscribe"
-                  >
-                    <Send size={12} aria-hidden="true" />
-                  </button>
+                <form onSubmit={handleSubscribeSubmit} className="flex flex-col gap-2.5">
+                  <div className="relative flex items-center">
+                    <input 
+                      type="email" 
+                      required
+                      value={emailValue}
+                      onChange={(e) => setEmailValue(e.target.value)}
+                      placeholder="engineering@firm.com"
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-blue-400/50 focus:bg-white/[0.08] transition-all duration-300 font-sans placeholder-white/35 font-semibold pr-10"
+                    />
+                    <button 
+                      type="submit"
+                      className="absolute right-1.5 bg-white hover:bg-blue-50 text-[#002b5c] transition-all duration-300 p-2 rounded-lg cursor-pointer flex items-center justify-center shadow-md active:scale-95 group/btn"
+                      title="Subscribe"
+                    >
+                      <Send size={11} className="transition-transform duration-300 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 stroke-[2.5]" />
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-1.5 px-0.5">
+                    <span className="w-1 h-1 rounded-full bg-blue-400 animate-pulse" />
+                    <span className="text-[9px] font-mono text-white/40 tracking-wider">SECURE • COMPLIANT WITH PRIVACY LAWS</span>
+                  </div>
                 </form>
               )}
             </div>

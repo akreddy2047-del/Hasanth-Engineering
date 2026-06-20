@@ -1,0 +1,5 @@
+# Robots.txt for Hasanth Engineering (OPC) Private Limited
+User-agent: *
+Allow: /
+
+Sitemap: https://www.hasanthengineering.co.in/sitemap.xml

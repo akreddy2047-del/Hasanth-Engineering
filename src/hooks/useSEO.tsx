@@ -3,9 +3,9 @@ import { Helmet } from 'react-helmet-async';
 
 export const seoDataMap: Record<string, { title: string; description: string; keywords: string }> = {
   home: {
-    title: "Hasanth Engineering | Mechanical, Electronics & Aerospace Innovation",
+    title: "Hasanth Engineering (OPC) Private Limited | Mechanical, Electronics & Aerospace Innovation",
     description: "Multidisciplinary systems engineering providing advanced designs in 3D CAD, high-density multilayer PCBs, drone autopilots, and SCADA automation.",
-    keywords: "Mechanical Engineering, Electronics PCB Design, Aerospace, UAV Autopilots, Industrial Automation, Hyderabad Balanagar, India"
+    keywords: "Hasanth Engineering, Hasanth Engineering (OPC) Private Limited, Mechanical Engineering, Electronics PCB Design, Aerospace, UAV Autopilots, Industrial Automation, Hyderabad Balanagar, India"
   },
   about: {
     title: "About Our Engineering Core | Hasanth Engineering",
@@ -60,52 +60,192 @@ export function useSEO(currentPage: string) {
 }
 
 // Structured JSON-LD Data Component for Rich Snippets Schema
-export function JSONLD() {
-  const structuredData = {
+export function JSONLD({ currentPage = 'home' }: { currentPage?: string }) {
+  const businessBase = {
     "@context": "https://schema.org",
-    "@type": "GovernmentService",
-    "provider": {
-      "@type": "Corporation",
-      "name": "Hasanth Engineering (OPC) Private Limited",
-      "alternateName": "Hasanth Engineering",
-      "description": "Multi-disciplinary engineering providing advanced solutions in Mechanical Design, Electronics development, Aerospace systems, UAVs, and intelligent smart Automation.",
-      "url": "https://www.hasanthengineering.co.in",
-      "logo": "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=300&q=80",
-      "address": {
-        "@type": "PostalAddress",
-        "streetAddress": "H NO 3-3-8/4, KUKATPALLY, Vivekanandanagar Colony, Balanagar",
-        "addressLocality": "Hyderabad",
-        "addressRegion": "Telangana",
-        "postalCode": "500072",
-        "addressCountry": "IN"
-      },
-      "contactPoint": {
-        "@type": "ContactPoint",
-        "telephone": "+91-8328903031",
-        "contactType": "technical support",
-        "areaServed": "IN",
-        "availableLanguage": ["en", "telugu", "hindi"]
-      },
-      "knowsAbout": [
-        "Mechanical CAD Design",
-        "Multilayer Printed Circuit Boards",
-        "UAV Drone Autonomous Telemetry",
-        "AS9100 Aerospace Aviation Design",
-        "CNC Machining Tolerances",
-        "AromaCode MEMS Scent Technology"
-      ]
+    "@type": "LocalBusiness",
+    "name": "Hasanth Engineering (OPC) Private Limited",
+    "alternateName": "Hasanth Engineering",
+    "image": "https://www.hasanthengineering.co.in/logo.png",
+    "@id": "https://www.hasanthengineering.co.in/#organization",
+    "url": "https://www.hasanthengineering.co.in",
+    "logo": "https://www.hasanthengineering.co.in/logo.png",
+    "telephone": "+91-8328903031",
+    "priceRange": "$$",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "H NO 3-3-8/4, KUKATPALLY, Vivekanandanagar Colony, Balanagar",
+      "addressLocality": "Hyderabad",
+      "addressRegion": "Telangana",
+      "postalCode": "500072",
+      "addressCountry": "IN"
     },
-    "serviceType": "Advanced Multi-disciplinary Design and Prototyping Systems",
-    "areaServed": {
-       "@type": "Country",
-       "name": "India"
-    }
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": 17.4644,
+      "longitude": 78.4542
+    },
+    "description": "Multi-disciplinary engineering company in India providing advanced solutions in Mechanical Design, Electronics development, Aerospace systems, UAVs, and SCADA Automation.",
+    "sameAs": [
+      "https://www.tofler.com.to/hasanth-engineering-opc-private-limited",
+      "https://www.indiamart.com/hasanth-engineering"
+    ],
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.9",
+      "reviewCount": "34",
+      "bestRating": "5",
+      "worstRating": "1"
+    },
+    "knowsAbout": [
+      "Mechanical CAD Design",
+      "Multilayer Printed Circuit Boards",
+      "UAV Drone Autonomous Telemetry",
+      "AS9100 Aerospace Aviation Design",
+      "CNC Machining Tolerances",
+      "AromaCode MEMS Scent Technology"
+    ]
   };
+
+  const breadcrumbsList = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://www.hasanthengineering.co.in/"
+      }
+    ]
+  };
+
+  let pageSchema: any = businessBase;
+
+  if (currentPage === 'about') {
+    breadcrumbsList.itemListElement.push({
+      "@type": "ListItem",
+      "position": 2,
+      "name": "About Us",
+      "item": "https://www.hasanthengineering.co.in/#about"
+    });
+    pageSchema = [
+      businessBase,
+      {
+        "@context": "https://schema.org",
+        "@type": "AboutPage",
+        "name": "About Hasanth Engineering",
+        "description": "Information about our corporate journey, founders, multi-disciplinary design labs, and team of senior system architects in Hyderabad, India.",
+        "publisher": {
+          "@type": "Organization",
+          "name": "Hasanth Engineering (OPC) Private Limited",
+          "logo": "https://www.hasanthengineering.co.in/logo.png"
+        }
+      },
+      breadcrumbsList
+    ];
+  } else if (currentPage === 'services') {
+    breadcrumbsList.itemListElement.push({
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Engineering Services",
+      "item": "https://www.hasanthengineering.co.in/#services"
+    });
+    pageSchema = [
+      businessBase,
+      {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": "Mechanical Engineering & 3D CAD Design",
+        "provider": {
+          "@type": "LocalBusiness",
+          "name": "Hasanth Engineering (OPC) Private Limited"
+        },
+        "serviceType": "Engineering Design",
+        "description": "Advanced 3D CAD stress, structural, and sheet bending design layouts compliant with global CNC/milling tolerances.",
+        "offers": {
+          "@type": "Offer",
+          "price": "Contact for pricing",
+          "priceCurrency": "INR"
+        }
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": "Electronics & Embedded Hardware Prototyping",
+        "provider": {
+          "@type": "LocalBusiness",
+          "name": "Hasanth Engineering (OPC) Private Limited"
+        },
+        "serviceType": "Electronics Design",
+        "description": "Dense multi-layer printed circuit boards (PCBs), signal integrity, embedded C code optimization, and SMD prototyping.",
+        "offers": {
+          "@type": "Offer",
+          "price": "Contact for pricing",
+          "priceCurrency": "INR"
+        }
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": "Aerospace & Drone Auto-pilots",
+        "provider": {
+          "@type": "LocalBusiness",
+          "name": "Hasanth Engineering (OPC) Private Limited"
+        },
+        "serviceType": "Aerospace Design",
+        "description": "UAV custom UAV frames, flight control calibration, AS9100 aviation brackets, and sensor fusion setups.",
+        "offers": {
+          "@type": "Offer",
+          "price": "Contact for pricing",
+          "priceCurrency": "INR"
+        }
+      },
+      breadcrumbsList
+    ];
+  } else if (currentPage === 'research') {
+    breadcrumbsList.itemListElement.push({
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Research & Development",
+      "item": "https://www.hasanthengineering.co.in/#research"
+    });
+    pageSchema = [
+      businessBase,
+      {
+        "@context": "https://schema.org",
+        "@type": "ResearchProject",
+        "name": "AromaCode Olfactory Scent Synthesis & MEMS",
+        "description": "Groundbreaking research on scent transmitters, Micro Electro-Mechanical Systems (MEMS), microvalves, and programmable aroma vaporizers.",
+        "sponsor": {
+          "@type": "Organization",
+          "name": "Hasanth Engineering (OPC) Private Limited"
+        }
+      },
+      breadcrumbsList
+    ];
+  } else if (currentPage === 'projects') {
+    breadcrumbsList.itemListElement.push({
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Projects Showcase",
+      "item": "https://www.hasanthengineering.co.in/#projects"
+    });
+    pageSchema = [
+      businessBase,
+      breadcrumbsList
+    ];
+  } else {
+    pageSchema = [
+      businessBase,
+      breadcrumbsList
+    ];
+  }
 
   return (
     <Helmet>
       <script type="application/ld+json">
-        {JSON.stringify(structuredData)}
+        {JSON.stringify(pageSchema)}
       </script>
     </Helmet>
   );
