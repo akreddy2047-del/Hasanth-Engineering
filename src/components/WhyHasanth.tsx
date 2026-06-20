@@ -31,7 +31,7 @@ export default function WhyHasanth() {
     {
       id: '05',
       title: 'Strict Quality Control Standards',
-      desc: 'Calibrated micro-meters, coordinate measuring machines (CMMs), and environmental test units guarantee components align with active specs before leaving Peenya.',
+      desc: 'Calibrated micro-meters, coordinate measuring machines (CMMs), and environmental test units guarantee components align with active specs before leaving our Hyderabad facility.',
       icon: ShieldCheck
     },
     {

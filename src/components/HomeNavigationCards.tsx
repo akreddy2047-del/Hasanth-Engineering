@@ -1,13 +1,16 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { Compass, Factory, Cpu, ArrowRight } from 'lucide-react';
 import { motion } from 'motion/react';
 import { MetricReveal } from './MetricReveal';
+import { gsap } from 'gsap';
+import { CircuitSpark } from './CircuitSpark';
 
 interface HomeNavigationCardsProps {
   onPageChange: (pageId: string) => void;
+  onOpenConsultation: () => void;
 }
 
-export default function HomeNavigationCards({ onPageChange }: HomeNavigationCardsProps) {
+export default function HomeNavigationCards({ onPageChange, onOpenConsultation }: HomeNavigationCardsProps) {
   const cards = [
     {
       title: 'Design & Circuit Capabilities',
@@ -21,7 +24,7 @@ export default function HomeNavigationCards({ onPageChange }: HomeNavigationCard
     {
       title: 'Advanced Machine Shop',
       category: 'PRECISION MANUFACTURING',
-      desc: 'Inspect our climate-controlled Bangalore machine shop with continuous 3-axis CNC milling machines, concentric lathe turning centers, and heavy sheet metal fabrication.',
+      desc: 'Inspect our climate-controlled Hyderabad machine shop with continuous 3-axis CNC milling machines, concentric lathe turning centers, and heavy sheet metal fabrication.',
       image: 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&w=600&q=80',
       icon: Factory,
       target: 'manufacturing',
@@ -38,9 +41,48 @@ export default function HomeNavigationCards({ onPageChange }: HomeNavigationCard
     }
   ];
 
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  const handleMouseMove = (index: number, e: React.MouseEvent<HTMLDivElement>) => {
+    const el = cardRefs.current[index];
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width / 2;
+    const y = e.clientY - rect.top - rect.height / 2;
+
+    // Subtly translate and tilt the card in 3D
+    gsap.to(el, {
+      x: x * 0.1,
+      y: y * 0.1,
+      rotationX: -y * 0.012,
+      rotationY: x * 0.012,
+      transformPerspective: 1000,
+      duration: 0.35,
+      ease: "power2.out",
+      overwrite: "auto"
+    });
+  };
+
+  const handleMouseLeave = (index: number) => {
+    const el = cardRefs.current[index];
+    if (!el) return;
+    gsap.to(el, {
+      x: 0,
+      y: 0,
+      rotationX: 0,
+      rotationY: 0,
+      duration: 0.5,
+      ease: "power2.out",
+      overwrite: "auto"
+    });
+  };
+
   const handleNavigate = (pageId: string) => {
-    onPageChange(pageId);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (pageId === 'products') {
+      onOpenConsultation();
+    } else {
+      document.getElementById('divisions')?.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   return (
@@ -90,14 +132,20 @@ export default function HomeNavigationCards({ onPageChange }: HomeNavigationCard
             return (
               <MetricReveal key={idx}>
                 <motion.div 
+                  ref={(el) => {
+                    cardRefs.current[idx] = el;
+                  }}
+                  onMouseMove={(e) => handleMouseMove(idx, e)}
+                  onMouseLeave={() => handleMouseLeave(idx)}
                   variants={{
                     hidden: { opacity: 0, y: 30 },
                     show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
                   }}
-                  whileHover={{ y: -6, scale: 1.01 }}
-                  transition={{ type: 'spring', stiffness: 260, damping: 20 }}
-                  className="group relative bg-white rounded-2xl border border-slate-200/80 overflow-hidden flex flex-col justify-between hover:border-[#0056b3] hover:shadow-xl min-h-[480px]"
+                  className="group relative bg-white rounded-2xl border border-slate-200/80 overflow-hidden flex flex-col justify-between hover:border-[#0056b3] hover:shadow-xl min-h-[390px] glass-card"
                 >
+                  {/* Glowing Border Circuit Spark particles */}
+                  <CircuitSpark color="#0056b3" sparkCount={4} duration={3.2} />
+
                   {/* Image Frame with Overlay - Custom premium style */}
                   <div className="h-52 w-full overflow-hidden relative border-b border-slate-150">
                     <div className="absolute inset-0 bg-slate-950/20 group-hover:bg-slate-950/10 transition-colors duration-350 z-10" />
@@ -115,7 +163,7 @@ export default function HomeNavigationCards({ onPageChange }: HomeNavigationCard
                   </div>
 
                   {/* Content Box */}
-                  <div className="p-6 flex flex-col justify-between flex-grow bg-white">
+                  <div className="p-6 flex flex-col justify-between flex-grow bg-transparent">
                     <div className="space-y-2.5">
                       <div className="flex items-center gap-1.5 text-slate-400">
                         <IconComp size={12} className="text-[#0056b3]" aria-hidden="true" />
@@ -129,17 +177,6 @@ export default function HomeNavigationCards({ onPageChange }: HomeNavigationCard
                       <p className="text-xs text-slate-600 leading-relaxed font-sans">
                         {card.desc}
                       </p>
-                    </div>
-
-                    {/* Primary card action */}
-                    <div className="pt-6">
-                      <button
-                        onClick={() => handleNavigate(card.target)}
-                        className="w-full py-3 rounded-lg bg-slate-50 hover:bg-[#0056b3] text-slate-700 hover:text-white border border-slate-200/80 hover:border-[#0056b3] font-sans text-[11px] tracking-wider uppercase font-semibold inline-flex items-center justify-center gap-2 transition-all duration-300 cursor-pointer"
-                      >
-                        <span>{card.btnText}</span>
-                        <ArrowRight size={12} className="group-hover:translate-x-1 transition-transform" aria-hidden="true" />
-                      </button>
                     </div>
                   </div>
                 </motion.div>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
+import { Gallery3DCanvas } from './Gallery3DCanvas';
 
 export default function EngineeringGallery() {
   const [activeCategory, setActiveCategory] = useState('All');
@@ -107,6 +108,11 @@ export default function EngineeringGallery() {
             ))}
           </div>
         </motion.div>
+
+        {/* 3D Model Accent */}
+        <div className="h-64 mb-8 bg-slate-50 rounded-2xl border border-slate-200">
+          <Gallery3DCanvas />
+        </div>
 
         {/* Structured Corporate Catalogue Card Grid */}
         <motion.div 

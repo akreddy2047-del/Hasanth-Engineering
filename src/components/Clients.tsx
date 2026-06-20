@@ -1,30 +1,22 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { motion } from 'motion/react';
 
 export default function Clients() {
-  const [activeCategory, setActiveCategory] = useState<'All' | 'OEM' | 'Railway' | 'Defense' | 'Industrial' | 'Automation'>('All');
-
   // Realistic industrial corporations we produce custom PCBA / parts for
   const clientsList = [
-    { name: 'Alstom Transport', category: 'Railway', code: 'ALS' },
-    { name: 'Siemens Industrial', category: 'OEM', code: 'SIE' },
-    { name: 'ABB Automation', category: 'Automation', code: 'ABB' },
-    { name: 'TATA Technologies', category: 'OEM', code: 'TAT' },
-    { name: 'BHEL Heavy Eng', category: 'Industrial', code: 'BHE' },
-    { name: 'HAL Aerospace', category: 'Defense', code: 'HAL' },
-    { name: 'Honeywell Controls', category: 'Automation', code: 'HON' },
-    { name: 'General Electric', category: 'OEM', code: 'GE' },
-    { name: 'Indian Railways', category: 'Railway', code: 'IR' },
-    { name: 'Bosch Mobility', category: 'OEM', code: 'BOS' },
-    { name: 'Defense R&D Org', category: 'Defense', code: 'DRDO' },
-    { name: 'BEML Mining', category: 'Industrial', code: 'BEML' }
+    { name: 'Alstom Transport', category: 'Railway', code: 'ALS', logoUrl: 'https://logo.clearbit.com/alstom.com' },
+    { name: 'Siemens Industrial', category: 'OEM', code: 'SIE', logoUrl: 'https://logo.clearbit.com/siemens.com' },
+    { name: 'ABB Automation', category: 'Automation', code: 'ABB', logoUrl: 'https://logo.clearbit.com/abb.com' },
+    { name: 'TATA Technologies', category: 'OEM', code: 'TAT', logoUrl: 'https://logo.clearbit.com/tatatechnologies.com' },
+    { name: 'BHEL Heavy Eng', category: 'Industrial', code: 'BHE', logoUrl: 'https://logo.clearbit.com/bhel.com' },
+    { name: 'HAL Aerospace', category: 'Defense', code: 'HAL', logoUrl: 'https://logo.clearbit.com/hal-india.co.in' },
+    { name: 'Honeywell Controls', category: 'Automation', code: 'HON', logoUrl: 'https://logo.clearbit.com/honeywell.com' },
+    { name: 'General Electric', category: 'OEM', code: 'GE', logoUrl: 'https://logo.clearbit.com/ge.com' },
+    { name: 'Indian Railways', category: 'Railway', code: 'IR', logoUrl: 'https://upload.wikimedia.org/wikipedia/en/thumb/4/45/Indian_Railways_logo.svg/1200px-Indian_Railways_logo.svg.png' },
+    { name: 'Bosch Mobility', category: 'OEM', code: 'BOS', logoUrl: 'https://logo.clearbit.com/bosch.com' },
+    { name: 'Defense R&D Org', category: 'Defense', code: 'DRDO', logoUrl: 'https://upload.wikimedia.org/wikipedia/en/thumb/e/e0/DRDO_logo.svg/1200px-DRDO_logo.svg.png' },
+    { name: 'BEML Mining', category: 'Industrial', code: 'BEML', logoUrl: 'https://logo.clearbit.com/bemlindia.in' }
   ];
-
-  const categories = ['All', 'OEM', 'Railway', 'Defense', 'Industrial', 'Automation'];
-
-  const filteredClients = activeCategory === 'All' 
-    ? clientsList 
-    : clientsList.filter(c => c.category === activeCategory);
 
   return (
     <section id="clients" className="py-16 bg-white font-sans scroll-mt-20 border-b border-[#e2e8f0] relative">
@@ -50,93 +42,27 @@ export default function Clients() {
         </motion.div>
 
         {/* Static Brand Client Directory Grid */}
-        <motion.div 
-          variants={{
-            hidden: { opacity: 0 },
-            show: {
-              opacity: 1,
-              transition: {
-                staggerChildren: 0.05,
-              }
-            }
-          }}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, margin: "-40px" }}
-          className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-16"
-        >
-          {clientsList.map((c, idx) => (
-            <motion.div 
-              key={idx}
-              variants={{
-                hidden: { opacity: 0, scale: 0.95, y: 10 },
-                show: { opacity: 1, scale: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } }
-              }}
-              whileHover={{ y: -2, hoverborderColor: '#0056b3' }}
-              className="flex flex-col items-center justify-center p-6 rounded-xl bg-white border border-[#e2e8f0] hover:border-[#0056b3]/30 hover:shadow-sm transition-all duration-200"
-            >
-              <span className="text-xs font-sans text-[#0056b3] uppercase tracking-wider mb-1 font-bold">
-                {c.code}
-              </span>
-              <span className="text-sm font-sans font-semibold text-[#1e293b] text-center">
-                {c.name}
-              </span>
-            </motion.div>
-          ))}
-        </motion.div>
-
-        {/* Client Categories Exploration selector */}
-        <div className="pt-8 border-t border-[#e2e8f0]">
-          <span className="text-[10px] font-sans text-[#0056b3] uppercase tracking-wide block mb-4 font-bold">
-            Explore footprint filtered by industry division
-          </span>
-          
-          <div className="flex flex-wrap gap-2 mb-8">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setActiveCategory(cat as any)}
-                className={`px-4 py-1.5 rounded text-xs font-sans tracking-wide uppercase cursor-pointer ${
-                  activeCategory === cat 
-                    ? 'bg-white border-2 border-[#0056b3] text-[#0056b3] font-bold' 
-                    : 'bg-white border border-[#e2e8f0] text-[#1e293b]'
-                }`}
-                id={`btn-client-cat-${cat.toLowerCase()}`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-
-          {/* Deliverables grid based on sector */}
+        <div className="relative overflow-hidden pt-8">
           <motion.div 
-            layout
-            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"
+            className="flex gap-8"
+            animate={{ x: ['0%', '-50%'] }}
+            transition={{ ease: "linear", duration: 30, repeat: Infinity }}
           >
-            {filteredClients.map((c, i) => (
-              <motion.div 
-                layout
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.3 }}
-                key={c.name}
-                className="bg-white border border-[#e2e8f0] p-5 rounded-xl hover:shadow-xs transition-shadow duration-200"
+            {[...clientsList, ...clientsList].map((c, idx) => (
+              <div 
+                key={idx}
+                className="flex-shrink-0 flex flex-col items-center justify-center p-6 rounded-xl bg-white border border-[#e2e8f0] hover:border-[#0056b3]/30 hover:shadow-sm transition-all duration-200 min-w-[180px]"
               >
-                <div className="flex justify-between items-start">
-                  <span className="text-[10px] font-sans text-[#1e293b] uppercase font-bold">
-                    {c.category} Division
-                  </span>
-                  <span className="text-[9px] font-sans bg-white text-[#0056b3] border border-[#e2e8f0] px-1.5 py-0.5 rounded font-bold">
-                    {c.code}
-                  </span>
+                <div className="w-12 h-12 rounded-full bg-[#f1f5f9] flex items-center justify-center mb-3 text-[#0056b3] font-bold text-xs ring-1 ring-[#e2e8f0]">
+                  {c.code}
                 </div>
-                <h3 className="text-base font-sans font-semibold text-[#1e293b] mt-2 leading-none">
+                <span className="text-xs font-sans font-medium text-[#475569] text-center mb-1">
+                  {c.code}
+                </span>
+                <span className="text-sm font-sans font-semibold text-[#1e293b] text-center">
                   {c.name}
-                </h3>
-                 <p className="text-xs text-slate-500 mt-2 font-sans select-none leading-relaxed">
-                  Supplied custom compliance nodes and precision mechanical brackets.
-                </p>
-              </motion.div>
+                </span>
+              </div>
             ))}
           </motion.div>
         </div>

@@ -258,13 +258,14 @@ export function UnifiedButton({
   };
 
   return (
-    <button 
+    <motion.button 
+      whileTap={{ scale: 0.96 }}
       className={`${baseStyle} ${variants[variant]} ${className}`}
       {...props}
     >
       {Icon && <Icon size={13} />}
       <span>{children}</span>
-    </button>
+    </motion.button>
   );
 }
 

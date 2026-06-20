@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import { UnifiedButton } from './Common';
+import HasanthLogo from './HasanthLogo';
 
 interface NavbarProps {
   onOpenConsultation: () => void;
@@ -13,9 +14,13 @@ export default function Navbar({ onOpenConsultation, currentPage, onPageChange }
 
   const navMenuItems = [
     { label: 'Home', id: 'home' },
-    { label: 'Capabilities', id: 'capabilities' },
-    { label: 'Manufacturing', id: 'manufacturing' },
-    { label: 'Products & Partners', id: 'products' },
+    { label: 'About Us', id: 'about' },
+    { label: 'Services', id: 'services' },
+    { label: 'Research & Innovation', id: 'research' },
+    { label: 'Projects', id: 'projects' },
+    { label: 'Industries', id: 'industries' },
+    { label: 'Careers', id: 'careers' },
+    { label: 'Blog', id: 'blog' },
     { label: 'Contact', id: 'contact' },
   ];
 
@@ -39,35 +44,33 @@ export default function Navbar({ onOpenConsultation, currentPage, onPageChange }
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between min-h-[44px]">
           
-          {/* Logo Brand Frame */}
+          {/* Logo Brand Frame with premium custom logo */}
           <a 
             href="#home" 
             onClick={(e) => handleMenuClick(e, 'home')}
-            className="flex items-center gap-2.5"
+            className="flex items-center gap-3 group/logo"
           >
-            <div className="flex items-center justify-center w-8.5 h-8.5 bg-[#0056b3] rounded text-white font-sans text-base select-none font-semibold">
-              H
-            </div>
+            <HasanthLogo size={40} className="transition-transform duration-300 group-hover/logo:scale-105" />
             <div className="flex flex-col">
-              <span className="text-[#1e293b] font-sans text-xs tracking-wide leading-none font-semibold">
+              <span className="text-[#002b5c] font-sans text-xs tracking-wide leading-none font-extrabold group-hover/logo:text-blue-700 transition-colors">
                 HASANTH ENGINEERING
               </span>
-              <span className="text-[#0056b3] font-sans text-[9px] uppercase tracking-wider mt-1 font-medium">
+              <span className="text-slate-500 font-sans text-[8.5px] uppercase tracking-wider mt-1 font-semibold">
                 (OPC) PVT LTD • EST. 2016
               </span>
             </div>
           </a>
  
           {/* Desktop Menu - centered and with uniform padded gap */}
-          <div className="hidden lg:flex items-center gap-6">
+          <div className="hidden lg:flex items-center gap-3 xl:gap-4.5">
             {navMenuItems.map((item) => (
               <button
                 key={item.label}
                 onClick={(e) => handleMenuClick(e, item.id)}
-                className={`py-1 text-xs font-sans tracking-wide uppercase font-semibold cursor-pointer ${
+                className={`py-1 text-[10px] xl:text-[11px] font-sans tracking-wider uppercase font-bold cursor-pointer transition-colors ${
                   currentPage === item.id 
-                    ? 'text-[#0056b3] border-b border-[#0056b3]' 
-                    : 'text-[#1e293b]'
+                    ? 'text-[#002b5c] border-b-2 border-[#002b5c]' 
+                    : 'text-[#002b5c]/80 hover:text-[#002b5c]'
                 }`}
               >
                 {item.label}
@@ -90,7 +93,7 @@ export default function Navbar({ onOpenConsultation, currentPage, onPageChange }
           <div className="flex lg:hidden items-center">
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="text-[#1e293b] focus:outline-none p-1"
+              className="text-[#002b5c] focus:outline-none p-1"
               id="btn-toggle-menu"
               aria-label="Toggle Navigation Menu"
             >
@@ -110,7 +113,7 @@ export default function Navbar({ onOpenConsultation, currentPage, onPageChange }
                 key={item.label}
                 onClick={() => handleMobileClick(item.id)}
                 className={`text-left w-full py-2.5 text-xs font-sans uppercase tracking-wider font-semibold ${
-                  currentPage === item.id ? 'text-[#0056b3]' : 'text-[#1e293b]'
+                  currentPage === item.id ? 'text-[#002b5c]' : 'text-[#002b5c]'
                 }`}
               >
                 {item.label}
@@ -122,7 +125,7 @@ export default function Navbar({ onOpenConsultation, currentPage, onPageChange }
                 setIsMobileMenuOpen(false);
                 onOpenConsultation();
               }}
-              className="w-full text-center py-3 bg-[#0056b3] text-white font-sans text-xs uppercase tracking-wider rounded"
+              className="w-full text-center py-3 bg-[#002b5c] text-white font-sans text-xs uppercase tracking-wider rounded"
               id="mobile-nav-cta"
             >
               Get Consultation

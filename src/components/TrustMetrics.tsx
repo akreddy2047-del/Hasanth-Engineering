@@ -11,9 +11,6 @@ export default function TrustMetrics() {
 
   return (
     <section className="relative py-12 bg-slate-950 border-b border-slate-900 font-sans overflow-hidden">
-      {/* Blueprint grid lines highlight */}
-      <div className="absolute inset-0 z-0 opacity-[0.03] bg-[linear-gradient(to_right,#38bdf8_1px,transparent_1px)] bg-[size:40px_40px]" />
-      
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <motion.div 
           variants={{

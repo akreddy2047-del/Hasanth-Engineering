@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Cpu, Compass, Factory, Layers, CheckCircle2, ShieldCheck, FileSpreadsheet } from 'lucide-react';
 import { motion, useScroll, useTransform, AnimatePresence } from 'motion/react';
+import { GlossaryLink } from './Glossary';
 
 interface DivisionCardProps {
   key?: React.Key;
@@ -22,56 +23,51 @@ function DivisionCard({ idx, cap, isActive, onClick }: DivisionCardProps) {
 
   return (
     <motion.button
+      whileHover={{ y: -5, scale: 1.01 }}
       onClick={onClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className={`w-full text-left p-6 rounded-2xl border transition-all duration-300 group relative select-none overflow-hidden ${
+      className={`w-full text-left p-6 rounded-3xl border-2 transition-all duration-300 group relative select-none overflow-hidden glass-card scanline ${
         isActive 
-          ? 'bg-white border-[#0056b3] shadow-lg shadow-blue-500/10' 
-          : 'bg-white border-slate-200 hover:border-[#0056b3]/50 hover:bg-white hover:shadow-xl hover:shadow-blue-500/5'
+          ? 'bg-white border-[#0056b3] shadow-xl shadow-blue-500/10' 
+          : 'bg-white border-transparent hover:border-[#0056b3]/30 hover:bg-white hover:shadow-2xl hover:shadow-blue-500/5'
       }`}
       id={`div-btn-${idx}`}
     >
-      {/* Background accent */}
-      <div className={`absolute inset-0 opacity-0 group-hover:opacity-5 transition-opacity bg-gradient-to-br from-[#0056b3] to-transparent`}></div>
-      
-      {/* Data point viz reveal */}
-      <AnimatePresence>
-        {isHovered && (
-          <motion.div 
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-            className="absolute top-6 right-6 font-mono text-[10px] text-[#0056b3]"
-          >
-            {Math.floor(Math.random() * 1000)}ms
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Spark animation */}
+      <motion.div
+        className="absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-[#0056b3] to-transparent opacity-0 group-hover:opacity-100"
+        initial={{ x: -100 }}
+        animate={{ x: 300 }}
+        transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
+      />
       
       <div className="relative z-10 flex items-start gap-5">
-        <div className={`p-3 rounded-xl border transition-all duration-300 ${
+        <div className={`p-4 rounded-2xl border transition-all duration-300 ${
           isActive 
-            ? 'bg-[#0056b3] text-white border-[#0056b3]' 
-            : 'bg-slate-50 text-slate-500 border-slate-200 group-hover:bg-blue-50 group-hover:text-[#0056b3] group-hover:border-[#0056b3]/30'
+            ? 'bg-[#0056b3] text-white shadow-lg shadow-[#0056b3]/30' 
+            : 'bg-slate-100 text-slate-500 border-transparent group-hover:bg-blue-50 group-hover:text-[#0056b3]'
         }`}>
-          <IconComp size={24} />
+          <IconComp size={28} strokeWidth={isActive ? 2 : 1.5} />
         </div>
         
-        <div className="space-y-1.5 flex-grow">
-          <span className="text-[10px] font-sans font-bold text-slate-400 uppercase tracking-widest block">
+        <div className="space-y-1 flex-grow">
+          <span className="text-[10px] font-sans font-black text-slate-300 uppercase tracking-[0.2em] block">
             0{idx + 1}
           </span>
-          <h3 className="text-sm font-sans font-semibold uppercase tracking-wider text-slate-900 group-hover:text-[#0056b3] transition-colors leading-tight">
+          <h3 className="text-lg font-sans font-bold uppercase tracking-wide text-slate-900 group-hover:text-[#0056b3] transition-colors leading-snug">
             {cap.title}
           </h3>
-          <p className="text-xs text-slate-500 leading-relaxed">
+          <p className="text-xs text-slate-500 leading-relaxed font-medium">
             {cap.subtitle}
           </p>
         </div>
         
         {isActive && (
-          <div className="absolute top-6 right-6 w-2 h-2 rounded-full bg-[#0056b3] animate-pulse" />
+          <motion.div 
+            layoutId="active-indicator"
+            className="absolute top-6 right-6 w-3 h-3 rounded-full bg-[#0056b3] ring-4 ring-blue-50" 
+          />
         )}
       </div>
     </motion.button>
@@ -152,7 +148,7 @@ export default function Capabilities() {
         { code: 'RoHS 3', status: 'Active', detail: 'Material restriction audits' }
       ],
       auditDate: 'June 2026',
-      inspectLab: 'Peenya Test Lab 02'
+      inspectLab: 'Hyderabad Test Lab 02'
     },
     {
       title: 'Mechanical Engineering Scorecard',
@@ -162,7 +158,7 @@ export default function Capabilities() {
         { code: 'ASTM E29', status: 'Calibrated', detail: 'Standard for significant digits' }
       ],
       auditDate: 'May 2026',
-      inspectLab: 'Bangalore CNC Center 04'
+      inspectLab: 'Hyderabad CNC Center 04'
     },
     {
       title: 'Manufacturing Standards',
@@ -172,7 +168,7 @@ export default function Capabilities() {
         { code: 'DIN 8580', status: 'Classed', detail: 'Manufacturing audit cycles' }
       ],
       auditDate: 'June 2026',
-      inspectLab: 'Bangalore Machinery Floor 01'
+      inspectLab: 'Hyderabad Machinery Floor 01'
     },
     {
       title: 'Procurement Integrity',
@@ -192,12 +188,6 @@ export default function Capabilities() {
       id="capabilities" 
       className="relative py-24 bg-slate-50 font-sans scroll-mt-20 border-b border-[#e2e8f0] overflow-hidden"
     >
-      {/* Animated Engineering Grid with Parallax */}
-      <motion.div 
-        style={{ y }}
-        className="absolute inset-0 z-0 opacity-[0.03] bg-[linear-gradient(to_right,#0056b3_1px,transparent_1px),linear-gradient(to_bottom,#0056b3_1px,transparent_1px)] bg-[size:60px_60px] animate-grid pointer-events-none" 
-      />
-      
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Section Header */}
@@ -235,49 +225,58 @@ export default function Capabilities() {
           {/* Right Content Panel: Full Specs */}
           <motion.div 
             key={activeIdx}
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.4 }}
-            className="col-span-1 lg:col-span-7 bg-white rounded-3xl p-8 border border-slate-100 shadow-sm shadow-blue-500/5 relative overflow-hidden"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, ease: 'backOut' }}
+            className="col-span-1 lg:col-span-7 bg-white rounded-3xl p-10 border border-slate-100 shadow-xl shadow-slate-200/50 relative overflow-hidden"
           >
-            {/* Visual focus element */}
-            <div className="absolute top-0 right-0 p-8 opacity-5">
-              {React.createElement(capabilitiesList[activeIdx].icon, { size: 120 })}
-            </div>
+            {/* Decorative background circle */}
+            <div className="absolute -top-16 -right-16 w-64 h-64 bg-slate-50 rounded-full blur-3xl opacity-50"></div>
 
-            <div className="relative z-10 space-y-8">
-              <div className="space-y-2">
-                <h3 className="text-2xl font-sans font-semibold text-slate-900 tracking-tight">
+            <div className="relative z-10 space-y-10">
+              <div className="space-y-3">
+                <h3 className="text-4xl font-sans font-black text-slate-900 tracking-tight">
                   {capabilitiesList[activeIdx].title}
                 </h3>
-                <p className="text-lg text-slate-600 font-light">
+                <p className="text-xl text-slate-500 font-light leading-relaxed max-w-lg">
                   {capabilitiesList[activeIdx].desc}
                 </p>
               </div>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {capabilitiesList[activeIdx].items.map((item, itemIdx) => (
-                  <div key={itemIdx} className="flex items-center gap-3 bg-slate-50 p-3 rounded-xl border border-slate-100">
-                    <CheckCircle2 size={16} className="text-[#0056b3] shrink-0" />
-                    <span className="text-sm font-sans text-slate-700">{item}</span>
-                  </div>
-                ))}
+                {capabilitiesList[activeIdx].items.map((item, itemIdx) => {
+                  const isScada = item.includes('SCADA');
+                  const isPcb = item.includes('PCB');
+                  const content = isScada || isPcb ? (
+                    <GlossaryLink term={isScada ? "SCADA" : "PCB Matrix"}>{item}</GlossaryLink>
+                  ) : (
+                    <span>{item}</span>
+                  );
+                  return (
+                    <div key={itemIdx} className="flex items-center gap-4 bg-slate-50/50 p-4 rounded-2xl border border-slate-100/50 hover:border-[#0056b3]/20 transition-all duration-300">
+                      <div className="w-8 h-8 rounded-full bg-white border border-slate-100 flex items-center justify-center shrink-0 shadow-sm">
+                        <CheckCircle2 size={16} className="text-[#0056b3]" />
+                      </div>
+                      <span className="text-sm font-sans font-medium text-slate-700">{content}</span>
+                    </div>
+                  );
+                })}
               </div>
 
-              {/* Compliance section in bento style */}
-              <div className="bg-[#0056b3]/5 border border-[#0056b3]/10 rounded-2xl p-6 space-y-4">
+              {/* Compliance section simplified bento style */}
+              <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-3xl p-8 space-y-5 shadow-lg">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-[#0056b3] uppercase tracking-wider">Compliance Scorecard</span>
-                  <span className="text-[10px] text-slate-400 font-mono">AUDIT DATE: {standardsData[activeIdx].auditDate}</span>
+                  <span className="text-xs font-black text-blue-400 uppercase tracking-[0.2em]">Compliance Matrix</span>
+                  <span className="text-[10px] text-slate-500 font-mono tracking-widest bg-black/30 px-3 py-1 rounded-full uppercase">AUDIT: {standardsData[activeIdx].auditDate}</span>
                 </div>
-                {standardsData[activeIdx].certifications.map((cert, certIdx) => (
-                  <div key={certIdx} className="flex items-start gap-3">
-                    <div className="w-1.5 h-1.5 rounded-full bg-[#0056b3] mt-1.5 shrink-0" />
-                    <div className="flex-grow flex justify-between gap-4">
-                      <p className="text-xs text-slate-800 font-semibold">{cert.code} <span className="text-slate-500 font-normal">- {cert.detail}</span></p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {standardsData[activeIdx].certifications.map((cert, certIdx) => (
+                    <div key={certIdx} className="bg-black/20 p-4 rounded-xl border border-slate-700/50">
+                      <p className="text-sm font-bold text-white mb-1">{cert.code}</p>
+                      <p className="text-[10px] text-slate-400 font-medium">{cert.detail}</p>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
           </motion.div>

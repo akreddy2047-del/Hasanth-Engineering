@@ -1,6 +1,8 @@
 import React from 'react';
 import { Settings, Zap, Compass, Shield, Activity, Eye, Layers, Maximize } from 'lucide-react';
 import { motion } from 'motion/react';
+import { GlossaryLink } from './Glossary';
+import { MetricReveal } from './MetricReveal';
 
 export default function ManufacturingStrength() {
   const mfgCards = [
@@ -59,14 +61,6 @@ export default function ManufacturingStrength() {
       tolerance: '±0.05 mm repeatability',
       capacity: 'Progression tooling setups',
       imageUrl: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80'
-    },
-    {
-      name: '3D Additive Models',
-      icon: Maximize,
-      desc: 'Dynamic printers generating visual mechanical check pieces, jigs, and rapid fitments with accurate dimensions.',
-      tolerance: '±0.1 mm dimensional',
-      capacity: 'Nylon and specialized resins',
-      imageUrl: 'https://images.unsplash.com/photo-1615840287214-7fe58a8f3685?auto=format&fit=crop&w=600&q=80'
     }
   ];
 
@@ -118,59 +112,60 @@ export default function ManufacturingStrength() {
           {mfgCards.map((mfg, idx) => {
             const IconComponent = mfg.icon;
             return (
-              <motion.div 
-                key={idx}
-                variants={{
-                  hidden: { opacity: 0, y: 25 },
-                  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
-                }}
-                whileHover={{ y: -5, scale: 1.015 }}
-                transition={{ type: 'spring', stiffness: 240, damping: 20 }}
-                className="group relative rounded-2xl bg-white border border-slate-200 hover:border-[#0056b3] hover:shadow-xl overflow-hidden flex flex-col justify-between"
-              >
-                {/* Visual Thumbnail */}
-                <div className="relative h-52 w-full overflow-hidden border-b border-slate-150">
-                  <div className="absolute inset-0 bg-slate-950/15 group-hover:bg-slate-950/0 transition-colors duration-300 z-10" />
-                  <img 
-                    src={mfg.imageUrl} 
-                    alt={mfg.name}
-                    className="w-full h-full object-cover filter brightness-95 saturate-[0.8] contrast-105 group-hover:scale-105 transition-transform duration-500 ease-out"
-                    referrerPolicy="no-referrer"
-                  />
-                  
-                  {/* Icon Badge */}
-                  <div className="absolute top-4 left-4 p-2 bg-white/90 backdrop-blur-md border border-slate-200 rounded-xl text-[#0056b3] shadow-sm z-20">
-                    <IconComponent size={15} aria-hidden="true" />
-                  </div>
-                </div>
-
-                {/* Content Details */}
-                <div className="p-6 flex-grow flex flex-col justify-between">
-                  <div>
-                    <h3 className="text-base font-sans text-slate-900 font-semibold uppercase tracking-tight group-hover:text-[#0056b3] transition-colors">
-                      {mfg.name}
-                    </h3>
-                    <p className="text-xs text-slate-500 mt-2.5 leading-relaxed font-sans h-14 overflow-hidden">
-                      {mfg.desc}
-                    </p>
-                  </div>
-
-                  {/* Operational Metrics */}
-                  <div className="mt-6 pt-4 border-t border-slate-100 grid grid-cols-2 gap-3 text-[10px] font-sans">
-                    <div className="flex flex-col">
-                      <span className="text-slate-400 uppercase tracking-widest text-[8px] font-bold">Tolerance</span>
-                      <span className="text-[#0056b3] font-bold mt-1 text-xs">{mfg.tolerance}</span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-slate-400 uppercase tracking-widest text-[8px] font-bold">Envelope</span>
-                      <span className="text-slate-700 font-bold truncate mt-1 text-xs" title={mfg.capacity}>
-                        {mfg.capacity}
-                      </span>
+              <MetricReveal key={idx}>
+                <motion.div 
+                  variants={{
+                    hidden: { opacity: 0, y: 25 },
+                    show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
+                  }}
+                  whileHover={{ y: -5, scale: 1.015 }}
+                  transition={{ type: 'spring', stiffness: 240, damping: 20 }}
+                  className="group relative rounded-2xl bg-white border border-slate-200 hover:border-[#0056b3] hover:shadow-xl overflow-hidden flex flex-col justify-between h-full"
+                >
+                  {/* Visual Thumbnail */}
+                  <div className="relative h-52 w-full overflow-hidden border-b border-slate-150">
+                    <div className="absolute inset-0 bg-slate-950/15 group-hover:bg-slate-950/0 transition-colors duration-300 z-10" />
+                    <img 
+                      src={mfg.imageUrl} 
+                      alt={mfg.name}
+                      className="w-full h-full object-cover filter brightness-95 saturate-[0.8] contrast-105 group-hover:scale-105 transition-transform duration-500 ease-out"
+                      referrerPolicy="no-referrer"
+                    />
+                    
+                    {/* Icon Badge */}
+                    <div className="absolute top-4 left-4 p-2 bg-white/90 backdrop-blur-md border border-slate-200 rounded-xl text-[#0056b3] shadow-sm z-20">
+                      <IconComponent size={15} aria-hidden="true" />
                     </div>
                   </div>
-                </div>
 
-              </motion.div>
+                  {/* Content Details */}
+                  <div className="p-6 flex-grow flex flex-col justify-between">
+                    <div>
+                      <h3 className="text-base font-sans text-slate-900 font-semibold uppercase tracking-tight group-hover:text-[#0056b3] transition-colors">
+                        {mfg.name === "Wire EDM" ? <GlossaryLink term="CNC">Wire EDM</GlossaryLink> : mfg.name}
+                      </h3>
+                      <p className="text-xs text-slate-500 mt-2.5 leading-relaxed font-sans min-h-[3rem]">
+                        {mfg.desc}
+                      </p>
+                    </div>
+
+                    {/* Operational Metrics */}
+                    <div className="mt-6 pt-4 border-t border-slate-100 grid grid-cols-2 gap-3 text-[10px] font-sans">
+                      <div className="flex flex-col">
+                        <span className="text-slate-400 uppercase tracking-widest text-[8px] font-bold">Tolerance</span>
+                        <span className="text-[#0056b3] font-bold mt-1 text-xs">{mfg.tolerance}</span>
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-slate-400 uppercase tracking-widest text-[8px] font-bold">Envelope</span>
+                        <span className="text-slate-700 font-bold truncate mt-1 text-xs" title={mfg.capacity}>
+                          {mfg.capacity}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                </motion.div>
+              </MetricReveal>
             );
           })}
         </motion.div>

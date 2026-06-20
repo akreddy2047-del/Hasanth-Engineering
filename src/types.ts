@@ -1,3 +1,9 @@
+export interface SceneState {
+  rotation: [number, number, number];
+  lighting: 'Laboratory White' | 'Industrial Sunset';
+  cinematicMode: boolean;
+}
+
 export interface CapabilityItem {
   title: string;
   items: string[];

@@ -1,17 +1,8 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { CheckCircle2, Factory, Cpu, Compass } from 'lucide-react';
+import { Factory, Cpu, Compass } from 'lucide-react';
 
 export default function WhoWeAre() {
-  const targetIndustries = [
-    { name: 'Railway Systems', code: 'RLY', detail: 'EN50155 Standards' },
-    { name: 'Automotive & EV', code: 'AUT', detail: 'DC-DC & Motor Control' },
-    { name: 'HVAC Solutions', code: 'HVC', detail: 'Sensor Automation' },
-    { name: 'Industrial Controls', code: 'IND', detail: 'SCADA & PLCs' },
-    { name: 'Defense Aerospace', code: 'DEF', detail: 'Mil-spec Test Jigs' },
-    { name: 'OEM Manufacturing', code: 'MFG', detail: 'High-Tolerance Gears' },
-    { name: 'Embedded Electronics', code: 'ELC', detail: 'Multilayer PCB Node' },
-  ];
 
   return (
     <section id="about" className="relative py-24 bg-slate-50 font-sans scroll-mt-20 border-b border-slate-100 overflow-hidden">
@@ -45,7 +36,7 @@ export default function WhoWeAre() {
                   <span className="text-[10px] font-sans font-medium text-white uppercase tracking-widest">ISO 9001:2015 CERTIFIED FACILITY</span>
                 </div>
                 <span className="text-lg font-sans font-semibold text-white block uppercase">Hasanth R&D Center</span>
-                <span className="text-xs text-slate-400 block mt-0.5">Peenya Industrial Area, Bangalore</span>
+                <span className="text-xs text-slate-400 block mt-0.5">Balanagar Industrial Area, Hyderabad</span>
               </div>
             </div>
           </motion.div>
@@ -94,49 +85,6 @@ export default function WhoWeAre() {
                   <p className="text-[11px] text-slate-500 leading-normal mt-0.5">High tonnage milling, heavy turning, and laser checks.</p>
                 </div>
               </div>
-            </div>
-
-            {/* Target Sectors Directory */}
-            <div className="pt-6 border-t border-slate-200">
-              <span className="text-[10px] font-mono text-slate-400 font-bold uppercase tracking-widest block mb-3">
-                Sectors Directory
-              </span>
-              <motion.div 
-                variants={{
-                  hidden: { opacity: 0 },
-                  show: {
-                    opacity: 1,
-                    transition: {
-                      staggerChildren: 0.08,
-                    }
-                  }
-                }}
-                initial="hidden"
-                whileInView="show"
-                viewport={{ once: true, margin: "-40px" }}
-                className="grid grid-cols-2 sm:grid-cols-3 gap-2.5"
-              >
-                {targetIndustries.map((ind, i) => (
-                  <motion.div 
-                    key={i}
-                    variants={{
-                      hidden: { opacity: 0, y: 15 },
-                      show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } }
-                    }}
-                    whileHover={{ translateY: -1 }}
-                    className="p-3 bg-white border border-slate-200/80 hover:border-[#0056b3]/30 transition-colors duration-250 rounded-lg flex flex-col justify-between"
-                  >
-                    <div className="flex items-center gap-1.5">
-                      <CheckCircle2 size={11} className="text-[#0056b3] shrink-0" />
-                      <span className="text-xs text-slate-800 font-bold tracking-tight">{ind.name}</span>
-                    </div>
-                    <div className="flex items-center justify-between mt-2 pt-1 border-t border-slate-50 text-[9px] font-mono font-semibold text-slate-400">
-                      <span>{ind.code}</span>
-                      <span className="text-[#0056b3]/60">{ind.detail}</span>
-                    </div>
-                  </motion.div>
-                ))}
-              </motion.div>
             </div>
 
           </div>

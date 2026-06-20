@@ -8,6 +8,10 @@ const glossaryData: Record<string, string> = {
   "AS9100D": "The internationally recognized quality management system standard for the aerospace industry, ensuring safety and reliability.",
   "CNC": "Computer Numerical Control machining, the automation of machine tools by means of computers executing programmed commands.",
   "Finite Element Analysis": "A computerized method for predicting how a product reacts to real-world forces, vibration, heat, fluid flow, and other physical effects.",
+  "OEM": "Original Equipment Manufacturer; a company that produces parts or equipment that may be marketed by another manufacturer.",
+  "EMI": "Electromagnetic Interference; disturbances that affect an electrical circuit due to either electromagnetic induction or electromagnetic radiation.",
+  "QMS": "Quality Management System; a set of policies, processes, and procedures required for planning and execution in the core business area.",
+  "RoHS": "Restriction of Hazardous Substances directive; limits the use of specific hazardous materials found in electrical and electronic products.",
 };
 
 interface GlossaryContextType {
@@ -26,12 +30,11 @@ export function GlossaryProvider({ children }: { children: React.ReactNode }) {
   return (
     <GlossaryContext.Provider value={{ activeTerm, setActiveTerm }}>
       {children}
-      <GlossarySidebar />
     </GlossaryContext.Provider>
   );
 }
 
-function GlossarySidebar() {
+export function GlossarySidebar() {
   const { activeTerm, setActiveTerm } = useContext(GlossaryContext);
   
   if (!activeTerm) return null;
