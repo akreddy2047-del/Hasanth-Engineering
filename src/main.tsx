@@ -1,6 +1,7 @@
 import {StrictMode} from 'react';
 import {createRoot} from 'react-dom/client';
 import { HelmetProvider } from 'react-helmet-async';
+import { ToastProvider } from './hooks/useToast.tsx';
 import App from './App.tsx';
 import './index.css';
 import { gsap } from 'gsap';
@@ -11,7 +12,9 @@ gsap.registerPlugin(ScrollTrigger);
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <HelmetProvider>
-      <App />
+      <ToastProvider>
+        <App />
+      </ToastProvider>
     </HelmetProvider>
   </StrictMode>,
 );

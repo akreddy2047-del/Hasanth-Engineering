@@ -6,6 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useSEO, JSONLD } from './hooks/useSEO';
+import { generateOrganizationSchema, generateBreadcrumbSchema, generateSiteNavigationSchema, getCanonicalUrl } from './utils/seoUtils';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import TrustMetrics from './components/TrustMetrics';
@@ -342,6 +343,10 @@ export default function App() {
   const [selectedArenaIdx, setSelectedArenaIdx] = useState<number | null>(null);
 
   const seo = useSEO(currentPage);
+  const orgSchema = generateOrganizationSchema();
+  const breadcrumbSchema = generateBreadcrumbSchema(currentPage);
+  const siteNavigationSchema = generateSiteNavigationSchema();
+  const canonicalUrl = getCanonicalUrl(currentPage);
 
   useEffect(() => {
     // Staggered entrance animation
@@ -398,11 +403,21 @@ export default function App() {
         <title>{seo.title}</title>
         <meta name="description" content={seo.description} />
         <meta name="keywords" content={seo.keywords} />
+        <link rel="canonical" href={canonicalUrl} />
         <meta property="og:title" content={seo.title} />
         <meta property="og:description" content={seo.description} />
         <meta property="og:type" content="website" />
         <meta name="twitter:title" content={seo.title} />
         <meta name="twitter:description" content={seo.description} />
+        <script type="application/ld+json">
+          {JSON.stringify(orgSchema)}
+        </script>
+        <script type="application/ld+json">
+          {JSON.stringify(breadcrumbSchema)}
+        </script>
+        <script type="application/ld+json">
+          {JSON.stringify(siteNavigationSchema)}
+        </script>
       </Helmet>
       <JSONLD currentPage={currentPage} />
       <GlossarySidebar />

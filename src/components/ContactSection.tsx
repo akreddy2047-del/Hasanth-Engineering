@@ -1,15 +1,22 @@
 import React, { useState } from 'react';
 import { Mail, Phone, MapPin, Search, Globe, ChevronRight, BarChart3, TrendingUp, CheckCircle, Send, Radio } from 'lucide-react';
 import { motion } from 'motion/react';
+import { useToast } from '../hooks/useToast';
 
 export default function ContactSection() {
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
   const [sent, setSent] = useState(false);
+  const { showToast } = useToast();
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.name && formData.email && formData.message) {
       setSent(true);
+      showToast(
+        'Inquiry Transmitted', 
+        'Your system coordinates and messages have been logged securely inside our queue.', 
+        'success'
+      );
       setTimeout(() => {
         setFormData({ name: '', email: '', subject: '', message: '' });
         setSent(false);

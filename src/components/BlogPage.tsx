@@ -1,22 +1,21 @@
 import React, { useState } from 'react';
-import { motion } from 'motion/react';
-import { Calendar, User, ArrowRight, ArrowLeft } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { Calendar, User, ArrowRight, ArrowLeft, Share2, Link, Check, Twitter, Linkedin, PenTool, Radio, CheckCircle2 } from 'lucide-react';
 import SEO from './SEO';
 import { InteractiveCard } from './InteractiveCard';
 import { ScrollEntrance, StaggerContainer, StaggerItem } from './ScrollEntrance';
+import { useToast } from '../hooks/useToast';
+import { pingGoogleSearchConsole } from '../utils/searchConsolePing';
 
-export default function BlogPage() {
-  const [selectedPost, setSelectedPost] = useState<number | null>(null);
-
-  const posts = [
-    {
-      title: 'Optimal Thermal Vias Placement for High-Density Multilayer PCBs',
-      date: 'June 12, 2026',
-      author: 'Systems Architect Desk',
-      excerpt: 'How to correctly position copper thermal relief barrels under heavy power FETs to prevent thermal throttling without compromising high-speed SPI signaling path.',
-      category: 'Electronics Engineering',
-      bgUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80',
-      content: `In dense multilayer PCB layouts, modern surface-mount power transistors and FETs generate extensive localised heat. Standard conduction cooling is insufficient. 
+const INITIAL_POSTS = [
+  {
+    title: 'Optimal Thermal Vias Placement for High-Density Multilayer PCBs',
+    date: 'June 12, 2026',
+    author: 'Systems Architect Desk',
+    excerpt: 'How to correctly position copper thermal relief barrels under heavy power FETs to prevent thermal throttling without compromising high-speed SPI signaling path.',
+    category: 'Electronics Engineering',
+    bgUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80',
+    content: `In dense multilayer PCB layouts, modern surface-mount power transistors and FETs generate extensive localised heat. Standard conduction cooling is insufficient. 
 To preserve standard performance without throttling, engineers rely on Thermal Vias placement directly underneath the thermal pad of the power ic. 
 Here is our recommended, certified design workflow:
 1. Grid Sizing: Use 0.3mm drill holes with a pitch spacing of 1.0mm.
@@ -25,47 +24,134 @@ Here is our recommended, certified design workflow:
 4. Plane Connectors: Link to massive solid copper reference planes on the inner layers (specifically Ground planes).
 
 By applying this structured flow, thermal resistance drop (Θja) can decrease by up to 45%, protecting embedded hardware layers from intense heat.`
-    },
-    {
-      title: 'PID Parameters Calibration Loops for High-Stability UAV Systems',
-      date: 'May 28, 2026',
-      author: 'UAV Autopilot Team',
-      excerpt: 'A practical, bench-calibrated guide to tuning Proportional, Integral, and Derivative loops on drone custom airframes for heavy payloads.',
-      category: 'UAV & Aerospace',
-      bgUrl: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=600&q=80',
-      content: `Tuning heavy drone platforms carrying high-spec surveillance camera gimbals requires cautious calibration of primary flight logs. Standard auto-tuning algorithms often overshoot when managing dynamic, off-axis loads.
+  },
+  {
+    title: 'PID Parameters Calibration Loops for High-Stability UAV Systems',
+    date: 'May 28, 2026',
+    author: 'UAV Autopilot Team',
+    excerpt: 'A practical, bench-calibrated guide to tuning Proportional, Integral, and Derivative loops on drone custom airframes for heavy payloads.',
+    category: 'UAV & Aerospace',
+    bgUrl: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=600&q=80',
+    content: `Tuning heavy drone platforms carrying high-spec surveillance camera gimbals requires cautious calibration of primary flight logs. Standard auto-tuning algorithms often overshoot when managing dynamic, off-axis loads.
 We recommend a systematic three-stage manual tuning procedure:
 - Rate Proportional (P): Increase the P gain incrementally until high-frequency oscillations appear along the roll axis. Then, reduce the value by 15-20% to establish a baseline.
 - Rate Derivative (D): Increase the D gain to counter rotational inertia and filter out the remaining roll oscillations. Keep D minimal to avoid heating up ESC motors.
 - Rate Integral (I): Increase I until the UAV perfectly maintains altitude coordinates under heavy diagonal winds.
 
 This manual feedback cascade ensures the autopilot behaves predictably in high-vibration defense scenarios.`
-    },
-    {
-      title: 'MEMS Micro-Valves and Gating for Digital AromaCode Scent Technology',
-      date: 'May 05, 2026',
-      author: 'Research & Innovation Desk',
-      excerpt: 'An inside look at how our AromaCode scent technology translates binary logic into fine, real-time physical scent diffusion.',
-      category: 'Research & Innovation',
-      bgUrl: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=600&q=80',
-      content: `AromaCode bridges digital processing with delicate organic molecular release. Standard electronic vaporizers trigger slow, uncontrolled heat resulting in molecular decay and slow startup delays.
+  },
+  {
+    title: 'MEMS Micro-Valves and Gating for Digital AromaCode Scent Technology',
+    date: 'May 05, 2026',
+    author: 'Research & Innovation Desk',
+    excerpt: 'An inside look at how our AromaCode scent technology translates binary logic into fine, real-time physical scent diffusion.',
+    category: 'Research & Innovation',
+    bgUrl: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=600&q=80',
+    content: `AromaCode bridges digital processing with delicate organic molecular release. Standard electronic vaporizers trigger slow, uncontrolled heat resulting in molecular decay and slow startup delays.
 To bypass this limitation, Hasanth R&D engineered custom silicon Micro-Electro-Mechanical System (MEMS) microvalves.
 When microvolts pulse across our structured piezoceramic gates, the valve plates fold by sub-micron distances within 150 milliseconds. 
 This ultra-fast feedback permits accurate dispensation of micro-dose aroma liquids, delivering rich layered scent profiles without heat degradation.`
-    },
-    {
-      title: 'Structural CAD Optimization for AS9100 Aerospace Brackets',
-      date: 'April 14, 2026',
-      author: 'Mechanical Division',
-      excerpt: 'Utilizing finite-element shear analysis to reduce aerospace brackets weight while guaranteeing safety margins.',
-      category: 'Mechanical Engineering',
-      bgUrl: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80',
-      content: `Aircraft structures dictate strict lightweight targets. Yet, safety remains non-negotiable. 
+  },
+  {
+    title: 'Structural CAD Optimization for AS9100 Aerospace Brackets',
+    date: 'April 14, 2026',
+    author: 'Mechanical Division',
+    excerpt: 'Utilizing finite-element shear analysis to reduce aerospace brackets weight while guaranteeing safety margins.',
+    category: 'Mechanical Engineering',
+    bgUrl: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80',
+    content: `Aircraft structures dictate strict lightweight targets. Yet, safety remains non-negotiable. 
 By compiling linear FEA stress models into parametric CAD assemblies, we pinpoint low-shear density regions.
 These low-shear zones are subsequently hollowed to reduce overall weight. 
 By optimizing the model using multi-axis pocket milling instead of generic brackets, weight reduces by up to 32% while keeping safety stress margins above 2.5.`
+  }
+];
+
+export default function BlogPage() {
+  const [posts, setPosts] = useState(INITIAL_POSTS);
+  const [selectedPost, setSelectedPost] = useState<number | null>(null);
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const [shareCopied, setShareCopied] = useState(false);
+  const { showToast } = useToast();
+
+  // Author Mode state variables
+  const [isAuthorPanelOpen, setIsAuthorPanelOpen] = useState(false);
+  const [newTitle, setNewTitle] = useState('');
+  const [newExcerpt, setNewExcerpt] = useState('');
+  const [newContent, setNewContent] = useState('');
+  const [newCategory, setNewCategory] = useState('Electronics Engineering');
+  const [isPinging, setIsPinging] = useState(false);
+
+  const handlePublishPost = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTitle.trim() || !newExcerpt.trim() || !newContent.trim()) {
+      showToast('Validation Error', 'All fields are required to compile the journal entry.', 'warning');
+      return;
     }
-  ];
+
+    const newPost = {
+      title: newTitle,
+      date: new Date().toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' }),
+      author: 'Systems Engineering division',
+      excerpt: newExcerpt,
+      category: newCategory,
+      bgUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80',
+      content: newContent
+    };
+
+    // Add to local state list
+    setPosts([newPost, ...posts]);
+    setIsPinging(true);
+    showToast('Compiling Entry', 'Logging new aerospace brief to catalog database schema...', 'info');
+
+    // Trigger instant Search Console sitemap ping
+    const result = await pingGoogleSearchConsole();
+    setIsPinging(false);
+
+    if (result.success) {
+      showToast(
+        'Crawled & Indexed', 
+        'Google Search Console sitemap crawler successfully pinged. New post added to sitemap schema recrawl queue.', 
+        'success'
+      );
+    }
+
+    // Reset inputs
+    setNewTitle('');
+    setNewExcerpt('');
+    setNewContent('');
+    setIsAuthorPanelOpen(false);
+  };
+
+  const handleCopyLink = (index: number, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    const url = `https://www.hasanthengineering.co.in/#blog?post=${index}`;
+    navigator.clipboard.writeText(url);
+    if (index === -1) {
+      setShareCopied(true);
+      setTimeout(() => setShareCopied(false), 2500);
+    } else {
+      setCopiedIndex(index);
+      setTimeout(() => setCopiedIndex(null), 2500);
+    }
+  };
+
+  const handleShareSocial = (platform: 'twitter' | 'linkedin' | 'whatsapp', index: number, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    const post = posts[index === -1 ? (selectedPost || 0) : index];
+    const url = `https://www.hasanthengineering.co.in/#blog?post=${index === -1 ? selectedPost : index}`;
+    const text = `Read "${post.title}" by Hasanth Engineering:`;
+    
+    let shareUrl = '';
+    if (platform === 'twitter') {
+      shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}&hashtags=Engineering,Innovation`;
+    } else if (platform === 'linkedin') {
+      shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
+    } else if (platform === 'whatsapp') {
+      shareUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text + ' ' + url)}`;
+    }
+    
+    window.open(shareUrl, '_blank', 'noopener,noreferrer');
+  };
 
   const blogSchema = {
     "@context": "https://schema.org",
@@ -102,6 +188,104 @@ By optimizing the model using multi-axis pocket milling instead of generic brack
 
       {/* Blog Contents Block */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-16">
+        {selectedPost === null && (
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8 border-b border-slate-100 pb-6">
+            <div>
+              <span className="text-[10px] font-mono text-slate-400 font-bold uppercase tracking-widest block">ADMINISTRATIVE AUTHORING</span>
+              <h2 className="text-2xl sm:text-3xl font-sans font-black text-[#002b5c] uppercase tracking-tight">Technical Publications Office</h2>
+            </div>
+            <button
+              onClick={() => setIsAuthorPanelOpen(!isAuthorPanelOpen)}
+              className="px-5 py-2.5 bg-[#002b5c] text-white font-mono text-xs font-black uppercase tracking-widest rounded-xl hover:bg-blue-900 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md active:scale-98"
+            >
+              <PenTool size={14} />
+              <span>{isAuthorPanelOpen ? 'Close Composer' : 'Compose Technical Digest'}</span>
+            </button>
+          </div>
+        )}
+
+        <AnimatePresence>
+          {selectedPost === null && isAuthorPanelOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="overflow-hidden mb-10"
+            >
+              <form onSubmit={handlePublishPost} className="p-6 bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Paper Title *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Finite-Element Design of Symmetrical UAV Rotors"
+                      value={newTitle}
+                      onChange={(e) => setNewTitle(e.target.value)}
+                      className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-800 font-semibold focus:outline-none focus:border-[#002b5c]"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Category *</label>
+                    <select
+                      value={newCategory}
+                      onChange={(e) => setNewCategory(e.target.value)}
+                      className="w-full bg-white border border-slate-200 h-[38px] rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-850 font-semibold focus:outline-none focus:border-[#002b5c]"
+                    >
+                      <option value="Electronics Engineering">Electronics Engineering</option>
+                      <option value="UAV & Aerospace">UAV & Aerospace</option>
+                      <option value="Mechanical Engineering">Mechanical Engineering</option>
+                      <option value="Research & Innovation">Research & Innovation</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Abstract / Summary Excerpt *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Brief description of findings or engineering methodology..."
+                    value={newExcerpt}
+                    onChange={(e) => setNewExcerpt(e.target.value)}
+                    className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-800 font-semibold focus:outline-none focus:border-[#002b5c]"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Complete Technical Report Body *</label>
+                  <textarea
+                    rows={5}
+                    required
+                    placeholder="Write detailed formulas, experimental parameters, and hardware specifications..."
+                    value={newContent}
+                    onChange={(e) => setNewContent(e.target.value)}
+                    className="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-slate-850 font-semibold focus:outline-none focus:border-[#002b5c]"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isPinging}
+                  className="px-6 py-3 bg-[#002b5c] disabled:bg-slate-300 text-white font-mono text-xs font-black uppercase tracking-widest rounded-xl hover:bg-blue-900 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md active:scale-98"
+                >
+                  {isPinging ? (
+                    <>
+                      <Radio size={12} className="animate-pulse duration-700 text-blue-300" />
+                      <span>Broadcasting Sitemap crawl ping...</span>
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 size={12} />
+                      <span>Compile & Trigger Search Console crawling</span>
+                    </>
+                  )}
+                </button>
+              </form>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {selectedPost === null ? (
           /* Post Lists View */
           <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -128,15 +312,55 @@ By optimizing the model using multi-axis pocket milling instead of generic brack
                     </p>
                   </div>
 
-                  <div className="mt-8 pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-mono font-bold text-[#002b5c] uppercase tracking-wider">
-                    <span>Read technical paper</span>
-                    <button 
-                      onClick={() => setSelectedPost(idx)}
-                      className="flex items-center gap-1.5 cursor-pointer text-[#002b5c] hover:text-blue-800"
-                    >
-                      <span>More</span>
-                      <ArrowRight size={12} className="transition-transform group-hover:translate-x-1" />
-                    </button>
+                  {/* Card actions + mini index list individual post share bar */}
+                  <div className="mt-8 pt-4 border-t border-slate-100 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between text-xs font-mono font-bold text-[#002b5c] uppercase tracking-wider">
+                    <div className="flex items-center gap-1.5">
+                      <button 
+                        onClick={() => setSelectedPost(idx)}
+                        className="flex items-center gap-1.5 cursor-pointer text-[#002b5c] hover:text-blue-800"
+                        title="Read full article"
+                      >
+                        <span>Read Paper</span>
+                        <ArrowRight size={12} className="transition-transform group-hover:translate-x-1" />
+                      </button>
+                    </div>
+
+                    <div className="flex items-center gap-2 text-slate-400 font-medium normal-case self-start sm:self-auto">
+                      <span className="text-[10px] font-mono font-bold text-slate-350 uppercase">Share:</span>
+                      <button
+                        onClick={(e) => handleCopyLink(idx, e)}
+                        className="p-1 px-2 hover:bg-slate-100 rounded text-slate-500 transition-colors cursor-pointer flex items-center gap-1 text-[10px]"
+                        title="Copy article link"
+                      >
+                        {copiedIndex === idx ? (
+                          <>
+                            <Check size={11} className="text-emerald-500 animate-pulse" />
+                            <span className="text-emerald-600 font-bold">Copied</span>
+                          </>
+                        ) : (
+                          <>
+                            <Link size={11} />
+                            <span>Copy Link</span>
+                          </>
+                        )}
+                      </button>
+
+                      <button
+                        onClick={(e) => handleShareSocial('linkedin', idx, e)}
+                        className="p-1 hover:text-blue-600 rounded transition-colors cursor-pointer"
+                        title="Share on LinkedIn"
+                      >
+                        <Linkedin size={12} />
+                      </button>
+
+                      <button
+                        onClick={(e) => handleShareSocial('twitter', idx, e)}
+                        className="p-1 hover:text-slate-900 rounded transition-colors cursor-pointer"
+                        title="Share on Twitter"
+                      >
+                        <Twitter size={12} />
+                      </button>
+                    </div>
                   </div>
                 </InteractiveCard>
               </StaggerItem>
@@ -149,13 +373,49 @@ By optimizing the model using multi-axis pocket milling instead of generic brack
             animate={{ opacity: 1, y: 0 }}
             className="bg-slate-50 border-2 border-slate-100 p-8 sm:p-12 rounded-[32px] space-y-8"
           >
-            <button 
-              onClick={() => setSelectedPost(null)}
-              className="inline-flex items-center gap-2 text-xs font-mono font-bold text-[#002b5c] uppercase tracking-wider hover:underline cursor-pointer animate-fade-in"
-            >
-              <ArrowLeft size={13} />
-              <span>Back to Journal index</span>
-            </button>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <button 
+                onClick={() => setSelectedPost(null)}
+                className="inline-flex items-center gap-2 text-xs font-mono font-bold text-[#002b5c] uppercase tracking-wider hover:underline cursor-pointer animate-fade-in"
+              >
+                <ArrowLeft size={13} />
+                <span>Back to Journal index</span>
+              </button>
+
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-mono font-bold uppercase text-slate-400">Share article:</span>
+                <button
+                  onClick={() => handleCopyLink(selectedPost, undefined)}
+                  className="p-1.5 px-3 bg-white border border-slate-200 text-slate-600 text-xs font-mono font-semibold rounded-lg hover:border-slate-350 transition-colors cursor-pointer inline-flex items-center gap-1.5 shadow-sm"
+                >
+                  {copiedIndex === selectedPost ? (
+                    <>
+                      <Check size={12} className="text-emerald-500 animate-pulse" />
+                      <span className="text-emerald-600 font-bold">Link Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Link size={12} />
+                      <span>Copy link</span>
+                    </>
+                  )}
+                </button>
+                <button
+                  onClick={() => handleShareSocial('linkedin', selectedPost, undefined)}
+                  className="p-1.5 bg-white border border-slate-200 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors cursor-pointer"
+                  title="Share on LinkedIn"
+                >
+                  <Linkedin size={14} />
+                </button>
+                <button
+                  onClick={() => handleShareSocial('twitter', selectedPost, undefined)}
+                  className="p-1.5 bg-white border border-slate-200 text-slate-800 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer"
+                  title="Share on Twitter/X"
+                >
+                  <Twitter size={14} />
+                </button>
+              </div>
+            </div>
 
             <div className="space-y-4">
               <div className="flex items-center gap-3 text-xs font-mono text-slate-400">
@@ -175,6 +435,39 @@ By optimizing the model using multi-axis pocket milling instead of generic brack
 
             <div className="border-t border-slate-200 pt-8 text-neutral-700 text-sm sm:text-base leading-relaxed space-y-6 font-sans whitespace-pre-line">
               {posts[selectedPost].content}
+            </div>
+
+            <div className="pt-6 border-t border-slate-200 flex flex-wrap items-center justify-between gap-4">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-mono text-slate-400 font-medium">Interested in sharing this paper?</span>
+                <button
+                  onClick={() => handleShareSocial('linkedin', selectedPost, undefined)}
+                  className="text-xs font-mono font-bold text-blue-700 hover:underline cursor-pointer"
+                >
+                  LinkedIn
+                </button>
+                <span className="text-slate-355">•</span>
+                <button
+                  onClick={() => handleShareSocial('twitter', selectedPost, undefined)}
+                  className="text-xs font-mono font-bold text-slate-800 hover:underline cursor-pointer"
+                >
+                  Twitter/X
+                </button>
+                <span className="text-slate-355">•</span>
+                <button
+                  onClick={() => handleShareSocial('whatsapp', selectedPost, undefined)}
+                  className="text-xs font-mono font-bold text-emerald-600 hover:underline cursor-pointer"
+                >
+                  WhatsApp
+                </button>
+              </div>
+
+              <button
+                onClick={() => setSelectedPost(null)}
+                className="text-xs font-mono font-bold text-[#002b5c] hover:underline hover:text-blue-900 cursor-pointer"
+              >
+                Back to Journal index
+              </button>
             </div>
 
             <div className="bg-white border border-blue-100 rounded-2xl p-4 text-[11px] font-mono text-slate-400 leading-relaxed">

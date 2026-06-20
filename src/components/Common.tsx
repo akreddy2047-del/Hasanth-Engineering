@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, Send, CheckCircle } from 'lucide-react';
 import { motion } from 'motion/react';
+import { useToast } from '../hooks/useToast';
 
 interface ConsultationModalProps {
   isOpen: boolean;
@@ -8,6 +9,7 @@ interface ConsultationModalProps {
 }
 
 export function ConsultationModal({ isOpen, onClose }: ConsultationModalProps) {
+  const { showToast } = useToast();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -29,6 +31,11 @@ export function ConsultationModal({ isOpen, onClose }: ConsultationModalProps) {
     setTimeout(() => {
       setIsSubmitting(false);
       setIsSubmitted(true);
+      showToast(
+        'Consultation Appointed', 
+        `Our senior engineering leads have flagged your project for support.`, 
+        'success'
+      );
     }, 1000);
   };
 

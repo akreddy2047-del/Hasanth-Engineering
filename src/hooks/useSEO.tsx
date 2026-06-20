@@ -122,6 +122,21 @@ export function JSONLD({ currentPage = 'home' }: { currentPage?: string }) {
 
   let pageSchema: any = businessBase;
 
+  // Generic WebPage base that changes dynamically
+  const webPageBase = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": `https://www.hasanthengineering.co.in/#${currentPage}`,
+    "url": `https://www.hasanthengineering.co.in/#${currentPage}`,
+    "name": seoDataMap[currentPage]?.title || "Hasanth Engineering",
+    "description": seoDataMap[currentPage]?.description || "Innovative engineering systems company",
+    "isPartOf": {
+      "@type": "WebSite",
+      "name": "Hasanth Engineering",
+      "url": "https://www.hasanthengineering.co.in/"
+    }
+  };
+
   if (currentPage === 'about') {
     breadcrumbsList.itemListElement.push({
       "@type": "ListItem",
@@ -131,6 +146,7 @@ export function JSONLD({ currentPage = 'home' }: { currentPage?: string }) {
     });
     pageSchema = [
       businessBase,
+      webPageBase,
       {
         "@context": "https://schema.org",
         "@type": "AboutPage",
@@ -153,6 +169,7 @@ export function JSONLD({ currentPage = 'home' }: { currentPage?: string }) {
     });
     pageSchema = [
       businessBase,
+      webPageBase,
       {
         "@context": "https://schema.org",
         "@type": "Service",
@@ -188,7 +205,7 @@ export function JSONLD({ currentPage = 'home' }: { currentPage?: string }) {
       {
         "@context": "https://schema.org",
         "@type": "Service",
-        "name": "Aerospace & Drone Auto-pilots",
+        "name": "Aerospace & Drone Auto-pilot Systems",
         "provider": {
           "@type": "LocalBusiness",
           "name": "Hasanth Engineering (OPC) Private Limited"
@@ -212,6 +229,7 @@ export function JSONLD({ currentPage = 'home' }: { currentPage?: string }) {
     });
     pageSchema = [
       businessBase,
+      webPageBase,
       {
         "@context": "https://schema.org",
         "@type": "ResearchProject",
@@ -220,6 +238,65 @@ export function JSONLD({ currentPage = 'home' }: { currentPage?: string }) {
         "sponsor": {
           "@type": "Organization",
           "name": "Hasanth Engineering (OPC) Private Limited"
+        }
+      },
+      breadcrumbsList
+    ];
+  } else if (currentPage === 'blog') {
+    breadcrumbsList.itemListElement.push({
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Engineering blog journal",
+      "item": "https://www.hasanthengineering.co.in/#blog"
+    });
+    pageSchema = [
+      businessBase,
+      webPageBase,
+      {
+        "@context": "https://schema.org",
+        "@type": "Blog",
+        "name": "Hasanth Engineering Insights Journal",
+        "description": "Quarterly publications containing PCB layout heat analysis, drone telemetry configurations, and MEMS scent designs.",
+        "publisher": {
+          "@type": "Organization",
+          "name": "Hasanth Engineering (OPC) Private Limited"
+        }
+      },
+      breadcrumbsList
+    ];
+  } else if (currentPage === 'careers') {
+    breadcrumbsList.itemListElement.push({
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Careers recruitment open board",
+      "item": "https://www.hasanthengineering.co.in/#careers"
+    });
+    pageSchema = [
+      businessBase,
+      webPageBase,
+      {
+        "@context": "https://schema.org",
+        "@type": "JobPosting",
+        "title": "Senior Embedded Firmware Developer",
+        "description": "Formulate real-time operating systems firmware (RTOS) on ARM Cortex microcontrollers, designing low latency sensory feedback loops and SPI drivers.",
+        "datePosted": "2026-06-01",
+        "validThrough": "2026-12-31",
+        "employmentType": "FULL_TIME",
+        "hiringOrganization": {
+          "@type": "Organization",
+          "name": "Hasanth Engineering (OPC) Private Limited",
+          "sameAs": "https://www.hasanthengineering.co.in"
+        },
+        "jobLocation": {
+          "@type": "Place",
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "H NO 3-3-8/4, KUKATPALLY, Vivekanandanagar Colony, Balanagar",
+            "addressLocality": "Hyderabad",
+            "addressRegion": "Telangana",
+            "postalCode": "500072",
+            "addressCountry": "IN"
+          }
         }
       },
       breadcrumbsList
@@ -233,11 +310,13 @@ export function JSONLD({ currentPage = 'home' }: { currentPage?: string }) {
     });
     pageSchema = [
       businessBase,
+      webPageBase,
       breadcrumbsList
     ];
   } else {
     pageSchema = [
       businessBase,
+      webPageBase,
       breadcrumbsList
     ];
   }
