@@ -9,6 +9,7 @@ import { MagneticCard } from './MagneticCard';
 import { ScrollEntrance, StaggerContainer, StaggerItem } from './ScrollEntrance';
 import { GSAPSection } from './GSAPSection';
 import EngineeringBg from '../assets/images/engineering_background_tech_1781764962777.jpg';
+import BlueprintModal from './BlueprintModal';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -16,32 +17,12 @@ gsap.registerPlugin(ScrollTrigger);
 
 export default function ServicesPage() {
   const [activeDivision, setActiveDivision] = useState<number>(0);
+  const [selectedSpotlightIdx, setSelectedSpotlightIdx] = useState<number | null>(null);
   const spotlightSectionRef = useRef<HTMLDivElement>(null);
   const spotlightContainerRef = useRef<HTMLDivElement>(null);
 
+  // Keep ScrollTrigger cleaning clean on unmount
   useEffect(() => {
-    const sectionEl = spotlightSectionRef.current;
-    if (!sectionEl) return;
-
-    // Pin the container and stagger animations
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: sectionEl,
-        start: "top top",
-        end: "+=1500",
-        pin: true,
-        scrub: true,
-      }
-    });
-
-    const cards = spotlightContainerRef.current?.children;
-    if (cards) {
-        tl.fromTo(cards, 
-            { opacity: 0, y: 50 },
-            { opacity: 1, y: 0, stagger: 0.2, duration: 0.5 }
-        );
-    }
-
     return () => {
       ScrollTrigger.getAll().forEach(st => st.kill());
     };
@@ -253,6 +234,130 @@ export default function ServicesPage() {
     }
   ];
 
+  const spotlightArenas = [
+    {
+      id: 101,
+      name: "MULTI-LAYER SMT & PCB assembly",
+      detail: "Controlled impedance layouts (50Ω and 100Ω) with dense thermal vias under power FETs. Automated AOI verification and IPC-A-610 Class 3 compliance.",
+      themeColor: "#0056b3",
+      blueprint: {
+        title: "Multi-Layer PCB Trace Path & Impedance Plot",
+        specs: [
+          { label: "Design Environment", value: "Altium Designer (Up to 16 layers)" },
+          { label: "Fabrication standard", value: "IPC-A-610 Class 3 (High Reliability)" },
+          { label: "Minimum track spacing", value: "3.5 mils (0.088mm) spacing limits" },
+          { label: "Microvia aspect ratio", value: "0.8:1 target target laser drilling" },
+          { label: "Impedance Tolerance", value: "±5% matching precision target" }
+        ],
+        diagram: (
+          <div className="relative h-44 bg-[#051a14] border border-emerald-500/30 rounded-xl overflow-hidden font-mono text-[9px] text-emerald-400 p-3 select-none">
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#047857_1px,transparent_1px),linear-gradient(to_bottom,#047857_1px,transparent_1px)] bg-[size:16px_16px] opacity-20" />
+            <div className="absolute top-2 left-2 text-[#34d399] uppercase font-black tracking-widest flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              TRACE_ROUTE_ACTIVE [LAYER 4/8]
+            </div>
+            <div className="absolute top-2 right-2 text-slate-400">NETLIST: SPI_BUS_01</div>
+            
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none mt-2">
+              <svg className="w-24 h-24 text-emerald-500/40" viewBox="0 0 100 100">
+                <path d="M 5 50 L 30 50 L 45 35 L 75 35 L 90 50 L 95 50" fill="none" stroke="currentColor" strokeWidth="1" />
+                <circle cx="30" cy="50" r="1.5" fill="#34d399" />
+                <circle cx="45" cy="35" r="1.5" fill="#34d399" />
+                <circle cx="75" cy="35" r="1.5" fill="#34d399" />
+                <circle cx="90" cy="50" r="1.5" fill="#34d399" />
+                <rect x="52" y="27" width="16" height="16" rx="2" fill="#047857" stroke="#34d399" strokeWidth="0.8" />
+                <text x="60" y="37" fill="#34d399" fontSize="6" textAnchor="middle" fontWeight="bold">SPI_IC</text>
+              </svg>
+            </div>
+            
+            <div className="absolute bottom-2 left-2 text-slate-500 font-bold">IMPEDANCE: 50Ω TARGET</div>
+            <div className="absolute bottom-2 right-2 text-emerald-300 font-bold">DIELECTRIC: FR4 TG180</div>
+          </div>
+        )
+      }
+    },
+    {
+      id: 102,
+      name: "PRECISION MULTI-AXIS CNC MILLING",
+      detail: "Translating complex aeronautical sub-micron assemblies into optimized toolpaths with Renishaw metrology interferometers and active cooling stabilization.",
+      themeColor: "#0056b3",
+      blueprint: {
+        title: "5-Axis CNC Milling Simulation & Coordinates",
+        specs: [
+          { label: "Calibration tool", value: "Renishaw XL-80 dual interferometer" },
+          { label: "Cooling system", value: "Dual oil-jacket active heat sink" },
+          { label: "Spindle runout limit", value: "<0.8 microns dynamic offset" },
+          { label: "Machining Tolerance", value: "Sub-5 microns total variation" },
+          { label: "Materials standard", value: "Aviation-grade Titanium & Aluminum 7075" }
+        ],
+        diagram: (
+          <div className="relative h-44 bg-[#0c1a30] border border-blue-500/30 rounded-xl overflow-hidden font-mono text-[9px] text-blue-400 p-3 select-none">
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#1d4ed8_1px,transparent_1px),linear-gradient(to_bottom,#1d4ed8_1px,transparent_1px)] bg-[size:16px_16px] opacity-20" />
+            <div className="absolute top-2 left-2 text-[#60a5fa] uppercase font-black tracking-widest flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+              CNC_DRY_RUN [ACTIVE]
+            </div>
+            <div className="absolute top-2 right-2 text-slate-400">AXES: X, Y, Z, A, B</div>
+            
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none mt-2">
+              <svg className="w-24 h-24 text-blue-500/40" viewBox="0 0 100 100">
+                <rect x="25" y="25" width="50" height="50" fill="none" stroke="currentColor" strokeWidth="0.8" />
+                <circle cx="50" cy="50" r="20" fill="none" stroke="#ef4444" strokeWidth="1" strokeDasharray="3 3" />
+                <line x1="50" y1="10" x2="50" y2="90" stroke="currentColor" strokeWidth="0.5" strokeDasharray="2 2" />
+                <line x1="10" y1="50" x2="90" y2="50" stroke="currentColor" strokeWidth="0.5" strokeDasharray="2 2" />
+                <path d="M 50 50 L 64 36" stroke="#ef4444" strokeWidth="1.2" />
+              </svg>
+            </div>
+            
+            <div className="absolute bottom-2 left-2 text-slate-500 font-bold">TOOL_INDEX: 4-FLUTE SOLID CARBIDE</div>
+            <div className="absolute bottom-2 right-2 text-blue-300 font-bold">RUNOUT ERROR: 0.23 μm</div>
+          </div>
+        )
+      }
+    },
+    {
+      id: 103,
+      name: "UAV AUTOPILOT PX4 TELEMETRY",
+      detail: "Developing high-frequency real-time telemetry pipelines, dual EKF3 Kalman filters state tracking, and redundant power configurations.",
+      themeColor: "#0056b3",
+      blueprint: {
+        title: "Autopilot Flight Controller Architecture & State Machine",
+        specs: [
+          { label: "Wireless telemetry", value: "915MHz Frequency Hopping FHSS" },
+          { label: "Sensor Fusion logic", value: "Extended Kalman Filters (EKF3) state track" },
+          { label: "Main Processor Core", value: "STM32H7 dual-core cortex @480MHz" },
+          { label: "Data latency rate", value: "Under 10 milliseconds real-time loop" },
+          { label: "Correction standard", value: "Custom calibrated PID parameters loops" }
+        ],
+        diagram: (
+          <div className="relative h-44 bg-[#1e110a] border border-amber-500/30 rounded-xl overflow-hidden font-mono text-[9px] text-amber-400 p-3 select-none">
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#b45309_1px,transparent_1px),linear-gradient(to_bottom,#b45309_1px,transparent_1px)] bg-[size:16px_16px] opacity-20" />
+            <div className="absolute top-2 left-2 text-[#fbbf24] uppercase font-black tracking-widest flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+              TELEMETRY_LINK_ESTABLISHED
+            </div>
+            <div className="absolute top-2 right-2 text-slate-400">SIGNAL: 98% RSSI</div>
+            
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none mt-2">
+              <svg className="w-24 h-24 text-amber-500/40" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="35" fill="none" stroke="currentColor" strokeWidth="1" />
+                <path d="M 50 15 L 50 85 M 15 50 L 85 50" stroke="currentColor" strokeWidth="0.5" strokeDasharray="3 3" />
+                <rect x="42" y="42" width="16" height="16" rx="3" fill="#b45309" stroke="#fbbf24" strokeWidth="0.8" />
+                <circle cx="50" cy="15" r="3" fill="#ef4444" />
+                <circle cx="50" cy="85" r="3" fill="#ef4444" />
+                <circle cx="15" cy="50" r="3" fill="#ef4444" />
+                <circle cx="85" cy="50" r="3" fill="#ef4444" />
+              </svg>
+            </div>
+            
+            <div className="absolute bottom-2 left-2 text-slate-500 font-bold">EKF ESTIMATOR: INERTIAL_OK</div>
+            <div className="absolute bottom-2 right-2 text-amber-300 font-bold">HEADING ERR: &lt;0.04 deg</div>
+          </div>
+        )
+      }
+    }
+  ];
+
   return (
     <div className="bg-white min-h-screen text-slate-800 pb-24 font-sans">
       <SEO 
@@ -444,19 +549,19 @@ export default function ServicesPage() {
                   <StaggerItem key={idx}>
                     <MagneticCard 
                       bgUrl={spot.bgUrl}
-                      onClick={() => {}}
+                      onClick={() => setSelectedSpotlightIdx(idx)}
                       isLight={true}
                       themeColor="#0056b3"
-                      className="h-full flex flex-col justify-between bg-white/60 p-6 rounded-[24px] border border-[#002b5c]/10"
+                      className="group h-full flex flex-col justify-between bg-white/60 hover:bg-white p-6 rounded-[24px] border border-[#002b5c]/10 cursor-pointer shadow-sm hover:shadow-md transition-all duration-300 transform"
                     >
                       <div className="space-y-6">
                         
                         {/* Top Bar Layout */}
                         <div className="flex justify-between items-start">
-                          <div className="p-3.5 bg-blue-50/80 border border-blue-100 text-[#002b5c] rounded-2xl">
+                          <div className="p-3.5 bg-blue-50/85 group-hover:bg-blue-100 border border-blue-100 text-[#002b5c] rounded-2xl transition-colors">
                             <IconComp size={22} className="stroke-[2px]" />
                           </div>
-                          <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest">
+                          <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest bg-slate-100 px-2 py-0.5 rounded">
                             PROCESS CODE 0{idx + 1}
                           </span>
                         </div>
@@ -472,7 +577,7 @@ export default function ServicesPage() {
                         </div>
   
                         {/* Calibrated stats */}
-                        <div className="grid grid-cols-3 gap-2 py-4.5 border-y border-slate-100 text-center">
+                        <div className="grid grid-cols-3 gap-2 py-4.5 border-y border-slate-100 text-center bg-slate-50/10 rounded-lg">
                           {spot.stats.map((stat, sIdx) => (
                             <div key={sIdx} className="space-y-0.5">
                               <span className="text-[8px] font-mono text-slate-400 block tracking-wider uppercase font-bold leading-tight">
@@ -487,7 +592,7 @@ export default function ServicesPage() {
   
                         {/* Bullet tech parameter insights */}
                         <div className="space-y-2.5 pt-1">
-                          <span className="text-[8px] font-mono text-slate-400 font-bold uppercase tracking-widest block">
+                          <span className="text-[8px] font-mono text-[#002b5c]/75 font-bold uppercase tracking-widest block">
                             Technical Parameters Verified:
                           </span>
                           <div className="space-y-2">
@@ -514,6 +619,8 @@ export default function ServicesPage() {
                             ))}
                           </div>
                         </div>
+
+
   
                       </div>
                     </MagneticCard>
@@ -525,6 +632,14 @@ export default function ServicesPage() {
 
         </div>
       </section>
+
+      {selectedSpotlightIdx !== null && (
+        <BlueprintModal 
+          isOpen={selectedSpotlightIdx !== null} 
+          arena={spotlightArenas[selectedSpotlightIdx]} 
+          onClose={() => setSelectedSpotlightIdx(null)} 
+        />
+      )}
 
     </div>
   );

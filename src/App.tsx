@@ -336,6 +336,17 @@ const arenas = [
   }
 ];
 
+const getContrastColor = (color: string) => {
+  switch (color.toLowerCase()) {
+    case '#0056b3': return '#93c5fd'; // bright blue-300
+    case '#8b5cf6': return '#ddd6fe'; // bright purple-200
+    case '#0284c7': return '#7dd3fc'; // bright sky-300
+    case '#f59e0b': return '#fcd34d'; // bright amber-300
+    case '#4b5563': return '#e2e8f0'; // bright slate-200
+    default: return '#cbd5e1';
+  }
+};
+
 export default function App() {
   const [isConsultationOpen, setIsConsultationOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState<string>('home');
@@ -504,9 +515,9 @@ export default function App() {
                         </div>
 
                         {/* Statically highlighted technical tag instead of unrequested details button */}
-                        <div className="mt-4 flex items-center justify-between text-[9px] sm:text-[10px] font-sans font-extrabold text-white/50 uppercase tracking-wider bg-white/5 px-3 py-1.5 rounded-lg border border-white/5 w-fit">
+                        <div className="mt-4 flex items-center justify-between text-[9px] sm:text-[10px] font-sans font-extrabold text-white/90 uppercase tracking-widest bg-white/5 px-3 py-1.5 rounded-lg border border-white/10 w-fit">
                           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse mr-2" />
-                          <span style={{ color: sol.themeColor }}>{sol.tag || 'SYSTEM_CORE'}</span>
+                          <span style={{ color: getContrastColor(sol.themeColor) }}>{sol.tag || 'SYSTEM_CORE'}</span>
                         </div>
                       </MagneticCard>
                     ))}

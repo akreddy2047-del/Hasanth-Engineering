@@ -59,9 +59,6 @@ export default function Footer({ onOpenConsultation, onPageChange }: FooterProps
 
           {/* Navigation Directory (Arranged into two clean vertical columns) */}
           <div className="lg:col-span-4 space-y-4">
-            <h4 className="text-white font-sans uppercase tracking-widest text-[9px] font-black pb-2 border-b border-white/10">
-              SITEMAP NAVIGATION
-            </h4>
             <div className="grid grid-cols-2 gap-x-8 gap-y-3.5">
               {/* Column 1 */}
               <div className="flex flex-col gap-3">
