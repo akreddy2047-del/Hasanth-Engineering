@@ -277,83 +277,60 @@ export default function AdminPanel() {
     <div className="min-h-screen bg-slate-50 pt-24 pb-16 px-4 font-sans text-slate-900 relative z-40">
       <div className="max-w-6xl mx-auto space-y-8">
         
-        {/* Dynamic Upper Header Section */}
-        <div className="bg-white border-2 border-slate-100 p-6 sm:p-8 rounded-[32px] shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          <div className="flex items-center gap-4">
-            <div className="p-4 bg-blue-50 text-[#002b5c] rounded-2xl border border-blue-100 shadow-inner shrink-0">
-              <Shield size={28} />
-            </div>
-            <div>
-              <div className="flex items-center gap-2 text-[10px] font-mono text-[#0056b3] uppercase tracking-widest font-black">
-                <span>HYDERABAD CORE VAULT</span>
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+        <div className="max-w-5xl mx-auto mb-6">
+          <div className="bg-white border border-slate-200 rounded-2xl p-4 flex items-center justify-between shadow-sm">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-slate-50 flex items-center justify-center rounded-xl border border-slate-100">
+                <Shield size={18} className="text-[#002b5c]" />
               </div>
-              <h1 className="text-2xl sm:text-3xl font-sans font-black uppercase text-[#002b5c] tracking-tight">
-                Control Center
-              </h1>
-              <p className="text-xs text-slate-500 font-semibold">
-                Manage operational vacancies, evaluate candidate portfolios, and respond to incoming corporate inquiries.
-              </p>
+              <div>
+                <h1 className="text-sm font-sans font-black uppercase text-[#002b5c] leading-none mb-0.5">Control</h1>
+                <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Hasanth Engineering Node • Active</p>
+              </div>
             </div>
-          </div>
-
-          <div className="flex items-center gap-2 self-stretch md:self-auto justify-end">
             <button 
               onClick={handleLogout}
-              className="px-4 py-2.5 bg-slate-150 hover:bg-red-50 hover:text-red-600 text-slate-700 font-mono text-[10px] font-black uppercase tracking-widest rounded-xl border border-slate-200 cursor-pointer transition-all flex items-center gap-2"
+              className="flex items-center gap-2 px-3 py-1.5 hover:bg-slate-50 text-slate-400 hover:text-red-600 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all"
             >
-              <LogOut size={13} />
-              <span>Sign Out</span>
+              <LogOut size={14} /> Sign Out
             </button>
           </div>
         </div>
 
-        {/* Tab Selection Row */}
-        <div className="bg-white border-2 border-slate-100 p-1.5 rounded-2xl shadow-sm flex flex-col sm:flex-row gap-1">
-          <button 
-            onClick={() => setActiveTab('jobs')} 
-            className={`flex-1 py-3 px-4 rounded-xl text-xs font-mono font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${
-              activeTab === 'jobs' 
-                ? 'bg-[#002b5c] text-white shadow-md' 
-                : 'text-slate-600 hover:text-[#002b5c] hover:bg-slate-50'
-            }`}
-          >
-            <Briefcase size={14} />
-            <span>Manage Vacancies</span>
-            <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-sans ${
-              activeTab === 'jobs' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-650'
-            }`}>{jobs.length}</span>
-          </button>
-
-          <button 
-            onClick={() => setActiveTab('applications')} 
-            className={`flex-1 py-3 px-4 rounded-xl text-xs font-mono font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${
-              activeTab === 'applications' 
-                ? 'bg-[#002b5c] text-white shadow-md' 
-                : 'text-slate-600 hover:text-[#002b5c] hover:bg-slate-50'
-            }`}
-          >
-            <FileText size={14} />
-            <span>Candidate Resumes</span>
-            <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-sans ${
-              activeTab === 'applications' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-650'
-            }`}>{applications.length}</span>
-          </button>
-
-          <button 
-            onClick={() => setActiveTab('enquiries')} 
-            className={`flex-1 py-3 px-4 rounded-xl text-xs font-mono font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${
-              activeTab === 'enquiries' 
-                ? 'bg-[#002b5c] text-white shadow-md' 
-                : 'text-slate-600 hover:text-[#002b5c] hover:bg-slate-50'
-            }`}
-          >
-            <Mail size={14} />
-            <span>Enquiry Streams</span>
-            <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-sans ${
-              activeTab === 'enquiries' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-650'
-            }`}>{enquiries.length}</span>
-          </button>
+        {/* Dense Navigation */}
+        <div className="max-w-5xl mx-auto mb-6">
+          <div className="bg-slate-100/50 p-1 rounded-xl flex gap-1">
+            <button 
+              onClick={() => setActiveTab('jobs')}
+              className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all ${
+                activeTab === 'jobs' 
+                ? 'bg-white text-[#002b5c] shadow-sm' 
+                : 'text-slate-400 hover:text-slate-600'
+              }`}
+            >
+              <Briefcase size={12} /> Vacancies ({jobs.length})
+            </button>
+            <button 
+              onClick={() => setActiveTab('applications')}
+              className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all ${
+                activeTab === 'applications' 
+                ? 'bg-white text-[#002b5c] shadow-sm' 
+                : 'text-slate-400 hover:text-slate-600'
+              }`}
+            >
+              <FileText size={12} /> Resumes ({applications.length})
+            </button>
+            <button 
+              onClick={() => setActiveTab('enquiries')}
+              className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all ${
+                activeTab === 'enquiries' 
+                ? 'bg-white text-[#002b5c] shadow-sm' 
+                : 'text-slate-400 hover:text-slate-600'
+              }`}
+            >
+              <Mail size={12} /> Inquiries ({enquiries.length})
+            </button>
+          </div>
         </div>
 
         {/* Dynamic Control Main Interface */}
@@ -361,259 +338,136 @@ export default function AdminPanel() {
           
           {/* TAB 1: JOBS & TEMPLATES */}
           {activeTab === 'jobs' && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
               
-              {/* Job Creation Form with Template Quick loader */}
-              <div className="lg:col-span-7 bg-white border-2 border-slate-100 p-6 sm:p-8 rounded-[32px] shadow-sm space-y-6">
-                <div>
-                  <h2 className="text-xl font-sans font-black uppercase text-[#002b5c] tracking-tight leading-none mb-1">
-                    Deploy Vacancy
-                  </h2>
-                  <p className="text-[11px] text-slate-500 font-semibold">
-                    Input parametric requirements or select a verified template blueprint below to populate form variables variables instantly.
-                  </p>
+              <div className="lg:col-span-12 bg-white border border-slate-200 p-6 rounded-2xl space-y-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xs font-sans font-black uppercase text-[#002b5c] tracking-wider">Deploy Position</h2>
+                  <span className="text-[9px] text-slate-400 font-mono">Select Blueprint or Manual Entry</span>
                 </div>
 
-                {/* Templates Grid Selector */}
-                <div className="space-y-2">
-                  <span className="text-[10px] font-sans text-slate-400 font-bold uppercase tracking-widest block">Blueprint Templates</span>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {JOB_TEMPLATES.map((tmpl) => (
-                      <button
-                        key={tmpl.name}
-                        type="button"
-                        onClick={() => handleLoadTemplate(tmpl)}
-                        className="p-3 text-left border border-slate-200 hover:border-[#0056b3] bg-slate-50 hover:bg-blue-50/20 text-slate-800 rounded-xl transition-all duration-300 group cursor-pointer"
-                      >
-                        <p className="text-[11px] font-sans font-black uppercase text-[#002b5c] group-hover:text-[#0056b3] transition-colors truncate">
-                          {tmpl.name}
-                        </p>
-                        <p className="text-[9px] text-slate-500 font-medium truncate mt-0.5">
-                          {tmpl.title} ({tmpl.location})
-                        </p>
-                      </button>
-                    ))}
-                  </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {JOB_TEMPLATES.map((tmpl) => (
+                    <button
+                      key={tmpl.name}
+                      type="button"
+                      onClick={() => handleLoadTemplate(tmpl)}
+                      className="text-left p-2 border border-slate-100 hover:border-[#002b5c]/30 rounded-xl transition-all group bg-slate-50/50"
+                    >
+                      <div className="text-[9px] font-black uppercase text-[#002b5c] leading-tight flex items-center justify-between">
+                        {tmpl.name}
+                        <Plus size={10} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </div>
+                    </button>
+                  ))}
                 </div>
 
                 <div className="h-px bg-slate-100" />
 
-                {/* Form fields */}
-                <form onSubmit={handleAddJob} className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <form onSubmit={handleAddJob} className="space-y-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
                     <div className="space-y-1">
-                      <label className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Position Title *</label>
-                      <input 
-                        type="text"
-                        required
-                        value={newJob.title}
-                        onChange={e => setNewJob({...newJob, title: e.target.value})}
-                        placeholder="e.g. Senior Firmware Designer"
-                        className="w-full bg-white border border-slate-200 focus:border-[#002b5c] focus:outline-none rounded-xl px-3 py-2.5 text-xs text-slate-800 font-semibold"
-                      />
+                      <label className="text-[8px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Title</label>
+                      <input type="text" required value={newJob.title} onChange={e => setNewJob({...newJob, title: e.target.value})}
+                        className="w-full bg-white border border-slate-200 focus:border-[#002b5c] focus:outline-none rounded-lg px-3 py-2 text-xs text-slate-800 font-semibold" />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Vacant Type *</label>
-                      <input 
-                        type="text"
-                        required
-                        value={newJob.type}
-                        onChange={e => setNewJob({...newJob, type: e.target.value})}
-                        placeholder="e.g. Full-Time Position"
-                        className="w-full bg-white border border-slate-200 focus:border-[#002b5c] focus:outline-none rounded-xl px-3 py-2.5 text-xs text-slate-800 font-semibold"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Location coordinates *</label>
-                      <input 
-                        type="text"
-                        required
-                        value={newJob.location}
-                        onChange={e => setNewJob({...newJob, location: e.target.value})}
-                        placeholder="e.g. Balanagar Hub, Hyderabad"
-                        className="w-full bg-white border border-slate-200 focus:border-[#002b5c] focus:outline-none rounded-xl px-3 py-2.5 text-xs text-slate-800 font-semibold"
-                      />
+                      <label className="text-[8px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Type</label>
+                      <input type="text" required value={newJob.type} onChange={e => setNewJob({...newJob, type: e.target.value})}
+                        className="w-full bg-white border border-slate-200 focus:border-[#002b5c] focus:outline-none rounded-lg px-3 py-2 text-xs text-slate-800 font-semibold" />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Required Experience</label>
-                      <input 
-                        type="text"
-                        value={newJob.exp}
-                        onChange={e => setNewJob({...newJob, exp: e.target.value})}
-                        placeholder="e.g. 3 - 5 Years Experience"
-                        className="w-full bg-white border border-slate-200 focus:border-[#002b5c] focus:outline-none rounded-xl px-3 py-2.5 text-xs text-slate-800 font-semibold"
-                      />
+                      <label className="text-[8px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Location</label>
+                      <input type="text" required value={newJob.location} onChange={e => setNewJob({...newJob, location: e.target.value})}
+                        className="w-full bg-white border border-slate-200 focus:border-[#002b5c] focus:outline-none rounded-lg px-3 py-2 text-xs text-slate-800 font-semibold" />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[8px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Experience</label>
+                      <input type="text" value={newJob.exp} onChange={e => setNewJob({...newJob, exp: e.target.value})}
+                        className="w-full bg-white border border-slate-200 focus:border-[#002b5c] focus:outline-none rounded-lg px-3 py-2 text-xs text-slate-800 font-semibold" />
                     </div>
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Role Narrative (Description) *</label>
-                    <textarea 
-                      rows={3}
-                      required
-                      value={newJob.desc}
-                      onChange={e => setNewJob({...newJob, desc: e.target.value})}
-                      placeholder="Specify RTOS tasks, physical structural tolerances, standard codes etc..."
-                      className="w-full bg-white border border-slate-200 focus:border-[#002b5c] focus:outline-none rounded-xl px-3.5 py-2.5 text-xs text-slate-800 font-semibold leading-relaxed"
-                    />
+                    <label className="text-[8px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Description</label>
+                    <textarea rows={2} required value={newJob.desc} onChange={e => setNewJob({...newJob, desc: e.target.value})}
+                      className="w-full bg-white border border-slate-200 focus:border-[#002b5c] focus:outline-none rounded-lg px-3 py-2 text-xs text-slate-800 font-semibold resize-none" />
                   </div>
 
-                  <div className="space-y-1">
-                    <label className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Required Technical Skills (Comma Separated)</label>
-                    <input 
-                      type="text"
-                      value={newJob.skills}
-                      onChange={e => setNewJob({...newJob, skills: e.target.value})}
-                      placeholder="e.g. C/C++, STM32 / ARM, FreeRTOS"
-                      className="w-full bg-white border border-slate-200 focus:border-[#002b5c] focus:outline-none rounded-xl px-3 py-2.5 text-xs text-slate-800 font-semibold"
-                    />
+                  <div className="flex gap-3">
+                    <div className="flex-1 space-y-1">
+                      <label className="text-[8px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Technical Skills</label>
+                      <input type="text" value={newJob.skills} onChange={e => setNewJob({...newJob, skills: e.target.value})}
+                        className="w-full bg-white border border-slate-200 focus:border-[#002b5c] focus:outline-none rounded-lg px-3 py-2 text-xs text-slate-800 font-semibold"
+                        placeholder="MATLAB, C++..." />
+                    </div>
+                    <button 
+                      type="submit"
+                      className="self-end px-6 bg-[#002b5c] hover:bg-blue-600 text-white font-mono text-[9px] font-bold uppercase tracking-widest py-2.5 rounded-lg transition-all"
+                    >
+                      Deploy
+                    </button>
                   </div>
-
-                  <button 
-                    type="submit"
-                    className="w-full py-3.5 bg-[#002b5c] hover:bg-blue-900 text-white transition-all duration-300 font-mono text-xs font-black uppercase tracking-widest rounded-xl hover:shadow cursor-pointer flex items-center justify-center gap-2"
-                  >
-                    <Plus size={14} />
-                    <span>Deploy Vacancy Code</span>
-                  </button>
                 </form>
               </div>
 
-              {/* Current vacancies list */}
-              <div className="lg:col-span-5 bg-white border-2 border-slate-100 p-6 rounded-[32px] shadow-sm space-y-4">
-                <div>
-                  <h2 className="text-xl font-sans font-black uppercase text-[#002b5c] tracking-tight leading-none mb-1">
-                    Active vacancys ({jobs.length})
-                  </h2>
-                  <p className="text-[11px] text-slate-500 font-semibold">
-                    Current roles published live. Users will instantly view these positions on Careers division.
-                  </p>
-                </div>
-
-                <div className="space-y-3 max-h-[500px] overflow-y-auto pr-1">
+              <div className="lg:col-span-12 bg-white border border-slate-200 p-5 rounded-2xl">
+                <h3 className="text-[9px] font-sans font-black uppercase text-slate-400 tracking-widest mb-4 border-b border-slate-50 pb-2">Active Roles Pipeline</h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
                   {jobs.length === 0 ? (
-                    <div className="p-8 border border-dashed border-slate-200 rounded-2xl text-center text-xs text-slate-400 font-bold uppercase">
+                    <div className="col-span-full p-6 border border-dashed border-slate-100 rounded-xl text-center text-[9px] text-slate-300 font-bold uppercase">
                       No positions configured.
                     </div>
                   ) : (
                     jobs.map((job) => (
-                      <div key={job.id} className="p-4 border border-slate-150 hover:border-[#002b5c]/30 rounded-2xl flex items-start justify-between gap-4 transition-all bg-slate-50 relative group">
-                        <div className="space-y-1.5 max-w-[80%]">
-                          <h4 className="text-xs font-sans font-extrabold uppercase text-[#002b5c] leading-tight">
-                            {job.title}
-                          </h4>
-                          <div className="space-y-0.5">
-                            <span className="text-[10px] font-sans font-bold text-slate-500 block">
-                              {job.location}
-                            </span>
-                            <span className="text-[9px] font-mono text-blue-600 block uppercase font-bold">
-                              {job.type} • {job.exp || 'Freshers / Graduates'}
-                            </span>
+                      <div key={job.id} className="p-3 border border-slate-100 hover:border-slate-200 rounded-xl flex items-center justify-between gap-3 bg-slate-50/20 transition-all">
+                        <div className="min-w-0">
+                          <h4 className="text-[9px] font-black uppercase text-[#002b5c] truncate">{job.title}</h4>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <span className="text-[8px] text-slate-400 font-bold uppercase">{job.type}</span>
+                            <span className="text-slate-200">•</span>
+                            <span className="text-[8px] text-slate-400 font-bold uppercase">{job.location}</span>
                           </div>
                         </div>
-
                         <button 
                           onClick={() => handleDeleteJob(job.id, job.title)}
-                          title="Purge position vacancy"
-                          className="p-1 px-1.5 hover:bg-red-50 text-slate-400 hover:text-red-600 rounded-lg transition-colors cursor-pointer"
+                          className="p-1 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
                         >
-                          <Trash2 size={15} />
+                          <Trash2 size={12} />
                         </button>
                       </div>
                     ))
                   )}
                 </div>
               </div>
-
             </div>
           )}
 
-          {/* TAB 2: CANDIDATE APPLICATIONS (CRUD View & Delete) */}
           {activeTab === 'applications' && (
-            <div className="bg-white border-2 border-slate-100 p-6 sm:p-8 rounded-[32px] shadow-sm space-y-6">
-              <div>
-                <h2 className="text-xl font-sans font-black uppercase text-[#002b5c] tracking-tight leading-none mb-1">
-                  Applicant Resume Database ({applications.length})
-                </h2>
-                <p className="text-[11px] text-slate-500 font-semibold">
-                  Credentials and portfolio statements securely logged files. Standard review logs must remain end-to-end encrypted.
-                </p>
-              </div>
-
-              <div className="space-y-4">
+            <div className="bg-white border border-slate-200 p-5 rounded-2xl space-y-4">
+              <h2 className="text-[9px] font-sans font-black uppercase text-slate-400 tracking-widest border-b border-slate-50 pb-2">Resume Database ({applications.length})</h2>
+              
+              <div className="space-y-2">
                 {applications.length === 0 ? (
-                  <div className="p-12 border-2 border-dashed border-slate-200 rounded-2xl text-center text-xs text-slate-400 font-bold uppercase">
-                    No candidate applications currently logged inside pipeline.
-                  </div>
+                  <div className="p-8 border border-dashed border-slate-100 rounded-xl text-center text-[9px] text-slate-300 font-bold uppercase">No entries Pipeline.</div>
                 ) : (
                   applications.map((app) => (
-                    <div key={app.id} className="p-5 border-2 border-slate-50 rounded-2xl bg-white hover:border-[#002b5c]/20 transition-all flex flex-col md:flex-row md:items-start justify-between gap-4 relative">
-                      <div className="space-y-3 flex-1">
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3">
-                          <span className="text-[#002b5c] text-sm font-extrabold uppercase">
-                            {app.applicantName}
-                          </span>
-                          <span className="hidden sm:inline text-slate-300">|</span>
-                          <span className="text-slate-500 text-xs font-semibold">
-                            {app.applicantEmail}
-                          </span>
-                          {app.applicantPhone && (
-                            <>
-                              <span className="hidden sm:inline text-slate-300">|</span>
-                              <span className="text-slate-500 text-xs font-mono">
-                                {app.applicantPhone}
-                              </span>
-                            </>
-                          )}
+                    <div key={app.id} className="p-3 border border-slate-100 rounded-xl bg-white hover:bg-slate-50/50 transition-all flex items-start justify-between gap-4">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-black uppercase text-[#002b5c]">{app.applicantName}</span>
+                          <span className="text-[10px] text-slate-400 font-medium">| {app.applicantEmail}</span>
                         </div>
-
-                        <div className="space-y-2">
-                          <div className="text-[10px] text-slate-400 font-mono font-bold uppercase bg-slate-50 px-2 py-0.5 rounded-md inline-block">
-                            Target Position Ref: {app.jobId || 'Embedded/Other vacancy'}
-                          </div>
-
-                          {app.coverLetter && (
-                            <div className="p-3 bg-slate-50/50 border border-slate-100 rounded-xl">
-                              <p className="text-[11px] text-slate-700 leading-relaxed font-medium">
-                                "{app.coverLetter}"
-                              </p>
-                            </div>
-                          )}
-
-                          {app.portfolioLink && (
-                            <div className="text-[10px] text-blue-600 font-mono hover:underline">
-                              Portfolio: <a href={app.portfolioLink} target="_blank" rel="noopener noreferrer">{app.portfolioLink}</a>
-                            </div>
-                          )}
-
-                          {app.resumeData && (
-                            <div className="mt-2 text-[10px] text-slate-500 font-mono">
-                              <a 
-                                href={app.resumeData} 
-                                download={app.resumeName || 'resume'} 
-                                className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-slate-200 hover:border-slate-300 rounded-lg bg-white transition-colors text-slate-600 hover:text-[#002b5c] font-semibold"
-                              >
-                                <Download size={14} />
-                                {app.resumeName || 'Download Resume Document'}
-                              </a>
-                            </div>
-                          )}
-                        </div>
-
-                        <p className="text-[9px] text-slate-400 font-mono">
-                          Transmitted: {app.timestamp?.toDate ? app.timestamp.toDate().toLocaleString() : new Date().toLocaleString()}
-                        </p>
+                        <div className="text-[8px] text-blue-500 font-mono font-bold uppercase mt-1">Ref: {app.jobId || 'N/A'}</div>
+                        {app.resumeData && (
+                          <a href={app.resumeData} download={app.resumeName || 'resume'} className="inline-flex items-center gap-1 mt-2 text-[9px] text-slate-500 hover:text-[#002b5c] font-bold">
+                            <Download size={10} /> {app.resumeName || 'CV'}
+                          </a>
+                        )}
                       </div>
-
-                      <button 
-                        onClick={() => handleDeleteApplication(app.id, app.applicantName)}
-                        title="Purge applicant data"
-                        className="p-1.5 px-2 hover:bg-red-50 text-slate-400 hover:text-red-600 rounded-lg transition-colors cursor-pointer self-end md:self-start flex items-center justify-center border border-transparent hover:border-red-200"
-                      >
-                        <Trash2 size={15} />
+                      <button onClick={() => handleDeleteApplication(app.id, app.applicantName)} className="p-1 text-slate-300 hover:text-red-500 transition-all">
+                        <Trash2 size={12} />
                       </button>
                     </div>
                   ))
@@ -622,60 +476,28 @@ export default function AdminPanel() {
             </div>
           )}
 
-          {/* TAB 3: CONTACT ENQUIRIES (CRUD View & Delete) */}
           {activeTab === 'enquiries' && (
-            <div className="bg-white border-2 border-slate-100 p-6 sm:p-8 rounded-[32px] shadow-sm space-y-6">
-              <div>
-                <h2 className="text-xl font-sans font-black uppercase text-[#002b5c] tracking-tight leading-none mb-1">
-                  Enquiry Streams and Correspondence ({enquiries.length})
-                </h2>
-                <p className="text-[11px] text-slate-500 font-semibold">
-                  Active general system inquiries, quote requests, and coordinate correspondence from the Contact forms.
-                </p>
-              </div>
-
-              <div className="space-y-4">
+            <div className="bg-white border border-slate-200 p-5 rounded-2xl space-y-4">
+              <h2 className="text-[9px] font-sans font-black uppercase text-slate-400 tracking-widest border-b border-slate-50 pb-2">Correspondance Streams ({enquiries.length})</h2>
+              
+              <div className="space-y-2">
                 {enquiries.length === 0 ? (
-                  <div className="p-12 border-2 border-dashed border-slate-200 rounded-2xl text-center text-xs text-slate-400 font-bold uppercase">
-                    No active system queue correspondencies or raw requests.
-                  </div>
+                  <div className="p-8 border border-dashed border-slate-100 rounded-xl text-center text-[9px] text-slate-300 font-bold uppercase">No active requests.</div>
                 ) : (
                   enquiries.map((enq) => (
-                    <div key={enq.id} className="p-5 border-2 border-slate-50 rounded-2xl bg-white hover:border-[#002b5c]/20 transition-all flex flex-col md:flex-row md:items-start justify-between gap-4 relative">
-                      <div className="space-y-3 flex-1">
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3">
-                          <span className="text-[#002b5c] text-sm font-extrabold uppercase">
-                            {enq.applicantName || 'Anonymous Contact'}
-                          </span>
-                          <span className="hidden sm:inline text-slate-300">|</span>
-                          <span className="text-slate-500 text-xs font-semibold">
-                            {enq.applicantEmail}
-                          </span>
+                    <div key={enq.id} className="p-3 border border-slate-100 rounded-xl bg-white hover:bg-slate-50/50 transition-all flex items-start justify-between gap-4">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-black uppercase text-[#002b5c]">{enq.applicantName || 'Anonymous'}</span>
+                          <span className="text-[10px] text-slate-400 font-medium">| {enq.applicantEmail}</span>
                         </div>
-
-                        {enq.subject && (
-                          <div className="text-[10px] font-mono text-blue-600 font-black uppercase">
-                            Ref Subject: {enq.subject}
-                          </div>
-                        )}
-
-                        <div className="p-3 bg-slate-50/50 border border-slate-100 rounded-xl">
-                          <p className="text-[11px] text-slate-700 leading-relaxed font-semibold">
-                            "{enq.message}"
-                          </p>
+                        <div className="bg-slate-50 p-2 rounded-lg mt-2">
+                          <p className="text-[9px] text-slate-600 leading-relaxed font-semibold italic">"{enq.message}"</p>
                         </div>
-
-                        <p className="text-[9px] text-slate-400 font-mono">
-                          Transmitted: {enq.timestamp?.toDate ? enq.timestamp.toDate().toLocaleString() : new Date().toLocaleString()}
-                        </p>
+                        <div className="text-[8px] text-slate-300 font-mono mt-1">Transmitted: {enq.timestamp?.toDate ? enq.timestamp.toDate().toLocaleString() : new Date().toLocaleString()}</div>
                       </div>
-
-                      <button 
-                        onClick={() => handleDeleteEnquiry(enq.id, enq.applicantName || 'Anonymous')}
-                        title="Delete inquiry from records queue"
-                        className="p-1.5 px-2 hover:bg-red-50 text-slate-400 hover:text-red-600 rounded-lg transition-colors cursor-pointer self-end md:self-start flex items-center justify-center border border-transparent hover:border-red-200"
-                      >
-                        <Trash2 size={15} />
+                      <button onClick={() => handleDeleteEnquiry(enq.id, enq.applicantName || 'Anonymous')} className="p-1 text-slate-300 hover:text-red-500 transition-all">
+                        <Trash2 size={12} />
                       </button>
                     </div>
                   ))
