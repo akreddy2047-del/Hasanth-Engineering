@@ -274,200 +274,238 @@ export default function AdminPanel() {
 
   // Authenticated Admin Dashboard
   return (
-    <div className="min-h-screen bg-slate-50 pt-24 pb-16 px-4 font-sans text-slate-900 relative z-40">
-      <div className="max-w-6xl mx-auto space-y-8">
+    <div className="min-h-screen bg-[#fafafa] pt-24 pb-20 px-6 font-sans text-slate-900 relative z-40">
+      <div className="max-w-5xl mx-auto">
         
-        <div className="max-w-5xl mx-auto mb-6">
-          <div className="bg-white border border-slate-200 rounded-2xl p-4 flex items-center justify-between shadow-sm">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-slate-50 flex items-center justify-center rounded-xl border border-slate-100">
-                <Shield size={18} className="text-[#002b5c]" />
-              </div>
-              <div>
-                <h1 className="text-sm font-sans font-black uppercase text-[#002b5c] leading-none mb-0.5">Control</h1>
-                <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Hasanth Engineering Node • Active</p>
-              </div>
+        {/* Simplified Header */}
+        <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10 pb-6 border-b border-slate-200">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <Shield size={18} className="text-slate-400" />
+              <h1 className="text-lg font-bold text-slate-900 tracking-tight">Management Portal</h1>
             </div>
-            <button 
-              onClick={handleLogout}
-              className="flex items-center gap-2 px-3 py-1.5 hover:bg-slate-50 text-slate-400 hover:text-red-600 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all"
-            >
-              <LogOut size={14} /> Sign Out
-            </button>
+            <p className="text-xs text-slate-500 font-medium">Hasanth Engineering (OPC) Private Limited Control Center</p>
           </div>
-        </div>
+          <button 
+            onClick={handleLogout}
+            className="flex items-center gap-2 px-4 py-2 hover:bg-slate-100 text-slate-600 rounded-lg text-xs font-semibold transition-all border border-slate-200 w-fit"
+          >
+            <LogOut size={14} /> Sign Out
+          </button>
+        </header>
 
-        {/* Dense Navigation */}
-        <div className="max-w-5xl mx-auto mb-6">
-          <div className="bg-slate-100/50 p-1 rounded-xl flex gap-1">
-            <button 
-              onClick={() => setActiveTab('jobs')}
-              className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all ${
-                activeTab === 'jobs' 
-                ? 'bg-white text-[#002b5c] shadow-sm' 
-                : 'text-slate-400 hover:text-slate-600'
-              }`}
-            >
-              <Briefcase size={12} /> Vacancies ({jobs.length})
-            </button>
-            <button 
-              onClick={() => setActiveTab('applications')}
-              className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all ${
-                activeTab === 'applications' 
-                ? 'bg-white text-[#002b5c] shadow-sm' 
-                : 'text-slate-400 hover:text-slate-600'
-              }`}
-            >
-              <FileText size={12} /> Resumes ({applications.length})
-            </button>
-            <button 
-              onClick={() => setActiveTab('enquiries')}
-              className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all ${
-                activeTab === 'enquiries' 
-                ? 'bg-white text-[#002b5c] shadow-sm' 
-                : 'text-slate-400 hover:text-slate-600'
-              }`}
-            >
-              <Mail size={12} /> Inquiries ({enquiries.length})
-            </button>
-          </div>
-        </div>
+        {/* Clean Navigation Tabs */}
+        <nav className="flex gap-8 mb-8 border-b border-slate-200">
+          <button 
+            onClick={() => setActiveTab('jobs')}
+            className={`pb-3 text-xs font-bold uppercase tracking-widest transition-all relative ${
+              activeTab === 'jobs' 
+              ? 'text-[#002b5c] border-b-2 border-[#002b5c]' 
+              : 'text-slate-400 hover:text-slate-600'
+            }`}
+          >
+            Vacancies ({jobs.length})
+          </button>
+          <button 
+            onClick={() => setActiveTab('applications')}
+            className={`pb-3 text-xs font-bold uppercase tracking-widest transition-all relative ${
+              activeTab === 'applications' 
+              ? 'text-[#002b5c] border-b-2 border-[#002b5c]' 
+              : 'text-slate-400 hover:text-slate-600'
+            }`}
+          >
+            Resumes ({applications.length})
+          </button>
+          <button 
+            onClick={() => setActiveTab('enquiries')}
+            className={`pb-3 text-xs font-bold uppercase tracking-widest transition-all relative ${
+              activeTab === 'enquiries' 
+              ? 'text-[#002b5c] border-b-2 border-[#002b5c]' 
+              : 'text-slate-400 hover:text-slate-600'
+            }`}
+          >
+            Inquiries ({enquiries.length})
+          </button>
+        </nav>
 
-        {/* Dynamic Control Main Interface */}
-        <div className="space-y-8">
+        {/* Structured Content Area */}
+        <main className="space-y-12">
           
-          {/* TAB 1: JOBS & TEMPLATES */}
+          {/* TAB 1: VACANCIES */}
           {activeTab === 'jobs' && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            <div className="space-y-10 animate-in fade-in duration-500">
               
-              <div className="lg:col-span-12 bg-white border border-slate-200 p-6 rounded-2xl space-y-4">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-xs font-sans font-black uppercase text-[#002b5c] tracking-wider">Deploy Position</h2>
-                  <span className="text-[9px] text-slate-400 font-mono">Select Blueprint or Manual Entry</span>
+              {/* Position Creator Document */}
+              <section className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                <div className="bg-slate-50 px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+                  <h2 className="text-xs font-bold uppercase tracking-widest text-[#002b5c]">Deploy New Vacancy</h2>
+                  <span className="text-[10px] text-slate-400 font-mono">Form Serial: H-ENG-{new Date().getFullYear()}</span>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  {JOB_TEMPLATES.map((tmpl) => (
-                    <button
-                      key={tmpl.name}
-                      type="button"
-                      onClick={() => handleLoadTemplate(tmpl)}
-                      className="text-left p-2 border border-slate-100 hover:border-[#002b5c]/30 rounded-xl transition-all group bg-slate-50/50"
-                    >
-                      <div className="text-[9px] font-black uppercase text-[#002b5c] leading-tight flex items-center justify-between">
-                        {tmpl.name}
-                        <Plus size={10} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="p-6 space-y-6">
+                  {/* Template Quick Select */}
+                  <div className="space-y-3">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Blueprint Templates</p>
+                    <div className="flex flex-wrap gap-2">
+                      {JOB_TEMPLATES.map((tmpl) => (
+                        <button
+                          key={tmpl.name}
+                          type="button"
+                          onClick={() => handleLoadTemplate(tmpl)}
+                          className="px-3 py-1.5 border border-slate-200 hover:border-[#002b5c]/30 rounded-lg transition-all text-[11px] font-bold text-slate-600 bg-slate-50/50 hover:bg-white"
+                        >
+                          {tmpl.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="h-px bg-slate-100" />
+
+                  <form onSubmit={handleAddJob} className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <label className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Position Title</label>
+                        <input type="text" required value={newJob.title} onChange={e => setNewJob({...newJob, title: e.target.value})}
+                          placeholder="e.g. Senior Aerospace Engineer"
+                          className="w-full bg-slate-50 border border-slate-200 focus:border-[#002b5c] focus:bg-white focus:outline-none rounded-lg px-4 py-2.5 text-sm text-slate-800 font-medium transition-all" />
                       </div>
-                    </button>
-                  ))}
+                      <div className="space-y-2">
+                        <label className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Job Type</label>
+                        <input type="text" required value={newJob.type} onChange={e => setNewJob({...newJob, type: e.target.value})}
+                          placeholder="e.g. Full-Time / Internship"
+                          className="w-full bg-slate-50 border border-slate-200 focus:border-[#002b5c] focus:bg-white focus:outline-none rounded-lg px-4 py-2.5 text-sm text-slate-800 font-medium transition-all" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Office Location</label>
+                        <input type="text" required value={newJob.location} onChange={e => setNewJob({...newJob, location: e.target.value})}
+                          placeholder="Balanagar, Hyderabad"
+                          className="w-full bg-slate-50 border border-slate-200 focus:border-[#002b5c] focus:bg-white focus:outline-none rounded-lg px-4 py-2.5 text-sm text-slate-800 font-medium transition-all" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Experience Requirement</label>
+                        <input type="text" value={newJob.exp} onChange={e => setNewJob({...newJob, exp: e.target.value})}
+                          className="w-full bg-slate-50 border border-slate-200 focus:border-[#002b5c] focus:bg-white focus:outline-none rounded-lg px-4 py-2.5 text-sm text-slate-800 font-medium transition-all" />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Role Description</label>
+                      <textarea rows={4} required value={newJob.desc} onChange={e => setNewJob({...newJob, desc: e.target.value})}
+                        className="w-full bg-slate-50 border border-slate-200 focus:border-[#002b5c] focus:bg-white focus:outline-none rounded-lg px-4 py-3 text-sm text-slate-800 font-medium transition-all resize-none" />
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row gap-6 items-end">
+                      <div className="flex-1 w-full space-y-2">
+                        <label className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Technical Competencies (Comma Separated)</label>
+                        <input type="text" value={newJob.skills} onChange={e => setNewJob({...newJob, skills: e.target.value})}
+                          className="w-full bg-slate-50 border border-slate-200 focus:border-[#002b5c] focus:bg-white focus:outline-none rounded-lg px-4 py-2.5 text-sm text-slate-800 font-medium transition-all"
+                          placeholder="CAD, RTOS, MATLAB..." />
+                      </div>
+                      <button 
+                        type="submit"
+                        className="px-10 bg-[#002b5c] hover:bg-blue-800 text-white font-bold text-xs uppercase tracking-widest py-3 rounded-lg transition-all shadow-lg active:scale-[0.98]"
+                      >
+                        Publish Vacancy
+                      </button>
+                    </div>
+                  </form>
                 </div>
+              </section>
 
-                <div className="h-px bg-slate-100" />
-
-                <form onSubmit={handleAddJob} className="space-y-3">
-                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-                    <div className="space-y-1">
-                      <label className="text-[8px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Title</label>
-                      <input type="text" required value={newJob.title} onChange={e => setNewJob({...newJob, title: e.target.value})}
-                        className="w-full bg-white border border-slate-200 focus:border-[#002b5c] focus:outline-none rounded-lg px-3 py-2 text-xs text-slate-800 font-semibold" />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[8px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Type</label>
-                      <input type="text" required value={newJob.type} onChange={e => setNewJob({...newJob, type: e.target.value})}
-                        className="w-full bg-white border border-slate-200 focus:border-[#002b5c] focus:outline-none rounded-lg px-3 py-2 text-xs text-slate-800 font-semibold" />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[8px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Location</label>
-                      <input type="text" required value={newJob.location} onChange={e => setNewJob({...newJob, location: e.target.value})}
-                        className="w-full bg-white border border-slate-200 focus:border-[#002b5c] focus:outline-none rounded-lg px-3 py-2 text-xs text-slate-800 font-semibold" />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[8px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Experience</label>
-                      <input type="text" value={newJob.exp} onChange={e => setNewJob({...newJob, exp: e.target.value})}
-                        className="w-full bg-white border border-slate-200 focus:border-[#002b5c] focus:outline-none rounded-lg px-3 py-2 text-xs text-slate-800 font-semibold" />
-                    </div>
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-[8px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Description</label>
-                    <textarea rows={2} required value={newJob.desc} onChange={e => setNewJob({...newJob, desc: e.target.value})}
-                      className="w-full bg-white border border-slate-200 focus:border-[#002b5c] focus:outline-none rounded-lg px-3 py-2 text-xs text-slate-800 font-semibold resize-none" />
-                  </div>
-
-                  <div className="flex gap-3">
-                    <div className="flex-1 space-y-1">
-                      <label className="text-[8px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Technical Skills</label>
-                      <input type="text" value={newJob.skills} onChange={e => setNewJob({...newJob, skills: e.target.value})}
-                        className="w-full bg-white border border-slate-200 focus:border-[#002b5c] focus:outline-none rounded-lg px-3 py-2 text-xs text-slate-800 font-semibold"
-                        placeholder="MATLAB, C++..." />
-                    </div>
-                    <button 
-                      type="submit"
-                      className="self-end px-6 bg-[#002b5c] hover:bg-blue-600 text-white font-mono text-[9px] font-bold uppercase tracking-widest py-2.5 rounded-lg transition-all"
-                    >
-                      Deploy
-                    </button>
-                  </div>
-                </form>
-              </div>
-
-              <div className="lg:col-span-12 bg-white border border-slate-200 p-5 rounded-2xl">
-                <h3 className="text-[9px] font-sans font-black uppercase text-slate-400 tracking-widest mb-4 border-b border-slate-50 pb-2">Active Roles Pipeline</h3>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+              {/* Active Pipeline List */}
+              <section className="space-y-4">
+                <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400">Active Pipeline Documents</h3>
+                <div className="grid grid-cols-1 gap-3">
                   {jobs.length === 0 ? (
-                    <div className="col-span-full p-6 border border-dashed border-slate-100 rounded-xl text-center text-[9px] text-slate-300 font-bold uppercase">
-                      No positions configured.
+                    <div className="p-12 border border-dashed border-slate-200 rounded-xl text-center">
+                      <p className="text-xs text-slate-400 font-medium italic">The recruitment pipeline is currently empty.</p>
                     </div>
                   ) : (
                     jobs.map((job) => (
-                      <div key={job.id} className="p-3 border border-slate-100 hover:border-slate-200 rounded-xl flex items-center justify-between gap-3 bg-slate-50/20 transition-all">
-                        <div className="min-w-0">
-                          <h4 className="text-[9px] font-black uppercase text-[#002b5c] truncate">{job.title}</h4>
-                          <div className="flex items-center gap-2 mt-0.5">
-                            <span className="text-[8px] text-slate-400 font-bold uppercase">{job.type}</span>
-                            <span className="text-slate-200">•</span>
-                            <span className="text-[8px] text-slate-400 font-bold uppercase">{job.location}</span>
+                      <div key={job.id} className="bg-white p-5 border border-slate-200 rounded-xl flex items-center justify-between gap-6 hover:border-[#002b5c]/20 transition-all shadow-sm">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-3 mb-1">
+                            <h4 className="text-sm font-bold text-slate-900 truncate">{job.title}</h4>
+                            <span className="px-2 py-0.5 bg-[#002b5c]/5 text-[#002b5c] text-[9px] font-bold uppercase rounded leading-normal">
+                              {job.type}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-4 text-xs text-slate-400 font-medium">
+                            <div className="flex items-center gap-1">
+                              <MapPin size={12} /> {job.location}
+                            </div>
+                            <span>•</span>
+                            <div className="flex items-center gap-1 font-mono uppercase text-[10px]">
+                              REQ-ID: {job.id.slice(0, 6).toUpperCase()}
+                            </div>
                           </div>
                         </div>
                         <button 
                           onClick={() => handleDeleteJob(job.id, job.title)}
-                          className="p-1 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                          className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
                         >
-                          <Trash2 size={12} />
+                          <Trash2 size={16} />
                         </button>
                       </div>
                     ))
                   )}
                 </div>
-              </div>
+              </section>
             </div>
           )}
 
+          {/* TAB 2: APPLICATIONS */}
           {activeTab === 'applications' && (
-            <div className="bg-white border border-slate-200 p-5 rounded-2xl space-y-4">
-              <h2 className="text-[9px] font-sans font-black uppercase text-slate-400 tracking-widest border-b border-slate-50 pb-2">Resume Database ({applications.length})</h2>
+            <div className="space-y-6 animate-in fade-in duration-500">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xs font-bold uppercase tracking-widest text-[#002b5c]">Candidate Ledger</h2>
+                <div className="text-[10px] text-slate-400 font-medium">Verified Entries: {applications.length}</div>
+              </div>
               
-              <div className="space-y-2">
+              <div className="grid grid-cols-1 gap-4">
                 {applications.length === 0 ? (
-                  <div className="p-8 border border-dashed border-slate-100 rounded-xl text-center text-[9px] text-slate-300 font-bold uppercase">No entries Pipeline.</div>
+                  <div className="p-20 border border-dashed border-slate-200 rounded-2xl text-center">
+                    <p className="text-sm text-slate-400 font-medium italic">No candidate credentials currently logged.</p>
+                  </div>
                 ) : (
                   applications.map((app) => (
-                    <div key={app.id} className="p-3 border border-slate-100 rounded-xl bg-white hover:bg-slate-50/50 transition-all flex items-start justify-between gap-4">
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-black uppercase text-[#002b5c]">{app.applicantName}</span>
-                          <span className="text-[10px] text-slate-400 font-medium">| {app.applicantEmail}</span>
-                        </div>
-                        <div className="text-[8px] text-blue-500 font-mono font-bold uppercase mt-1">Ref: {app.jobId || 'N/A'}</div>
-                        {app.resumeData && (
-                          <a href={app.resumeData} download={app.resumeName || 'resume'} className="inline-flex items-center gap-1 mt-2 text-[9px] text-slate-500 hover:text-[#002b5c] font-bold">
-                            <Download size={10} /> {app.resumeName || 'CV'}
-                          </a>
-                        )}
+                    <div key={app.id} className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm overflow-hidden flex items-start gap-6">
+                      <div className="w-12 h-12 bg-slate-50 flex items-center justify-center rounded-xl text-slate-400 shrink-0 border border-slate-100">
+                        <FileText size={20} />
                       </div>
-                      <button onClick={() => handleDeleteApplication(app.id, app.applicantName)} className="p-1 text-slate-300 hover:text-red-500 transition-all">
-                        <Trash2 size={12} />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between mb-3 gap-2">
+                          <div>
+                            <h3 className="text-base font-bold text-slate-900 leading-none mb-1">{app.applicantName}</h3>
+                            <p className="text-xs text-slate-500 font-medium">{app.applicantEmail} • {app.applicantPhone || 'No contact phone provided'}</p>
+                          </div>
+                          <div className="text-[10px] font-mono font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-md uppercase border border-blue-100">
+                            Ref: {app.jobId || 'Embedded/Other'}
+                          </div>
+                        </div>
+                        
+                        {app.coverLetter && (
+                          <div className="mb-4 text-xs text-slate-600 leading-relaxed font-medium p-4 bg-slate-50 rounded-lg border-l-2 border-slate-200 italic">
+                            "{app.coverLetter}"
+                          </div>
+                        )}
+
+                        <div className="flex flex-wrap items-center gap-4 pt-2 border-t border-slate-100">
+                          {app.resumeData && (
+                            <a href={app.resumeData} download={app.resumeName || 'resume'} className="flex items-center gap-2 text-xs font-bold text-[#002b5c] hover:underline">
+                              <Download size={14} /> Download CV ({app.resumeName || 'Document'})
+                            </a>
+                          )}
+                          {app.portfolioLink && (
+                            <a href={app.portfolioLink} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-slate-500 hover:text-slate-800 underline">
+                              Portfolio Portfolio
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                      <button onClick={() => handleDeleteApplication(app.id, app.applicantName)} className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all shrink-0">
+                        <Trash2 size={18} />
                       </button>
                     </div>
                   ))
@@ -476,28 +514,39 @@ export default function AdminPanel() {
             </div>
           )}
 
+          {/* TAB 3: INQUIRIES */}
           {activeTab === 'enquiries' && (
-            <div className="bg-white border border-slate-200 p-5 rounded-2xl space-y-4">
-              <h2 className="text-[9px] font-sans font-black uppercase text-slate-400 tracking-widest border-b border-slate-50 pb-2">Correspondance Streams ({enquiries.length})</h2>
+            <div className="space-y-6 animate-in fade-in duration-500">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xs font-bold uppercase tracking-widest text-[#002b5c]">Inquiry Records</h2>
+                <div className="text-[10px] text-slate-400 font-medium">Logged Correspondence: {enquiries.length}</div>
+              </div>
               
-              <div className="space-y-2">
+              <div className="grid grid-cols-1 gap-4">
                 {enquiries.length === 0 ? (
-                  <div className="p-8 border border-dashed border-slate-100 rounded-xl text-center text-[9px] text-slate-300 font-bold uppercase">No active requests.</div>
+                  <div className="p-20 border border-dashed border-slate-200 rounded-2xl text-center">
+                    <p className="text-sm text-slate-400 font-medium italic">No active system inquiries in the queue.</p>
+                  </div>
                 ) : (
                   enquiries.map((enq) => (
-                    <div key={enq.id} className="p-3 border border-slate-100 rounded-xl bg-white hover:bg-slate-50/50 transition-all flex items-start justify-between gap-4">
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-black uppercase text-[#002b5c]">{enq.applicantName || 'Anonymous'}</span>
-                          <span className="text-[10px] text-slate-400 font-medium">| {enq.applicantEmail}</span>
-                        </div>
-                        <div className="bg-slate-50 p-2 rounded-lg mt-2">
-                          <p className="text-[9px] text-slate-600 leading-relaxed font-semibold italic">"{enq.message}"</p>
-                        </div>
-                        <div className="text-[8px] text-slate-300 font-mono mt-1">Transmitted: {enq.timestamp?.toDate ? enq.timestamp.toDate().toLocaleString() : new Date().toLocaleString()}</div>
+                    <div key={enq.id} className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm flex items-start gap-6">
+                      <div className="w-12 h-12 bg-slate-50 flex items-center justify-center rounded-xl text-slate-400 shrink-0 border border-slate-100">
+                        <Mail size={20} />
                       </div>
-                      <button onClick={() => handleDeleteEnquiry(enq.id, enq.applicantName || 'Anonymous')} className="p-1 text-slate-300 hover:text-red-500 transition-all">
-                        <Trash2 size={12} />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between mb-3 border-b border-slate-50 pb-2">
+                          <h3 className="text-sm font-bold text-slate-900">{enq.applicantName || 'Anonymous External'}</h3>
+                          <span className="text-[10px] text-slate-400 font-mono italic">
+                            {enq.timestamp?.toDate ? enq.timestamp.toDate().toLocaleDateString() : 'Recent Correspondence'}
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-500 font-medium mb-3">{enq.applicantEmail}</p>
+                        <div className="bg-[#002b5c]/5 p-4 rounded-lg border-l-2 border-[#002b5c]/30">
+                          <p className="text-xs text-slate-700 leading-relaxed font-semibold italic">"{enq.message}"</p>
+                        </div>
+                      </div>
+                      <button onClick={() => handleDeleteEnquiry(enq.id, enq.applicantName || 'Anonymous')} className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all shrink-0">
+                        <Trash2 size={18} />
                       </button>
                     </div>
                   ))
@@ -506,7 +555,7 @@ export default function AdminPanel() {
             </div>
           )}
 
-        </div>
+        </main>
         
       </div>
     </div>
