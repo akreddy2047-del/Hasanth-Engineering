@@ -209,7 +209,7 @@ export function ConsultationModal({ isOpen, onClose }: ConsultationModalProps) {
 export function StickyWhatsApp() {
   const openWhatsApp = () => {
     const textMsg = encodeURIComponent("Hello, I am looking to schedule an industrial engineering consultation with HASANTH ENGINEERING. Please connect me with a designer.");
-    window.open(`https://wa.me/919916664047?text=${textMsg}`, '_blank');
+    window.open(`https://wa.me/918328903031?text=${textMsg}`, '_blank');
   };
 
   return (
