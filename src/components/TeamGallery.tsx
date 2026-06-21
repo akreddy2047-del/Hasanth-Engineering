@@ -15,7 +15,7 @@ import VijayaImg from '../assets/images/vijaya_director_1781962235658.jpg';
 import JagadishImg from '../assets/images/jagadish_technical_1781962254865.jpg';
 import SwathiImg from '../assets/images/swathi_mtech_1781962268336.jpg';
 import PrakashImg from '../assets/images/prakash_aerospace_1781962282383.jpg';
-import UdayImg from '../assets/images/uday_bhaskar_systems_1781962300819.jpg';
+import UdayImg from '../assets/images/udaybhaskar .jpeg';
 import CharyImg from '../assets/images/chary_manufacturing_1781962316656.jpg';
 
 export interface TeamMember {
@@ -126,7 +126,7 @@ export const teamMembers: TeamMember[] = [
   },
   {
     id: 6,
-    name: "Mr. Uday Bhaskar",
+    name: "Dr. S. Uday Bhaskar",
     title: "Senior Systems & Instrumentation Engineer",
     credentials: "B.Tech Electronics & Communication",
     image: UdayImg,
@@ -137,7 +137,7 @@ export const teamMembers: TeamMember[] = [
       "Integrates rigorous EKF filter states and PID controller debug checks"
     ],
     bio: [
-      "Uday Bhaskar is a Senior Instrumentation and electronic system verification expert with a focus on data acquisition channels and telemetry.",
+      "Dr. S. Uday Bhaskar is a Senior Instrumentation and electronic system verification expert with a focus on data acquisition channels and telemetry.",
       "He leads critical laboratory calibrations and diagnostics setups to establish high-fidelity sensing feeds for aerospace, defense, and industrial testing rigs.",
       "His strong expertise in interface protocol layers and hardware-software integration supports the company's seamless hardware rollout programs."
     ]
