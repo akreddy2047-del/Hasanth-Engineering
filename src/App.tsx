@@ -22,6 +22,7 @@ import ResearchPage from './components/ResearchPage';
 import ProjectsPage from './components/ProjectsPage';
 import IndustriesPage from './components/IndustriesPage';
 import CareersPage from './components/CareersPage';
+import AdminPanel from './components/AdminPanel';
 import BlogPage from './components/BlogPage';
 import ContactSection from './components/ContactSection';
 
@@ -599,6 +600,11 @@ export default function App() {
             </div>
           )}
 
+          {currentPage === 'admin' && (
+            <div className="animate-fade-in pt-8">
+              <AdminPanel />
+            </div>
+          )}
           {currentPage === 'careers' && (
             <div className="animate-fade-in pt-8">
               <SubpageHeader 

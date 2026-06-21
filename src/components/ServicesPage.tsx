@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Settings, Cpu, Bot, Compass, ShieldAlert, 
-  CheckCircle2, Award, Layers, CircuitBoard, Hammer, Microscope
+  CheckCircle2, Award, Layers, CircuitBoard, Hammer, Microscope, ArrowRight
 } from 'lucide-react';
 import SEO from './SEO';
 import { MagneticCard } from './MagneticCard';
@@ -487,31 +487,8 @@ export default function ServicesPage() {
                       </div>
                     </div>
 
-                    {/* Operational Quality Assurance Standard */}
-                    <div className="bg-[#002b5c] rounded-3xl p-6 md:p-8 space-y-4 text-white relative overflow-hidden shadow-lg">
-                      <div className="relative z-10 flex flex-col md:flex-row justify-between md:items-center gap-6">
-                        <div className="space-y-1">
-                          <span className="text-[9px] font-mono text-sky-400 font-bold tracking-widest uppercase block">
-                            HIGH TOLERANCE INSPECTIONS
-                          </span>
-                          <h4 className="text-base font-sans font-bold uppercase tracking-tight text-white">
-                            Verified & Calibrated At Every Stage
-                          </h4>
-                          <p className="text-[10px] text-slate-300 max-w-md font-semibold leading-relaxed">
-                            Every physical assembly or routed PCB layout goes through strict sub-micron verification and IPC metrics checks inside our Hyderabad facility.
-                          </p>
-                        </div>
-                        
-                        <div className="bg-white/10 border border-white/25 px-4.5 py-3 rounded-xl flex items-center gap-3 self-start md:self-center shrink-0">
-                          <Award size={18} className="text-sky-300" />
-                          <div className="text-left">
-                            <span className="text-[9px] font-mono text-slate-300 block leading-tight">PRECISION CODE</span>
-                            <span className="text-[10px] font-sans font-bold text-white uppercase tracking-wider block">HE-SPEC QC PASS</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
+                    {/* Operational Quality Assurance Standard - Removed */}
+                    
                   </div>
                 </motion.div>
               </AnimatePresence>
@@ -540,7 +517,7 @@ export default function ServicesPage() {
             </div>
           </ScrollEntrance>
 
-          {/* Grid Layout of Spolights */}
+          {/* Grid Layout of Spotlights */}
           <div ref={spotlightContainerRef}>
             <StaggerContainer className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {spotlights.map((spot, idx) => {
@@ -552,76 +529,75 @@ export default function ServicesPage() {
                       onClick={() => setSelectedSpotlightIdx(idx)}
                       isLight={true}
                       themeColor="#0056b3"
-                      className="group h-full flex flex-col justify-between bg-white/60 hover:bg-white p-6 rounded-[24px] border border-[#002b5c]/10 cursor-pointer shadow-sm hover:shadow-md transition-all duration-300 transform"
+                      className="group h-full flex flex-col bg-slate-100 p-8 rounded-3xl border border-[#002b5c]/10 cursor-pointer shadow-sm hover:shadow-2xl transition-all duration-500 hover:border-[#002b5c]/20 hover:scale-[1.02]"
                     >
-                      <div className="space-y-6">
+                      <div className="space-y-8 flex-grow flex flex-col">
                         
-                        {/* Top Bar Layout */}
-                        <div className="flex justify-between items-start">
-                          <div className="p-3.5 bg-blue-50/85 group-hover:bg-blue-100 border border-blue-100 text-[#002b5c] rounded-2xl transition-colors">
-                            <IconComp size={22} className="stroke-[2px]" />
-                          </div>
-                          <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest bg-slate-100 px-2 py-0.5 rounded">
-                            PROCESS CODE 0{idx + 1}
-                          </span>
-                        </div>
-  
-                        {/* Header details */}
-                        <div className="space-y-2.5">
-                          <h3 className="text-lg sm:text-xl font-sans font-black uppercase text-[#002b5c] tracking-tight leading-snug group-hover:text-blue-900 transition-colors">
+                        {/* Icon - Simplified */}
+                        <motion.div 
+                          whileHover={{ rotate: [0, -10, 10, 0], scale: 1.1 }}
+                          transition={{ duration: 0.5 }}
+                          className="p-3 bg-blue-50 text-[#002b5c] rounded-2xl w-fit group-hover:bg-[#002b5c] group-hover:text-white transition-colors duration-300"
+                        >
+                          <IconComp size={24} className="stroke-[2px]" />
+                        </motion.div>
+    
+                        {/* Title and Description */}
+                        <div className="space-y-3">
+                          <h3 className="text-2xl font-sans font-black uppercase text-[#002b5c] tracking-tight leading-snug">
                             {spot.title}
                           </h3>
-                          <p className="text-xs text-slate-500 leading-relaxed font-semibold">
+                          <p className="text-sm text-slate-500 leading-relaxed font-medium">
                             {spot.desc}
                           </p>
                         </div>
-  
-                        {/* Calibrated stats */}
-                        <div className="grid grid-cols-3 gap-2 py-4.5 border-y border-slate-100 text-center bg-slate-50/10 rounded-lg">
+    
+                        {/* Stats Grid - Cleaner typography */}
+                        <div className="grid grid-cols-3 gap-3">
                           {spot.stats.map((stat, sIdx) => (
-                            <div key={sIdx} className="space-y-0.5">
-                              <span className="text-[8px] font-mono text-slate-400 block tracking-wider uppercase font-bold leading-tight">
+                            <motion.div 
+                              key={sIdx} 
+                              initial={{ opacity: 0, y: 10 }}
+                              whileInView={{ opacity: 1, y: 0 }}
+                              transition={{ delay: sIdx * 0.1 }}
+                              className="space-y-1 bg-slate-50 p-3 rounded-2xl text-center"
+                            >
+                              <span className="text-[9px] font-bold text-slate-400 block tracking-wider uppercase">
                                 {stat.label}
                               </span>
                               <span className="text-sm font-sans font-black text-[#002b5c]">
                                 {stat.value}
                               </span>
-                            </div>
+                            </motion.div>
                           ))}
                         </div>
-  
-                        {/* Bullet tech parameter insights */}
-                        <div className="space-y-2.5 pt-1">
-                          <span className="text-[8px] font-mono text-[#002b5c]/75 font-bold uppercase tracking-widest block">
-                            Technical Parameters Verified:
+    
+                        {/* Technical Parameters - Minimalist */}
+                        <div className="space-y-3">
+                          <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest block">
+                            Parameters Verified
                           </span>
                           <div className="space-y-2">
                             {spot.details.map((detail, dIdx) => (
-                              <div key={dIdx} className="flex items-start gap-2 text-[10px] text-slate-650 font-sans leading-relaxed font-semibold">
-                                <span className="text-[#002b5c] mt-1 shrink-0 text-xs font-black">•</span>
-                                <span>{detail}</span>
-                              </div>
+                              <motion.div 
+                                key={dIdx} 
+                                initial={{ opacity: 0, x: -10 }}
+                                whileInView={{ opacity: 1, x: 0 }}
+                                transition={{ delay: dIdx * 0.05 }}
+                                className="flex items-start gap-2 text-xs text-slate-600 font-medium"
+                              >
+                                <CheckCircle2 size={14} className="text-emerald-500 mt-0.5 shrink-0" />
+                                {detail}
+                              </motion.div>
                             ))}
                           </div>
                         </div>
-  
-                        {/* Hover-Revealed Technical Data Points */}
-                        <div className="max-h-0 opacity-0 group-hover:max-h-36 group-hover:opacity-100 group-hover:mt-4 pt-0 group-hover:pt-4 border-t border-slate-100 transition-all duration-500 ease-in-out overflow-hidden">
-                          <span className="text-[8px] font-mono text-sky-600 font-bold uppercase tracking-widest block mb-2">
-                            ✦ DEEP SPECIFICATION DATA (HOVER-REVEALED)
-                          </span>
-                          <div className="space-y-1.5 bg-slate-50 p-3 rounded-xl border border-slate-100 font-mono text-[9px] leading-tight">
-                            {spot.revealSpecs && spot.revealSpecs.map((spec, sIdx) => (
-                              <div key={sIdx} className="flex justify-between items-center">
-                                <span className="font-bold text-slate-400 uppercase">{spec.name}:</span>
-                                <span className="text-[#002b5c] font-black">{spec.value}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
+                      </div>
 
-
-  
+                      {/* Footer/Hover Reveal Hint */}
+                      <div className="mt-8 flex items-center justify-between text-xs font-bold text-[#002b5c] uppercase tracking-wider border-t border-slate-100 pt-6">
+                        <span>Read Specs</span>
+                        <ArrowRight size={16} className="group-hover:translate-x-1 duration-300 transition-transform" />
                       </div>
                     </MagneticCard>
                   </StaggerItem>

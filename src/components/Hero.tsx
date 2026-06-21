@@ -71,14 +71,31 @@ export default function Hero({ onOpenConsultation, onPageChange }: HeroProps) {
             <h1 className="text-3xl sm:text-5xl md:text-6xl font-sans tracking-tight text-white leading-[1.12] uppercase font-black">
               HASANTH <br />
               <span className="text-white font-sans">ENGINEERING</span> <br />
-              <span className="text-xs sm:text-sm md:text-base font-sans tracking-tight text-white/90 block normal-case mt-3 font-medium leading-relaxed">
-                "Engineering the Future Through Mechanical, Electronics & Aerospace Innovation"
+              <span className="text-xs sm:text-sm md:text-base font-sans font-medium tracking-tight text-blue-300 block normal-case mt-3.5 leading-relaxed">
+                "Designing Tomorrow's Engineering Solutions Today."
               </span>
             </h1>
 
-            <p className="text-xs sm:text-sm text-white/90 font-sans leading-relaxed max-w-xl">
-              Innovative multidisciplinary engineering providing advanced solutions in Mechanical Design, Electronics development, Aerospace systems, UAVs, and intelligent smart Automation.
-            </p>
+            <div className="space-y-4">
+              <div className="flex flex-col gap-1.5 pt-1 text-slate-200 font-sans">
+                <div className="text-sm sm:text-base font-medium tracking-wide text-white">
+                  One Team. Multiple Technologies. Infinite Possibilities.
+                </div>
+                <div className="text-xs sm:text-sm font-semibold text-blue-300 tracking-wide flex items-center gap-1.5 flex-wrap">
+                  <span>Mechanical</span>
+                  <span className="text-blue-500/80">•</span>
+                  <span>Electronics</span>
+                  <span className="text-blue-500/80">•</span>
+                  <span>Aerospace</span>
+                  <span className="text-blue-500/80">•</span>
+                  <span>Manufacturing</span>
+                </div>
+              </div>
+              
+              <p className="text-xs sm:text-sm text-white/90 font-sans leading-relaxed max-w-xl">
+                Innovative multidisciplinary engineering providing advanced solutions in Mechanical Design, Electronics development, Aerospace systems, UAVs, and intelligent smart Automation.
+              </p>
+            </div>
 
             <div className="flex flex-wrap gap-4 items-center pt-2">
               <UnifiedButton

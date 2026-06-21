@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Gallery3DCanvas } from './Gallery3DCanvas';
 import { Compass, Cpu, HelpCircle, Laptop, Database, PenTool, CheckCircle2 } from 'lucide-react';
 import SEO from './SEO';
 import { InteractiveCard } from './InteractiveCard';
@@ -103,18 +102,6 @@ export default function ProjectsPage() {
       {/* Main Container */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 space-y-12">
         
-        {/* Live WebGL interactive 3D model frame */}
-        <div className="space-y-4">
-          <span className="text-[10px] font-mono text-[#002b5c] font-black uppercase tracking-widest block px-1">
-            Interactive WebGL CAD wireframe renderer
-          </span>
-          <div className="h-72 bg-[#002b5c] rounded-3xl border-2 border-[#002b5c] relative overflow-hidden shadow-2xl">
-            <div className="absolute top-4 left-4 z-20 text-[9px] font-mono text-slate-300 bg-[#002b5c]/80 px-2.5 py-1 rounded font-bold uppercase">
-              MODEL: AS-WING-BRKT_V3.STP
-            </div>
-            <Gallery3DCanvas />
-          </div>
-        </div>
 
         {/* Divider and Category Filter controls */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 pb-6 border-b border-slate-100">

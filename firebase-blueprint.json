@@ -1,0 +1,46 @@
+{
+  "entities": {
+    "Job": {
+      "title": "Job Posting",
+      "description": "A job opportunity at the company.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "type": { "type": "string" },
+        "location": { "type": "string" },
+        "experience": { "type": "string" },
+        "skills": { "type": "array", "description": "List of required skills" },
+        "description": { "type": "string" }
+      },
+      "required": ["title", "type", "location", "experience", "skills"]
+    },
+    "Application": {
+      "title": "Job Application",
+      "description": "Information from a candidate applying for a job.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "jobId": { "type": "string" },
+        "applicantName": { "type": "string" },
+        "applicantEmail": { "type": "string", "format": "email" },
+        "applicantPhone": { "type": "string" },
+        "portfolioLink": { "type": "string" },
+        "coverLetter": { "type": "string" },
+        "resumeUrl": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["jobId", "applicantName", "applicantEmail", "applicantPhone"]
+    }
+  },
+  "firestore": {
+    "/jobs/{jobId}": {
+      "schema": "Job",
+      "description": "Job postings"
+    },
+    "/applications/{applicationId}": {
+      "schema": "Application",
+      "description": "Job applications"
+    }
+  }
+}

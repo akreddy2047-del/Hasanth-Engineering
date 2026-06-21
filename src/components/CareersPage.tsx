@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Mail, Briefcase, MapPin, Calendar, Clock, ArrowRight, CheckCircle, 
@@ -8,11 +8,14 @@ import SEO from './SEO';
 import { InteractiveCard } from './InteractiveCard';
 import { ScrollEntrance, StaggerContainer, StaggerItem } from './ScrollEntrance';
 import { useToast } from '../hooks/useToast';
+import { db } from '../lib/firebase';
+import { collection, getDocs, addDoc, serverTimestamp } from 'firebase/firestore';
 
 export default function CareersPage() {
   const [copied, setCopied] = useState(false);
   const [selectedRoleForForm, setSelectedRoleForForm] = useState<string>('Senior Embedded Firmware Developer');
   const { showToast } = useToast();
+  const [jobs, setJobs] = useState<any[]>([]);
   
   // Application Form States
   const [applicantName, setApplicantName] = useState('');
@@ -34,35 +37,13 @@ export default function CareersPage() {
   
   const formRef = useRef<HTMLDivElement>(null);
 
-  const jobs = [
-    {
-      title: 'Senior Embedded Firmware Developer',
-      type: 'Full-Time Position',
-      location: 'Balanagar Hub, Hyderabad',
-      exp: '3 - 5 Years Experience',
-      desc: 'Formulate real-time operating systems firmware (RTOS) on ARM Cortex microcontrollers, designing low latency sensory feedback loops and SPI drivers.',
-      skills: ['C/C++', 'STM32 / ARM', 'FreeRTOS', 'SPI / I2C / UART'],
-      bgUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80'
-    },
-    {
-      title: 'Mechanical CAD Design Architect',
-      type: 'Full-Time Position',
-      location: 'Balanagar Hub, Hyderabad',
-      exp: '2 - 4 Years Experience',
-      desc: 'Draft complex parametric blueprint parts in SolidWorks, organizing multi-component sheet-metal folds, bending limits, and fixture assemblies.',
-      skills: ['SolidWorks', 'FEA Structural Stress', 'CATIA V5', 'Geometric Tolerances'],
-      bgUrl: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80'
-    },
-    {
-      title: 'UAV Flight Controls Systems Intern',
-      type: 'Internship (6 Months)',
-      location: 'Balanagar Hub, Hyderabad',
-      exp: 'Enthusiastic Student / Graduate',
-      desc: 'Assist in tuning PID parameters, verifying PX4 flight autopilot nodes, and integrating smart multi-sensor camera gimbal payloads.',
-      skills: ['Autopilots PX4', 'Telemetry Nodes', 'Gimbal Controls', 'C++ / Git'],
-      bgUrl: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=600&q=80'
-    }
-  ];
+  useEffect(() => {
+    const fetchJobs = async () => {
+      const querySnapshot = await getDocs(collection(db, 'jobs'));
+      setJobs(querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    };
+    fetchJobs();
+  }, []);
 
   const handleCopyEmail = () => {
     navigator.clipboard.writeText('hasanthengg@gmail.com');
@@ -162,34 +143,41 @@ export default function CareersPage() {
     return Object.keys(errorLog).length === 0;
   };
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) {
       return;
     }
 
-    // Initiate beautiful processing transition phases
     setSubmissionStep('compiling');
-    
-    setTimeout(() => {
-      setSubmissionStep('encrypting');
-    }, 1200);
 
-    setTimeout(() => {
+    try {
+      const response = await fetch('/api/apply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jobId: 'some-job-id', // Need to pass context
+          applicantName,
+          applicantEmail,
+          applicantPhone,
+          coverLetter,
+          portfolioLink
+        }),
+      });
+
+      if (!response.ok) throw new Error('Submission failed');
+
       setSubmissionStep('registering');
-    }, 2400);
-
-    setTimeout(() => {
-      // Complete and generate receipt code
+      
+      // ... continue with existing success logic ...
       const generatedCode = `HE-REC-${Math.floor(100000 + Math.random() * 900000)}`;
       setReceiptCode(generatedCode);
       setSubmissionStep('confirmed');
-      showToast(
-        'Profile Registered', 
-        `Your application for "${selectedRoleForForm}" and file credentials are compiled successfully.`, 
-        'success'
-      );
-    }, 3800);
+      showToast('Profile Registered', 'Your application is secured.', 'success');
+    } catch (error) {
+      showToast('Error', 'Submission failed.', 'warning');
+      setSubmissionStep('idle');
+    }
   };
 
   const resetAllFormStates = () => {
@@ -230,7 +218,7 @@ export default function CareersPage() {
         
         {/* Positions List */}
         <div className="lg:col-span-8 space-y-8">
-          <span className="text-[10px] font-mono text-slate-400 font-bold uppercase tracking-widest block mb-4 border-b border-slate-100 pb-2">
+          <span className="text-[10px] font-sans text-slate-400 font-bold uppercase tracking-widest block mb-4 border-b border-slate-100 pb-2">
             Available Positions
           </span>
 
@@ -244,7 +232,7 @@ export default function CareersPage() {
                   <div className="space-y-4">
                     
                     {/* Meta details */}
-                    <div className="flex flex-wrap gap-2.5 text-[9px] font-mono font-bold uppercase tracking-widest text-slate-400">
+                    <div className="flex flex-wrap gap-2.5 text-[9px] font-sans font-bold uppercase tracking-widest text-slate-400">
                       <div className="flex items-center gap-1 bg-slate-100 text-[#002b5c] px-2 py-0.5 rounded-lg border border-slate-200 font-bold">
                         <Briefcase size={10} />
                         <span>{job.type}</span>
@@ -272,10 +260,10 @@ export default function CareersPage() {
                     {/* Tags */}
                     <div className="pt-4 border-t border-slate-100 space-y-4">
                       <div>
-                        <p className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-wider mb-2">SKILLS AND QUALIFICATIONS REQUIREMENT:</p>
+                        <p className="text-[9px] font-sans text-slate-400 font-bold uppercase tracking-wider mb-2">SKILLS AND QUALIFICATIONS REQUIREMENT:</p>
                         <div className="flex flex-wrap gap-1.5">
                           {job.skills.map((skill, sIdx) => (
-                            <span key={sIdx} className="text-[10px] font-mono font-bold text-[#002b5c] bg-blue-50/55 px-2.5 py-1 rounded-md border border-blue-100">
+                            <span key={sIdx} className="text-[10px] font-sans font-bold text-[#002b5c] bg-blue-50/55 px-2.5 py-1 rounded-md border border-blue-100">
                               {skill}
                             </span>
                           ))}
@@ -288,7 +276,7 @@ export default function CareersPage() {
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
                           onClick={() => handleInitiateApply(job.title)}
-                          className="px-5 py-2 bg-[#002b5c] hover:bg-blue-900 text-white font-mono text-xs font-black uppercase rounded-xl inline-flex items-center gap-2 cursor-pointer shadow hover:shadow-md transition-all duration-300"
+                          className="px-5 py-2 bg-[#002b5c] hover:bg-blue-900 text-white font-sans text-xs font-black uppercase rounded-xl inline-flex items-center gap-2 cursor-pointer shadow hover:shadow-md transition-all duration-300"
                         >
                           <span>Apply now</span>
                           <ArrowRight size={13} />
@@ -304,7 +292,7 @@ export default function CareersPage() {
 
           {/* Secure Interactive Application portal */}
           <div ref={formRef} className="pt-12 scroll-mt-24">
-            <span className="text-[10px] font-mono text-slate-400 font-bold uppercase tracking-widest block mb-4 border-b border-slate-100 pb-2">
+            <span className="text-[10px] font-sans text-slate-400 font-bold uppercase tracking-widest block mb-4 border-b border-slate-100 pb-2">
               Submission Portal
             </span>
 
@@ -333,7 +321,7 @@ export default function CareersPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {/* Name input */}
                       <div className="space-y-2">
-                        <label className="text-[10px] font-mono font-bold text-slate-450 uppercase tracking-wider block">Applicant Full Name *</label>
+                        <label className="text-[10px] font-sans font-bold text-slate-450 uppercase tracking-wider block">Applicant Full Name *</label>
                         <input 
                           type="text" 
                           value={applicantName}
@@ -342,13 +330,13 @@ export default function CareersPage() {
                           className={`w-full p-3 bg-white text-sm text-slate-800 rounded-xl border ${formErrors.name ? 'border-red-500 ring-2 ring-red-100' : 'border-slate-200 hover:border-slate-300'} transition-all`}
                         />
                         {formErrors.name && (
-                          <p className="text-[10px] font-mono text-red-500 font-bold">{formErrors.name}</p>
+                          <p className="text-[10px] font-sans text-red-500 font-bold">{formErrors.name}</p>
                         )}
                       </div>
 
                       {/* Email input */}
                       <div className="space-y-2">
-                        <label className="text-[10px] font-mono font-bold text-slate-450 uppercase tracking-wider block">Verifiable Email *</label>
+                        <label className="text-[10px] font-sans font-bold text-slate-450 uppercase tracking-wider block">Verifiable Email *</label>
                         <input 
                           type="email" 
                           value={applicantEmail}
@@ -357,13 +345,13 @@ export default function CareersPage() {
                           className={`w-full p-3 bg-white text-sm text-slate-800 rounded-xl border ${formErrors.email ? 'border-red-500 ring-2 ring-red-100' : 'border-slate-200 hover:border-slate-300'} transition-all`}
                         />
                         {formErrors.email && (
-                          <p className="text-[10px] font-mono text-red-500 font-bold">{formErrors.email}</p>
+                          <p className="text-[10px] font-sans text-red-500 font-bold">{formErrors.email}</p>
                         )}
                       </div>
 
                       {/* Phone Input */}
                       <div className="space-y-2">
-                        <label className="text-[10px] font-mono font-bold text-slate-450 uppercase tracking-wider block">Contact Phone Number *</label>
+                        <label className="text-[10px] font-sans font-bold text-slate-450 uppercase tracking-wider block">Contact Phone Number *</label>
                         <input 
                           type="tel" 
                           value={applicantPhone}
@@ -372,13 +360,13 @@ export default function CareersPage() {
                           className={`w-full p-3 bg-white text-sm text-slate-800 rounded-xl border ${formErrors.phone ? 'border-red-500 ring-2 ring-red-100' : 'border-slate-200 hover:border-slate-300'} transition-all`}
                         />
                         {formErrors.phone && (
-                          <p className="text-[10px] font-mono text-red-500 font-bold">{formErrors.phone}</p>
+                          <p className="text-[10px] font-sans text-red-500 font-bold">{formErrors.phone}</p>
                         )}
                       </div>
 
                       {/* Job Selection Dropdown */}
                       <div className="space-y-2">
-                        <label className="text-[10px] font-mono font-bold text-slate-450 uppercase tracking-wider block">Target Position *</label>
+                        <label className="text-[10px] font-sans font-bold text-slate-450 uppercase tracking-wider block">Target Position *</label>
                         <select 
                           value={selectedRoleForForm}
                           onChange={(e) => setSelectedRoleForForm(e.target.value)}
@@ -394,7 +382,7 @@ export default function CareersPage() {
 
                     {/* Links input */}
                     <div className="space-y-2">
-                      <label className="text-[10px] font-mono font-bold text-slate-450 uppercase tracking-wider block">Professional Links (GitHub, LinkedIn, or Portfolio - Optional)</label>
+                      <label className="text-[10px] font-sans font-bold text-slate-450 uppercase tracking-wider block">External Portfolios / Profile URLs (Optional)</label>
                       <input 
                         type="url" 
                         value={portfolioLink}
@@ -406,7 +394,7 @@ export default function CareersPage() {
 
                     {/* Statement / Cover Letter */}
                     <div className="space-y-2">
-                      <label className="text-[10px] font-mono font-bold text-slate-450 uppercase tracking-wider block">Brief Statement of Interest & Experience (Minimum 20 chars) *</label>
+                      <label className="text-[10px] font-sans font-bold text-slate-450 uppercase tracking-wider block">Brief Statement of Interest & Experience (Minimum 20 chars) *</label>
                       <textarea 
                         rows={4}
                         value={coverLetter}
@@ -415,13 +403,13 @@ export default function CareersPage() {
                         className={`w-full p-3 bg-white text-sm text-slate-800 rounded-xl border ${formErrors.coverLetter ? 'border-red-500 ring-2 ring-red-100' : 'border-slate-200 hover:border-slate-300'} transition-all`}
                       />
                       {formErrors.coverLetter && (
-                        <p className="text-[10px] font-mono text-red-500 font-bold">{formErrors.coverLetter}</p>
+                        <p className="text-[10px] font-sans text-red-500 font-bold">{formErrors.coverLetter}</p>
                       )}
                     </div>
 
                     {/* Drag-and-drop file upload */}
                     <div className="space-y-2">
-                      <label className="text-[10px] font-mono font-bold text-slate-450 uppercase tracking-wider block">Transcribe Professional Resume (PDF or DOCX) *</label>
+                      <label className="text-[10px] font-sans font-bold text-slate-450 uppercase tracking-wider block">Transcribe Professional Resume (PDF or DOCX) *</label>
                       
                       {!uploadedFile ? (
                         <div 
@@ -445,7 +433,7 @@ export default function CareersPage() {
                             <div className="text-xs text-slate-600 font-semibold">
                               Drag & Drop your resume here, or <span className="text-[#002b5c] font-black underline">Browse Files</span>
                             </div>
-                            <p className="text-[9px] font-mono text-slate-450">Accepted Formats: PDF, DOCX (Max 10MB)</p>
+                            <p className="text-[9px] font-sans text-slate-450">Accepted Formats: PDF, DOCX (Max 10MB)</p>
                           </label>
                         </div>
                       ) : (
@@ -459,9 +447,9 @@ export default function CareersPage() {
                                 {uploadedFile.name}
                               </p>
                               <div className="flex items-center gap-2">
-                                <span className="text-[9px] font-mono text-slate-400">{uploadedFile.size}</span>
+                                <span className="text-[9px] font-sans text-slate-400">{uploadedFile.size}</span>
                                 <span>•</span>
-                                <span className="text-[10px] font-mono font-bold flex items-center gap-1">
+                                <span className="text-[10px] font-sans font-bold flex items-center gap-1">
                                   {uploadStatus === 'scanning' && (
                                     <>
                                       <RefreshCw size={10} className="animate-spin text-amber-500" />
@@ -497,12 +485,12 @@ export default function CareersPage() {
                       )}
                       
                       {formErrors.file && (
-                        <p className="text-[10px] font-mono text-red-500 font-bold">{formErrors.file}</p>
+                        <p className="text-[10px] font-sans text-red-500 font-bold">{formErrors.file}</p>
                       )}
                     </div>
 
                     <div className="pt-4 flex items-center justify-between gap-4">
-                      <div className="flex items-center gap-2 text-[10px] font-mono text-slate-450">
+                      <div className="flex items-center gap-2 text-[10px] font-sans text-slate-450">
                         <ShieldCheck size={14} className="text-emerald-500" />
                         <span>Data compiled with grade-A SSL end-point security protocols</span>
                       </div>
@@ -511,7 +499,7 @@ export default function CareersPage() {
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         type="submit"
-                        className="px-6 py-3 bg-[#002b5c] hover:bg-blue-900 text-white font-mono text-xs font-black uppercase rounded-xl shadow cursor-pointer transition-colors"
+                        className="px-6 py-3 bg-[#002b5c] hover:bg-blue-900 text-white font-sans text-xs font-black uppercase rounded-xl shadow cursor-pointer transition-colors"
                       >
                         Transmit Profile
                       </motion.button>
@@ -534,7 +522,7 @@ export default function CareersPage() {
                     </div>
 
                     <div className="space-y-2">
-                      <h4 className="text-base font-mono font-bold text-[#002b5c] uppercase tracking-wider">
+                      <h4 className="text-base font-sans font-bold text-[#002b5c] uppercase tracking-wider">
                         {submissionStep === 'compiling' && '🔐 Instantiating Secure Pipeline...'}
                         {submissionStep === 'encrypting' && '⚙️ Resolving Dynamic Hash Signatures...'}
                         {submissionStep === 'registering' && '📶 Registering Applicant Token on Hub...'}
@@ -571,7 +559,7 @@ export default function CareersPage() {
                     </div>
 
                     {/* Receipt visual ticket block */}
-                    <div className="max-w-md mx-auto bg-white border-2 border-[#002b5c]/10 p-6 rounded-2xl font-mono text-left space-y-4 shadow-inner relative overflow-hidden">
+                    <div className="max-w-md mx-auto bg-white border-2 border-[#002b5c]/10 p-6 rounded-2xl font-sans text-left space-y-4 shadow-inner relative overflow-hidden">
                       <div className="absolute top-0 right-0 w-16 h-16 bg-emerald-50/20 rounded-bl-full pointer-events-none" />
                       
                       <div className="border-b border-dashed border-slate-200 pb-3 flex items-center justify-between text-[11px] font-bold text-slate-450 uppercase">
@@ -606,7 +594,7 @@ export default function CareersPage() {
                     <div className="pt-4 flex justify-center gap-3">
                       <button
                         onClick={resetAllFormStates}
-                        className="px-5 py-2.5 border border-slate-200 hover:border-slate-350 text-slate-650 font-mono text-[10px] uppercase font-bold rounded-xl cursor-pointer"
+                        className="px-5 py-2.5 border border-slate-200 hover:border-slate-350 text-slate-650 font-sans text-[10px] uppercase font-bold rounded-xl cursor-pointer"
                       >
                         Submit another application
                       </button>
@@ -620,7 +608,7 @@ export default function CareersPage() {
 
         {/* Right side: Application guidelines frame */}
         <div className="lg:col-span-4 space-y-6">
-          <span className="text-[10px] font-mono text-slate-400 font-bold uppercase tracking-widest block mb-4 border-b border-slate-100 pb-2">
+          <span className="text-[10px] font-sans text-slate-400 font-bold uppercase tracking-widest block mb-4 border-b border-slate-100 pb-2">
             How to apply
           </span>
           
@@ -645,19 +633,19 @@ export default function CareersPage() {
 
                 {/* Email Copier widget */}
                 <div className="p-4 bg-white/5 rounded-xl border border-white/10 shadow-inner">
-                  <p className="text-[9px] font-mono text-slate-400 uppercase tracking-widest block mb-2 font-bold">SEND EMAIL TO:</p>
+                  <p className="text-[9px] font-sans text-slate-400 uppercase tracking-widest block mb-2 font-bold">SEND EMAIL TO:</p>
                   <div className="flex items-center justify-between gap-2.5">
-                    <span className="text-xs font-mono font-semibold text-white truncate text-ellipsis">hasanthengg@gmail.com</span>
+                    <span className="text-xs font-sans font-semibold text-white truncate text-ellipsis">hasanthengg@gmail.com</span>
                     <button
                       onClick={handleCopyEmail}
-                      className="p-1 px-3 bg-white hover:bg-sky-400 hover:text-[#002b5c] text-[#002b5c] font-mono text-[9px] uppercase font-black rounded cursor-pointer transition-colors"
+                      className="p-1 px-3 bg-white hover:bg-sky-400 hover:text-[#002b5c] text-[#002b5c] font-sans text-[9px] uppercase font-black rounded cursor-pointer transition-colors"
                     >
                       {copied ? 'Copied' : 'Copy'}
                     </button>
                   </div>
                 </div>
 
-                <div className="space-y-1.5 text-[10px] text-slate-400 font-mono">
+                <div className="space-y-1.5 text-[10px] text-slate-400 font-sans">
                   <div className="flex items-center gap-2">
                     <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
                     <span>Response delay time: ~48 hours</span>

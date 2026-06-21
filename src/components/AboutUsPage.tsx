@@ -1,19 +1,63 @@
-import React from 'react';
-import { motion } from 'motion/react';
-import { Target, Compass, Eye, ShieldCheck, Cpu, Anchor, ArrowRight, Award, Compass as DCompass } from 'lucide-react';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { Target, Compass, Eye, ShieldCheck, Cpu, Anchor, ArrowRight, Award, Compass as DCompass, X, Sparkles, CheckCircle2, User, Briefcase, Plane, Shield, Navigation, Settings, Laptop } from 'lucide-react';
 import SEO from './SEO';
 import { InteractiveCard } from './InteractiveCard';
 import { ScrollEntrance, StaggerContainer, StaggerItem } from './ScrollEntrance';
 import HasanthLogo from './HasanthLogo';
+import { TeamGallery, TeamMember } from './TeamGallery';
+import { MemberProfileModal } from './MemberProfileModal';
 
 export default function AboutUsPage() {
   const futureFocusAreas = [
-    { title: 'Aerospace Systems', desc: 'Integrated high-precision component structures, wings, brackets & telemetry instrumentation setups.', count: '01', bgUrl: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=600&q=80' },
-    { title: 'Defense Technologies', desc: 'Symmetrical electronic circuits, heavy armor guidance plates & multi-sensor payloads.', count: '02', bgUrl: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=600&q=80' },
-    { title: 'Smart Electronics', desc: 'Multilayer hardware systems, intelligent thermal management & sensory PCB systems.', count: '03', bgUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80' },
-    { title: 'UAV Platforms', desc: 'Custom airframe configuration, advanced autonomous firmware & smart payload integration.', count: '04', bgUrl: 'https://images.unsplash.com/photo-1527977966376-1c8408f9f108?auto=format&fit=crop&w=600&q=80' },
-    { title: 'Industrial Automation', desc: 'Smart PLC arrays, robot visual coordination & connected factory systems.', count: '05', bgUrl: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80' },
-    { title: 'Consumer Technology', desc: 'Micro Electro-Mechanical System (MEMS) integrations & smart aroma code structures.', count: '06', bgUrl: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=600&q=80' }
+    { 
+      title: 'Aerospace Systems', 
+      desc: 'Integrated high-precision component structures, wings, brackets & telemetry instrumentation setups.', 
+      count: '01', 
+      bgUrl: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=600&q=80',
+      category: 'AEROSPACE ENGINEERING',
+      icon: 'Plane'
+    },
+    { 
+      title: 'Defense Technologies', 
+      desc: 'Symmetrical electronic circuits, heavy armor guidance plates & multi-sensor payloads.', 
+      count: '02', 
+      bgUrl: 'https://images.unsplash.com/photo-1541185933-ef5d8ed016c2?auto=format&fit=crop&w=600&q=80',
+      category: 'DEFENSE SYSTEMS',
+      icon: 'Shield'
+    },
+    { 
+      title: 'Smart Electronics', 
+      desc: 'Multilayer hardware systems, intelligent thermal management & sensory PCB systems.', 
+      count: '03', 
+      bgUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80',
+      category: 'MICRO-ELECTRONICS',
+      icon: 'Cpu'
+    },
+    { 
+      title: 'UAV Platforms', 
+      desc: 'Custom airframe configuration, advanced autonomous firmware & smart payload integration.', 
+      count: '04', 
+      bgUrl: 'https://images.unsplash.com/photo-1527977966376-1c8408f9f108?auto=format&fit=crop&w=600&q=80',
+      category: 'ROBOTICS & FLIGHT',
+      icon: 'Navigation'
+    },
+    { 
+      title: 'Industrial Automation', 
+      desc: 'Smart PLC arrays, robot visual coordination & connected factory systems.', 
+      count: '05', 
+      bgUrl: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80',
+      category: 'SMART INDUSTRY',
+      icon: 'Settings'
+    },
+    { 
+      title: 'Consumer Technology', 
+      desc: 'Micro Electro-Mechanical System (MEMS) integrations & smart aroma code structures.', 
+      count: '06', 
+      bgUrl: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=600&q=80',
+      category: 'DIGITAL INNOVATION',
+      icon: 'Laptop'
+    }
   ];
 
   const aboutSchema = {
@@ -36,6 +80,8 @@ export default function AboutUsPage() {
       }
     }
   };
+
+  const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
 
   return (
     <div className="bg-white min-h-screen text-slate-800 pb-24 animate-fadeIn">
@@ -178,6 +224,52 @@ export default function AboutUsPage() {
         </section>
       </ScrollEntrance>
 
+      {/* Leadership & R&D Team Section */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-24 space-y-16 animate-fadeIn">
+        <ScrollEntrance>
+          <div className="text-center max-w-3xl mx-auto space-y-4">
+            <span className="text-[10px] font-sans text-[#002b5c] font-black tracking-widest uppercase block">
+              OUR TEAM & BOARD OF DIRECTORS
+            </span>
+            <h2 className="text-3xl sm:text-5xl font-sans font-black text-[#002b5c] uppercase tracking-tight leading-none">
+              Meet Our Leadership & R&D Board
+            </h2>
+            
+            {/* Tagline display integration requested by user */}
+            <div className="pt-3 flex flex-col items-center gap-2 max-w-2xl mx-auto text-center font-sans">
+              <div className="text-sm sm:text-base font-semibold text-slate-700 tracking-wide">
+                One Team. Multiple Technologies. Infinite Possibilities.
+              </div>
+              <div className="text-xs sm:text-sm font-bold text-[#002b5c] tracking-wide flex items-center gap-1.5 flex-wrap justify-center">
+                <span>Mechanical</span>
+                <span className="text-[#002b5c]/35 font-extrabold">•</span>
+                <span>Electronics</span>
+                <span className="text-[#002b5c]/35 font-extrabold">•</span>
+                <span>Aerospace</span>
+                <span className="text-[#002b5c]/35 font-extrabold">•</span>
+                <span>Manufacturing</span>
+              </div>
+            </div>
+            <p className="text-xs text-slate-400 font-sans font-extrabold uppercase tracking-widest pt-1">
+              Designing Tomorrow's Engineering Solutions Today.
+            </p>
+          </div>
+        </ScrollEntrance>
+
+        {/* Modular TeamGallery component with GSAP scroll-stagger */}
+        <TeamGallery onSelectMember={setSelectedMember} />
+      </section>
+
+      {/* Dynamic slide-up / overlay bio details modal */}
+      <AnimatePresence>
+        {selectedMember && (
+          <MemberProfileModal 
+            member={selectedMember} 
+            onClose={() => setSelectedMember(null)} 
+          />
+        )}
+      </AnimatePresence>
+
       {/* Future Vision Grid */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-24 space-y-16">
         <ScrollEntrance>
@@ -195,39 +287,63 @@ export default function AboutUsPage() {
         </ScrollEntrance>
 
         <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {futureFocusAreas.map((area, idx) => (
-            <StaggerItem key={idx}>
-              <InteractiveCard
-                backgroundImageUrl={area.bgUrl}
-                className="h-full flex flex-col justify-between"
-              >
-                <div className="space-y-6">
-                  <div className="flex justify-between items-start">
-                    <span className="text-[9px] font-mono font-bold text-slate-400 uppercase tracking-widest">
-                      VISION TARGET
-                    </span>
-                    <span className="font-mono font-black text-slate-300 text-2xl group-hover:text-[#002b5c]/25 transition-colors">
-                      {area.count}
-                    </span>
-                  </div>
-                  
-                  <div className="space-y-3">
-                    <h3 className="text-lg font-sans font-black text-[#002b5c] uppercase tracking-tight">
-                      {area.title}
-                    </h3>
-                    <p className="text-xs text-slate-500 leading-relaxed font-semibold">
-                      {area.desc}
-                    </p>
-                  </div>
-                </div>
+          {futureFocusAreas.map((area, idx) => {
+            const getIcon = () => {
+              switch (area.icon) {
+                case 'Plane': return <Plane size={13} className="text-[#002b5c]" />;
+                case 'Shield': return <Shield size={13} className="text-[#002b5c]" />;
+                case 'Cpu': return <Cpu size={13} className="text-[#002b5c]" />;
+                case 'Navigation': return <Navigation size={13} className="text-[#002b5c]" />;
+                case 'Settings': return <Settings size={13} className="text-[#002b5c]" />;
+                case 'Laptop': return <Laptop size={13} className="text-[#002b5c]" />;
+                default: return <Cpu size={13} className="text-[#002b5c]" />;
+              }
+            };
 
-                <div className="mt-8 pt-4 border-t border-slate-100 flex items-center gap-1.5 text-[10px] font-mono text-[#002b5c] font-black uppercase tracking-widest">
-                  <span>Vision Focus</span>
-                  <ArrowRight size={11} className="transition-transform group-hover:translate-x-1" />
-                </div>
-              </InteractiveCard>
-            </StaggerItem>
-          ))}
+            return (
+              <StaggerItem key={idx}>
+                <InteractiveCard
+                  className="h-full flex flex-col justify-between p-5 bg-white border border-slate-100 shadow-sm rounded-3xl"
+                >
+                  <div className="space-y-4">
+                    {/* Top image wrapper frame */}
+                    <div className="relative w-full aspect-[16/10] rounded-2xl overflow-hidden bg-slate-50 border border-slate-200">
+                      <img 
+                        src={area.bgUrl} 
+                        alt={area.title} 
+                        loading="lazy"
+                        referrerPolicy="no-referrer"
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 filter saturate-[0.85] contrast-[1.05]"
+                      />
+                      {/* Top labels overlays */}
+                      <div className="absolute top-3 left-3 px-2.5 py-1 bg-white/95 backdrop-blur-sm text-[#002b5c] font-sans text-[9px] font-extrabold tracking-wider uppercase rounded-full shadow-sm flex items-center gap-1.5 border border-slate-100/70">
+                        {getIcon()}
+                        <span>{area.category}</span>
+                      </div>
+                    </div>
+
+                    {/* Information Text Block */}
+                    <div className="space-y-2 px-1">
+                      <h3 className="text-lg font-sans font-black text-[#002b5c] uppercase tracking-tight leading-snug">
+                        {area.title}
+                      </h3>
+                      <p className="text-slate-500 text-[12.5px] font-medium leading-relaxed font-sans">
+                        {area.desc}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Bottom status bar */}
+                  <div className="mt-5 pt-4 px-1 border-t border-slate-100 flex items-center justify-between text-[10px] font-sans font-bold text-slate-400 uppercase tracking-widest">
+                    <span>Hasanth R&D Sector</span>
+                    <span className="text-emerald-500 font-extrabold flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Active
+                    </span>
+                  </div>
+                </InteractiveCard>
+              </StaggerItem>
+            );
+          })}
         </StaggerContainer>
       </section>
     </div>

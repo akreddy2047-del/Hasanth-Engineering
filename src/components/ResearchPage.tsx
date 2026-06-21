@@ -12,37 +12,37 @@ export default function ResearchPage() {
       title: 'AI Integrated Engineering Systems',
       desc: 'Applying machine learning algorithms to structural stress analysis and thermal models, reducing numerical compute convergence times by up to 60%.',
       icon: Cpu,
-      metaCode: 'ML-CAE-401'
+      image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=800'
     },
     {
       title: 'Autonomous UAV Technologies',
       desc: 'Highly customized aerodynamic drones featuring fail-safe path finding under conditions with restricted GPS signals.',
       icon: Compass,
-      metaCode: 'UAV-NAV-09'
+      image: 'https://images.unsplash.com/photo-1507582020474-9a35b7d455d9?auto=format&fit=crop&q=80&w=800'
     },
     {
       title: 'Smart Sensor Networks',
       desc: 'Highly rugged sensor nodes linked in industrial mesh arrays to observe power grids and high-temperature machinery locations.',
       icon: Network,
-      metaCode: 'MESH-SEN-88'
+      image: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=800'
     },
     {
       title: 'Defense Electronics',
       desc: 'Mil-spec multi-layer hardware architectures capable of operating under high electro-static discharge (ESD) and high thermal vibration parameters.',
       icon: Shield,
-      metaCode: 'MIL-ESD-200'
+      image: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&q=80&w=800'
     },
     {
       title: 'Industrial IoT Solutions',
       desc: 'Low-latency telemetry and DIN-rail SCADA configurations streaming diagnostic logs in real-time.',
       icon: HardDrive,
-      metaCode: 'IIOT-NODE-12'
+      image: 'https://images.unsplash.com/photo-1558494949-ef010bb031cc?auto=format&fit=crop&q=80&w=800'
     },
     {
       title: 'Aerospace Manufacturing Support',
       desc: 'Researching multi-axis additive laser paths to minimize manufacturing waste of titanium alloy aircraft brackets.',
       icon: Layers,
-      metaCode: 'AER-FAB-71'
+      image: 'https://images.unsplash.com/photo-1502473775464-9694c96572e9?auto=format&fit=crop&q=80&w=800'
     }
   ];
 
@@ -67,7 +67,7 @@ export default function ResearchPage() {
   };
 
   return (
-    <div className="bg-white min-h-screen text-slate-800 pb-24 font-sans">
+    <div className="bg-slate-50 min-h-screen text-slate-800 pb-24 font-sans">
       <SEO 
         title="Research & Creative Tech Innovation"
         description="Explore Hasanth Engineering's core investigative domains, including AI-integrated CAE, Autonomous UAV Platforms, and the featured AromaCode Smart Scent MEMS chip."
@@ -77,12 +77,12 @@ export default function ResearchPage() {
       
       {/* Focus Areas Grid */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-24 space-y-16">
-        <div className="text-left space-y-2">
+        <div className="text-center space-y-3">
           <span className="text-[10px] font-mono text-[#002b5c] font-black uppercase tracking-widest block">
             CORE INVESTIGATIVE DOMAINS
           </span>
-          <h3 className="text-2xl sm:text-4xl font-sans font-black text-[#002b5c] uppercase tracking-tight">
-            Current Active Technical Fields & Standards
+          <h3 className="text-3xl sm:text-5xl font-sans font-black text-[#002b5c] uppercase tracking-tight">
+            Active Technical Innovation
           </h3>
         </div>
 
@@ -92,40 +92,39 @@ export default function ResearchPage() {
             return (
               <motion.div
                 key={idx}
-                initial={{ opacity: 0, y: 25 }}
+                initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 0.7, delay: idx * 0.08 }}
-                className="bg-white border-2 border-slate-100 p-8 rounded-3xl hover:border-[#002b5c] hover:shadow-2xl transition-all duration-300 flex flex-col justify-between group relative overflow-hidden"
+                transition={{ duration: 0.6, delay: idx * 0.1 }}
+                whileHover={{ y: -8 }}
+                className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-500 hover:border-[#002b5c]/20 flex flex-col justify-between group relative overflow-hidden"
               >
-                <div className="absolute right-6 top-6 font-mono font-bold text-[9px] text-[#002b5c] bg-blue-50 group-hover:bg-[#002b5c] group-hover:text-white px-2.5 py-1 rounded transition-colors uppercase">
-                  {area.metaCode}
-                </div>
-                
-                <div className="space-y-4">
-                  <div className="w-10 h-10 rounded-xl bg-blue-50 text-[#002b5c] border border-blue-100 flex items-center justify-center transition-colors">
-                    <Icon size={18} />
+                <img src={area.image} alt={area.title} className="absolute inset-0 z-0 h-full w-full object-cover opacity-20" />
+                <div className="absolute inset-0 z-0 bg-white/95" />
+
+                <div className="space-y-6 relative z-10">
+                  <div className="w-14 h-14 rounded-2xl bg-[#002b5c] text-white flex items-center justify-center transition-transform group-hover:scale-110 duration-300">
+                    <Icon size={24} />
                   </div>
                   
-                  <h4 className="text-base font-sans font-black text-[#002b5c] uppercase tracking-tight leading-snug">
+                  <h4 className="text-xl font-sans font-black text-[#002b5c] uppercase tracking-tight leading-snug">
                     {area.title}
                   </h4>
                   
-                  <p className="text-xs text-slate-500 leading-relaxed font-semibold">
+                  <p className="text-sm text-slate-500 leading-relaxed font-medium">
                     {area.desc}
                   </p>
                 </div>
 
-                <div className="mt-8 pt-4 border-t border-slate-100 flex items-center justify-between text-[9px] font-mono font-bold text-[#002b5c] uppercase tracking-wider">
-                  <span>Research status</span>
-                  <span>• CONTINUOUS</span>
+                <div className="mt-10 pt-6 border-t border-slate-100 flex items-center justify-between text-[10px] font-sans font-black text-[#002b5c] uppercase tracking-widest group-hover:text-blue-600 transition-colors relative z-10">
+                  <span>Continuous Research</span>
+                  <ArrowUpRight size={16} />
                 </div>
               </motion.div>
             );
           })}
         </div>
       </section>
-
     </div>
   );
 }

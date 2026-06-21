@@ -149,17 +149,17 @@ export const MagneticCard = ({
               onError={() => setImgError(true)}
               className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 pointer-events-none ${
                 isLight 
-                  ? 'opacity-20 group-hover:opacity-30 group-hover:scale-105' 
-                  : 'opacity-[0.55] group-hover:opacity-75 group-hover:scale-105'
+                  ? 'opacity-40 group-hover:opacity-100 group-hover:scale-105' 
+                  : 'opacity-50 group-hover:opacity-100 group-hover:scale-105'
               }`}
             />
             {/* Dynamic themed overlay according to card light/dark mode */}
             {isLight ? (
               // Light themed: soft white-wash layer to make the dark elements popping and read beautifully
-              <div className="absolute inset-0 z-10 bg-gradient-to-t from-white/95 via-white/85 to-white/70 transition-all duration-500 group-hover:from-white/90 group-hover:via-white/80" />
+              <div className="absolute inset-0 z-10 bg-gradient-to-t from-white/95 via-white/85 to-white/70 transition-all duration-500 group-hover:opacity-0" />
             ) : (
               // Dark themed: deep slate-wash overlay to allow the white text to look beautiful and glowing
-              <div className="absolute inset-0 z-10 bg-gradient-to-t from-[#020e1d]/95 via-[#031429]/80 to-[#020e1d]/45 transition-all duration-500 group-hover:from-[#020e1d]/100 group-hover:via-[#031429]/85" />
+              <div className="absolute inset-0 z-10 bg-gradient-to-t from-[#020e1d]/95 via-[#031429]/80 to-[#020e1d]/45 transition-all duration-500 group-hover:opacity-0" />
             )}
           </>
         ) : (
