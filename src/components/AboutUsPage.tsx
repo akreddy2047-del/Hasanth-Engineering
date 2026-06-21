@@ -92,36 +92,49 @@ export default function AboutUsPage() {
         schema={aboutSchema}
       />
 
-      {/* Centered Premium Brand Logo Header */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 flex flex-col items-center text-center">
+      {/* Brand & Mission Integration Section - Refined & Simple */}
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-16">
         <ScrollEntrance>
-          <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200 inline-flex flex-col items-center gap-4 transition-transform duration-500 hover:scale-[1.03] shadow-sm">
-            <HasanthLogo size={110} />
-            <div className="space-y-1">
-              <h2 className="text-xl sm:text-2xl font-sans text-[#002b5c] font-black tracking-widest uppercase">
-                HASANTH ENGINEERING
-              </h2>
-              <p className="text-slate-400 font-sans text-[10px] uppercase tracking-widest font-bold">
-                (OPC) PVT LTD • ESTD 2016
-              </p>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+            
+            {/* Logo Card - Simplified */}
+            <div className="bg-white border border-slate-100 rounded-3xl p-8 flex flex-col items-center justify-center text-center gap-6 transition-all duration-500 hover:border-blue-100/50 shadow-sm">
+              <div className="p-4 bg-slate-50/50 rounded-2xl">
+                <HasanthLogo size={90} />
+              </div>
+              <div className="space-y-1">
+                <h2 className="text-lg font-sans text-[#002b5c] font-black tracking-widest uppercase">
+                  HASANTH ENGINEERING
+                </h2>
+                <p className="text-slate-400 font-sans text-[9px] uppercase tracking-[0.3em] font-bold">
+                  (OPC) PVT LTD • ESTD 2016
+                </p>
+              </div>
             </div>
+
+            {/* Mission Quote - Clean & Neat */}
+            <div className="bg-slate-50 border border-slate-100 rounded-3xl p-8 sm:p-10 flex flex-col justify-center relative overflow-hidden group">
+              <div className="absolute left-0 top-0 w-1 h-full bg-[#002b5c]" />
+              
+              <div className="space-y-6 relative z-10">
+                <p className="text-base sm:text-lg font-sans font-black italic tracking-tight leading-relaxed uppercase text-[#002b5c]">
+                  "We bridge the gap between engineering blueprints and physical systems by pairing meticulous AS9100 aerospace metrics with continuous field-level operations."
+                </p>
+
+                <div className="flex items-center gap-4">
+                  <div className="h-px w-8 bg-[#002b5c]/20" />
+                  <span className="text-[8px] font-bold uppercase tracking-widest text-slate-400">Tactical Engineering Philosophy</span>
+                </div>
+              </div>
+
+              {/* Minimalist Background Icon */}
+              <div className="absolute -bottom-4 -right-4 opacity-[0.03] rotate-12 transition-transform group-hover:rotate-0 duration-700">
+                <Cpu size={120} />
+              </div>
+            </div>
+
           </div>
         </ScrollEntrance>
-      </section>
-
-      {/* Featured Quote Intro Block */}
-      <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="p-8 bg-slate-50 border border-slate-205 rounded-3xl shadow-sm relative overflow-hidden"
-        >
-          <div className="absolute top-0 left-0 w-1.5 h-full bg-[#002b5c]" />
-          <p className="text-xs sm:text-xs font-black text-[#002b5c] italic tracking-wide leading-relaxed uppercase">
-            "We bridge the gap between engineering blueprints and physical systems by pairing meticulous AS9100 aerospace metrics with continuous field-level operations."
-          </p>
-        </motion.div>
       </section>
 
       {/* Vision & Mission Bento Cards */}

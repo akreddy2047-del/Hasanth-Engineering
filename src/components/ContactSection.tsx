@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Mail, Phone, MapPin, Search, Globe, ChevronRight, BarChart3, TrendingUp, CheckCircle, Send, Radio } from 'lucide-react';
-import { motion } from 'motion/react';
+import { Mail, Phone, MapPin, Search, Globe, ChevronRight, BarChart3, TrendingUp, CheckCircle, Send, Radio, ChevronDown } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { useToast } from '../hooks/useToast';
 import { db } from '../lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
@@ -128,103 +128,176 @@ export default function ContactSection() {
 
 
 
-        {/* Contact Form Section */}
+        {/* Main Interaction Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 pt-8 border-t border-slate-100">
           
-          <div className="lg:col-span-5 space-y-6">
-            <span className="text-[10px] font-mono text-slate-400 font-bold uppercase tracking-widest block font-black mb-3">
-              Transmission Guidelines
-            </span>
-            <div className="space-y-4 text-xs font-semibold text-slate-550 leading-relaxed font-sans">
-              <div className="flex gap-3">
-                <div className="w-1.5 h-1.5 rounded-full bg-[#002b5c] mt-2 shrink-0" />
-                <p>Support raw CAD files (.STEP, .IGS, .SLDPRT) or drawing layouts (.DXF, .PDF) via email transfer.</p>
+          {/* Left Column: FAQ & Guidelines */}
+          <div className="lg:col-span-5 space-y-10">
+            <div className="space-y-4">
+              <span className="text-[10px] font-mono text-slate-400 font-bold uppercase tracking-widest block font-black">
+                Common Inquiries & Guidelines
+              </span>
+              <h3 className="text-xl font-sans font-black uppercase text-[#002b5c] tracking-tight">
+                Engagement Service <br />Parameters
+              </h3>
+              <p className="text-xs text-slate-500 font-semibold leading-relaxed">
+                Review our standard operational procedures and delivery timelines before initiating a project transmission.
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              <FAQItem 
+                question="How do we initiate a project?" 
+                answer="Engagement begins with a technical transmission. Submit your parametric requirements or CAD blueprints via our contact form or email." 
+              />
+              <FAQItem 
+                question="Standard delivery timelines?" 
+                answer="Simple mechanical fabrication quotes typically take 48 hours. Complex PCB or drone projects range from 2 to 6 weeks." 
+              />
+              <FAQItem 
+                question="Custom quotation process?" 
+                answer="Quotation is based on BOM, manufacturing tolerances, and engineering man-hours. We provide a structured breakdown for all proposals." 
+              />
+            </div>
+
+            <div className="p-6 bg-slate-50 border border-slate-100 rounded-2xl space-y-4">
+              <div className="flex items-center gap-2 text-[#002b5c]">
+                <Radio size={14} className="animate-pulse" />
+                <span className="text-[10px] font-black uppercase tracking-widest">Protocol Notice</span>
               </div>
-              <div className="flex gap-3">
-                <div className="w-1.5 h-1.5 rounded-full bg-[#002b5c] mt-2 shrink-0" />
-                <p>IPC-A-610 electronic layouts or multi-layer Gerber drill files may be zipped for direct email uploads.</p>
-              </div>
-              <div className="flex gap-3">
-                <div className="w-1.5 h-1.5 rounded-full bg-[#002b5c] mt-2 shrink-0" />
-                <p>Our average turnaround on full mechanical stress and PCB impedance review quotations is 48 business hours.</p>
-              </div>
+              <ul className="space-y-2 text-[10px] font-bold text-slate-600 list-disc pl-4 leading-relaxed">
+                <li>Support .STEP, .IGS, .SLDPRT, .DXF, and .PDF formats.</li>
+                <li>IPC-A-610 layouts or Gerber files may be zipped.</li>
+                <li> turnaround on full review quotes is 48 business hours.</li>
+              </ul>
             </div>
           </div>
 
-          {/* Form container */}
+          {/* Right Column: Contact Form Terminal */}
           <div className="lg:col-span-7">
-            {sent ? (
-              <div className="p-8 bg-emerald-50 border-2 border-emerald-100 rounded-3xl text-center space-y-3">
-                <div className="w-12 h-12 bg-emerald-500 rounded-full flex items-center justify-center text-white mx-auto shadow-md">
-                  <CheckCircle size={22} />
-                </div>
-                <h3 className="text-xl font-sans font-black uppercase text-slate-900 tracking-tight">Transmission Complete</h3>
-                <p className="text-xs text-slate-550 max-w-sm mx-auto font-semibold">Your system inquiry has been recorded. An engineering team representative will respond shortly.</p>
+            <div className="bg-white border-2 border-slate-100 rounded-[32px] p-8 sm:p-10 shadow-sm relative overflow-hidden group">
+              <div className="absolute top-0 right-0 p-8 opacity-[0.02] group-hover:opacity-[0.04] transition-opacity pointer-events-none">
+                <Send size={120} />
               </div>
-            ) : (
-              <form onSubmit={handleFormSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <label className="text-[9px] font-sans text-slate-400 font-bold uppercase tracking-widest">Your Name *</label>
+
+              {sent ? (
+                <div className="py-20 text-center space-y-4">
+                  <div className="w-16 h-16 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto border border-emerald-100">
+                    <CheckCircle size={32} />
+                  </div>
+                  <div className="space-y-2">
+                    <h3 className="text-xl font-sans font-black uppercase text-slate-900 tracking-tight">Transmission Logic Confirmed</h3>
+                    <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">Coordinate signals logged • Representative will respond</p>
+                  </div>
+                  <button 
+                    onClick={() => setSent(false)}
+                    className="px-6 py-2 bg-[#002b5c] text-white text-[10px] font-black uppercase tracking-widest rounded-lg hover:shadow-lg transition-all"
+                  >
+                    Send New Transmission
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={handleFormSubmit} className="space-y-6 relative z-10">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-sans text-slate-400 font-bold uppercase tracking-widest">Personnel Name</label>
+                      <input 
+                        type="text" 
+                        required
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        placeholder="e.g. John Doe"
+                        className="w-full bg-slate-50/50 border border-slate-100 focus:border-[#002b5c] focus:bg-white focus:outline-none rounded-xl px-4 py-3 text-sm text-slate-800 font-semibold transition-all"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-sans text-slate-400 font-bold uppercase tracking-widest">Digital Address</label>
+                      <input 
+                        type="email" 
+                        required
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        placeholder="name@firm.com"
+                        className="w-full bg-slate-50/50 border border-slate-100 focus:border-[#002b5c] focus:bg-white focus:outline-none rounded-xl px-4 py-3 text-sm text-slate-800 font-semibold transition-all"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-sans text-slate-400 font-bold uppercase tracking-widest">Transmission Subject</label>
                     <input 
                       type="text" 
-                      required
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      placeholder="Jane Doe"
-                      className="w-full bg-white border-2 border-slate-100 focus:border-[#002b5c] focus:outline-none rounded-2xl px-4 py-3 text-xs sm:text-sm text-slate-800 font-semibold"
+                      value={formData.subject}
+                      onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                      placeholder="e.g. Project Specs / Quote Request"
+                      className="w-full bg-slate-50/50 border border-slate-100 focus:border-[#002b5c] focus:bg-white focus:outline-none rounded-xl px-4 py-3 text-sm text-slate-800 font-semibold transition-all"
                     />
                   </div>
-                  <div className="space-y-1">
-                    <label className="text-[9px] font-sans text-slate-400 font-bold uppercase tracking-widest">Email Address *</label>
-                    <input 
-                      type="email" 
+
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-sans text-slate-400 font-bold uppercase tracking-widest">Message Payload</label>
+                    <textarea 
+                      rows={4}
                       required
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      placeholder="name@firm.com"
-                      className="w-full bg-white border-2 border-slate-100 focus:border-[#002b5c] focus:outline-none rounded-2xl px-4 py-3 text-xs sm:text-sm text-slate-800 font-semibold"
+                      value={formData.message}
+                      onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                      placeholder="Describe technical requirements, tolerances, or objectives..."
+                      className="w-full bg-slate-50/50 border border-slate-100 focus:border-[#002b5c] focus:bg-white focus:outline-none rounded-xl px-4 py-3.5 text-sm text-[#002b5c] font-semibold transition-all resize-none"
                     />
                   </div>
-                </div>
 
-                <div className="space-y-1">
-                  <label className="text-[9px] font-sans text-slate-400 font-bold uppercase tracking-widest">Subject Reference</label>
-                  <input 
-                    type="text" 
-                    value={formData.subject}
-                    onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                    placeholder="E.g. PCB Assembly / Drone Chassis Quote"
-                    className="w-full bg-white border-2 border-slate-100 focus:border-[#002b5c] focus:outline-none rounded-2xl px-4 py-3 text-xs sm:text-sm text-slate-800 font-semibold"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-[9px] font-sans text-slate-400 font-bold uppercase tracking-widest">Message details *</label>
-                  <textarea 
-                    rows={4}
-                    required
-                    value={formData.message}
-                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                    placeholder="Describe your design specifications, dimensions, power requirements, or physical guidelines..."
-                    className="w-full bg-white border-2 border-slate-100 focus:border-[#002b5c] focus:outline-none rounded-2xl px-4 py-3.5 text-xs sm:text-sm text-[#002b5c] font-semibold"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  className="w-full py-4 bg-[#002b5c] hover:bg-[#002b5c]/90 transition-all text-white font-mono text-xs font-black uppercase tracking-widest rounded-2xl flex items-center justify-center gap-2 cursor-pointer shadow-lg active:scale-98"
-                >
-                  <Send size={12} />
-                  <span>Transmit Inquiry</span>
-                </button>
-              </form>
-            )}
+                  <button
+                    type="submit"
+                    className="w-full py-4 bg-[#002b5c] hover:bg-blue-900 transition-all text-white font-sans text-xs font-black uppercase tracking-widest rounded-xl flex items-center justify-center gap-3 shadow-xl shadow-blue-900/10 active:scale-98"
+                  >
+                    <Send size={14} />
+                    <span>Initiate Signal Transmission</span>
+                  </button>
+                </form>
+              )}
+            </div>
           </div>
-
         </div>
 
       </div>
     </section>
+  );
+}
+
+function FAQItem({ question, answer }: { question: string; answer: string }) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className="border border-slate-100 rounded-2xl overflow-hidden bg-slate-50/30">
+      <button 
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-slate-50 transition-colors"
+      >
+        <span className="text-[13px] font-bold text-[#002b5c] uppercase tracking-tight">{question}</span>
+        <motion.div
+          animate={{ rotate: isOpen ? 180 : 0 }}
+          transition={{ duration: 0.3 }}
+          className="text-slate-400"
+        >
+          <ChevronDown size={16} />
+        </motion.div>
+      </button>
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
+          >
+            <div className="px-6 pb-5 pt-0">
+              <p className="text-xs text-slate-600 leading-relaxed font-medium border-t border-slate-100 pt-3">
+                {answer}
+              </p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }

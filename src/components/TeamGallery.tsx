@@ -128,7 +128,7 @@ export const teamMembers: TeamMember[] = [
     id: 6,
     name: "Dr. S. Uday Bhaskar",
     title: "Senior Systems & Instrumentation Engineer",
-    credentials: "B.Tech Electronics & Communication",
+    credentials: "P.hD - Mechanical Engineering",
     image: UdayImg,
     summary: "Oversees high-resolution sensor interfaces, telemetry signals validation, and data logging calibration setups.",
     highlights: [
