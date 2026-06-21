@@ -3,7 +3,7 @@ import { db } from '../lib/firebase';
 import { collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, onSnapshot, serverTimestamp } from 'firebase/firestore';
 import { 
   Lock, CheckCircle, Trash2, Plus, Briefcase, FileText, Mail, 
-  MapPin, Clock, Calendar, Shield, LogOut, ChevronRight, RefreshCw, AlertCircle, Download
+  MapPin, Clock, Calendar, Shield, LogOut, ChevronRight, RefreshCw, AlertCircle, Download, Zap, PenTool, ArrowLeft
 } from 'lucide-react';
 import { useToast } from '../hooks/useToast';
 
@@ -62,8 +62,20 @@ export default function AdminPanel() {
   const [jobs, setJobs] = useState<any[]>([]);
   const [applications, setApplications] = useState<any[]>([]);
   const [enquiries, setEnquiries] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'jobs' | 'applications' | 'enquiries'>('jobs');
+  const [blogs, setBlogs] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState<'jobs' | 'applications' | 'enquiries' | 'blogs'>('jobs');
   
+  // Blog Creation State
+  const [isAddingBlog, setIsAddingBlog] = useState(false);
+  const [newBlog, setNewBlog] = useState({
+    title: '',
+    category: 'Electronics Engineering',
+    readingTime: '5 min read',
+    excerpt: '',
+    content: '',
+    author: 'Systems Engineering Division'
+  });
+
   // Loading & Action States
   const [isLoading, setIsLoading] = useState(false);
   const [newJob, setNewJob] = useState({ 
@@ -103,10 +115,15 @@ export default function AdminPanel() {
         setApplications(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
         setIsLoading(false);
       });
+      const unsubBlogs = onSnapshot(query(collection(db, 'blogs'), orderBy('timestamp', 'desc')), (snapshot) => {
+        setBlogs(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+        setIsLoading(false);
+      });
       return () => {
         unsubEnquiries();
         unsubJobs();
         unsubApps();
+        unsubBlogs();
       };
     }
   }, [isAuthenticated]);
@@ -195,6 +212,52 @@ export default function AdminPanel() {
       showToast('Inquiry Cleared', 'Inquiry log removed from active queue.', 'success');
     } catch (e) {
       showToast('Deletion failed', 'Failed to clear system log.', 'warning');
+    }
+  };
+
+  // Delete Blog (Blogs CRUD)
+  const handleDeleteBlog = async (blogId: string, title: string) => {
+    if (!window.confirm(`Permanently delete the technical paper "${title}"?`)) return;
+    try {
+      await deleteDoc(doc(db, 'blogs', blogId));
+      showToast('Blog Purged', 'Technical digest removed from database catalog.', 'success');
+    } catch (e) {
+      showToast('Deletion failed', 'Failed to remove blog entry.', 'warning');
+    }
+  };
+
+  // Create Blog (Blogs CRUD)
+  const handleCreateBlog = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newBlog.title || !newBlog.content || !newBlog.excerpt || !newBlog.readingTime) {
+      showToast('Validation Error', 'All fields are mandatory for publication.', 'warning');
+      return;
+    }
+    
+    setIsLoading(true);
+    try {
+      await addDoc(collection(db, 'blogs'), {
+        ...newBlog,
+        date: new Date().toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' }),
+        bgUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80',
+        timestamp: serverTimestamp()
+      });
+      
+      showToast('Blog Published', 'Technical paper successfully added to the journal.', 'success');
+      setIsAddingBlog(false);
+      setNewBlog({
+        title: '',
+        category: 'Electronics Engineering',
+        readingTime: '5 min read',
+        excerpt: '',
+        content: '',
+        author: 'Systems Engineering Division'
+      });
+    } catch (e) {
+      console.error("Firestore Blog Creation Error:", e);
+      showToast('Publishing failed', 'Database rejection. Check field lengths or connectivity.', 'warning');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -331,6 +394,16 @@ export default function AdminPanel() {
             }`}
           >
             Inquiries ({enquiries.length})
+          </button>
+          <button 
+            onClick={() => setActiveTab('blogs')}
+            className={`pb-3 text-xs font-bold uppercase tracking-widest transition-all relative ${
+              activeTab === 'blogs' 
+              ? 'text-[#002b5c] border-b-2 border-[#002b5c]' 
+              : 'text-slate-400 hover:text-slate-600'
+            }`}
+          >
+            Blogs ({blogs.length})
           </button>
         </nav>
 
@@ -576,6 +649,148 @@ export default function AdminPanel() {
               </div>
             </div>
           )}
+
+          {/* TAB 4: BLOGS */}
+          {activeTab === 'blogs' && (
+            <div className="space-y-6 animate-in fade-in duration-500">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h2 className="text-xs font-bold uppercase tracking-widest text-[#002b5c]">Technical Publications Manager</h2>
+                  <p className="text-[10px] text-slate-400 font-medium">Published Papers: {blogs.length}</p>
+                </div>
+                <button 
+                  onClick={() => setIsAddingBlog(!isAddingBlog)}
+                  className="flex items-center gap-2 bg-[#002b5c] text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-blue-900 transition-all shadow-lg shadow-blue-900/10"
+                >
+                  {isAddingBlog ? <ArrowLeft size={16} /> : <Plus size={16} />}
+                  {isAddingBlog ? 'Cancel Publishing' : 'New Publication'}
+                </button>
+              </div>
+
+              {isAddingBlog ? (
+                <form onSubmit={handleCreateBlog} className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl p-6 space-y-4 animate-in slide-in-from-top-4 duration-500">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Publication Title *</label>
+                      <input
+                        type="text"
+                        required
+                        value={newBlog.title}
+                        onChange={(e) => setNewBlog({...newBlog, title: e.target.value})}
+                        className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-800 font-semibold focus:border-[#002b5c] outline-none"
+                        placeholder="e.g. Design of High-Speed Telemetry Systems"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Author / Division *</label>
+                      <input
+                        type="text"
+                        required
+                        value={newBlog.author}
+                        onChange={(e) => setNewBlog({...newBlog, author: e.target.value})}
+                        className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-800 font-semibold focus:border-[#002b5c] outline-none"
+                        placeholder="e.g. Systems Engineering Division"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Category *</label>
+                      <select
+                        value={newBlog.category}
+                        onChange={(e) => setNewBlog({...newBlog, category: e.target.value})}
+                        className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-800 font-semibold focus:border-[#002b5c] outline-none"
+                      >
+                        <option value="Electronics Engineering">Electronics Engineering</option>
+                        <option value="UAV & Aerospace">UAV & Aerospace</option>
+                        <option value="Mechanical Engineering">Mechanical Engineering</option>
+                        <option value="Research & Innovation">Research & Innovation</option>
+                      </select>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Reading Time *</label>
+                      <input
+                        type="text"
+                        required
+                        value={newBlog.readingTime}
+                        onChange={(e) => setNewBlog({...newBlog, readingTime: e.target.value})}
+                        className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-800 font-semibold focus:border-[#002b5c] outline-none"
+                        placeholder="5 min read"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Abstract / Summary Excerpt *</label>
+                    <textarea
+                      required
+                      value={newBlog.excerpt}
+                      onChange={(e) => setNewBlog({...newBlog, excerpt: e.target.value})}
+                      className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2 text-xs text-slate-800 font-semibold focus:border-[#002b5c] outline-none h-20 resize-none"
+                      placeholder="Brief overview for the listing card..."
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Full Technical Content (Markdown Supported) *</label>
+                    <textarea
+                      required
+                      value={newBlog.content}
+                      onChange={(e) => setNewBlog({...newBlog, content: e.target.value})}
+                      className="w-full bg-white border border-slate-200 rounded-xl px-4 py-4 text-xs text-slate-800 font-semibold font-mono focus:border-[#002b5c] outline-none h-48 resize-none"
+                      placeholder="Enter detailed report findings..."
+                    />
+                  </div>
+
+                  <button 
+                    type="submit"
+                    disabled={isLoading}
+                    className="w-full bg-[#002b5c] text-white py-3 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-blue-900 transition-all flex items-center justify-center gap-2"
+                  >
+                    {isLoading ? <RefreshCw className="animate-spin" size={16} /> : <CheckCircle size={16} />}
+                    {isLoading ? 'Cataloging Publication...' : 'Publish to Engineering Journal'}
+                  </button>
+                </form>
+              ) : (
+                <div className="grid grid-cols-1 gap-4">
+                  {blogs.length === 0 ? (
+                  <div className="p-20 border border-dashed border-slate-200 rounded-2xl text-center">
+                    <p className="text-sm text-slate-400 font-medium italic">No custom blog posts found in the database. Utilizing initial system defaults.</p>
+                  </div>
+                ) : (
+                  blogs.map((blog) => (
+                    <div key={blog.id} className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm flex items-start gap-6 hover:border-[#002b5c]/20 transition-all">
+                      <div className="w-12 h-12 bg-slate-50 flex items-center justify-center rounded-xl text-[#002b5c] shrink-0 border border-slate-100">
+                        <PenTool size={20} />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between mb-1">
+                          <h3 className="text-base font-bold text-slate-900 truncate">{blog.title}</h3>
+                          <span className="text-[10px] text-slate-400 font-mono italic">
+                            {blog.date || 'Undated'}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-3 mb-3">
+                          <span className="px-2 py-0.5 bg-blue-50 text-[#002b5c] text-[9px] font-bold uppercase rounded border border-blue-100">
+                            {blog.category}
+                          </span>
+                          <span className="text-[10px] text-slate-400 font-medium">By {blog.author}</span>
+                        </div>
+                        <p className="text-xs text-slate-500 leading-relaxed line-clamp-2">
+                          {blog.excerpt}
+                        </p>
+                      </div>
+                      <button onClick={() => handleDeleteBlog(blog.id, blog.title)} className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all shrink-0">
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         </main>
         

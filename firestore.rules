@@ -13,7 +13,7 @@ service cloud.firestore {
       
       function isValidJob(data) {
         return data.keys().hasAll(['title', 'type', 'location', 'exp', 'desc', 'skills', 'timestamp'])
-          && data.keys().size() == 7
+          && data.keys().hasOnly(['title', 'type', 'location', 'exp', 'desc', 'skills', 'timestamp'])
           && isValidString(data.title, 200)
           && isValidString(data.type, 100)
           && isValidString(data.location, 200)
@@ -54,7 +54,7 @@ service cloud.firestore {
       
       function isValidEnquiry(data) {
         return data.keys().hasAll(['applicantName', 'applicantEmail', 'subject', 'message', 'timestamp'])
-          && data.keys().size() == 5
+          && data.keys().hasOnly(['applicantName', 'applicantEmail', 'subject', 'message', 'timestamp', 'type'])
           && isValidString(data.applicantName, 200)
           && isValidString(data.applicantEmail, 200)
           && isValidString(data.subject, 300)
@@ -63,6 +63,27 @@ service cloud.firestore {
       
       allow create: if isValidEnquiry(incoming());
       allow update: if isValidEnquiry(incoming());
+      allow delete: if true;
+    }
+
+    match /blogs/{blogId} {
+      allow read: if true;
+      
+      function isValidBlog(data) {
+        return data.keys().hasAll(['title', 'excerpt', 'content', 'category', 'readingTime', 'timestamp'])
+          && data.keys().hasOnly(['title', 'date', 'author', 'excerpt', 'category', 'content', 'readingTime', 'bgUrl', 'timestamp'])
+          && isValidString(data.title, 2000)
+          && isValidString(data.excerpt, 5000)
+          && isValidString(data.content, 100000)
+          && isValidString(data.category, 500)
+          && isValidString(data.readingTime, 200)
+          && (!('author' in data.keys()) || isValidString(data.author, 500))
+          && (!('date' in data.keys()) || isValidString(data.date, 200))
+          && (!('bgUrl' in data.keys()) || isValidString(data.bgUrl, 2000));
+      }
+      
+      allow create: if isValidBlog(incoming());
+      allow update: if isValidBlog(incoming());
       allow delete: if true;
     }
   }

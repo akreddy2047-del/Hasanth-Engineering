@@ -1,7 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { 
+  ArrowRight, Sparkles, Wrench, Shield, Binary, 
+  Blocks, Settings, Microscope, Hammer, Cpu 
+} from 'lucide-react';
 import { InteractiveCard } from './InteractiveCard';
 
 // Register GSAP ScrollTrigger
@@ -9,24 +12,15 @@ if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-// Team headshot imports (safely matching the generated assets)
-import BhaskarImg from '../assets/images/bhaskar_founder_1781962220615.jpg';
-import VijayaImg from '../assets/images/vijaya_director_1781962235658.jpg';
-import JagadishImg from '../assets/images/jagadish_technical_1781962254865.jpg';
-import SwathiImg from '../assets/images/swathi_mtech_1781962268336.jpg';
-import PrakashImg from '../assets/images/prakash_aerospace_1781962282383.jpg';
-import UdayImg from '../assets/images/udaybhaskar .jpeg';
-import CharyImg from '../assets/images/chary_manufacturing_1781962316656.jpg';
-
 export interface TeamMember {
   id: number;
   name: string;
   title: string;
   credentials: string;
-  image: string;
   summary: string;
   highlights: string[];
   bio: string[];
+  icon?: any;
 }
 
 interface TeamGalleryProps {
@@ -39,7 +33,7 @@ export const teamMembers: TeamMember[] = [
     name: "Mr. Bhaskar",
     title: "Founder & Managing Director",
     credentials: "B.Tech Mechanical Engineering | 19 Years Experience",
-    image: BhaskarImg,
+    icon: Wrench,
     summary: "19 years of professional engineering experience, including 16 years at Hindustan Aeronautics Limited (HAL) and 3 years as an Assistant Professor.",
     highlights: [
       "16 years of service at Hindustan Aeronautics Limited (HAL)",
@@ -56,7 +50,7 @@ export const teamMembers: TeamMember[] = [
     name: "Mrs. Vijaya Kumari",
     title: "Director of Operations & Administration",
     credentials: "M.Tech in Power Systems",
-    image: VijayaImg,
+    icon: Shield,
     summary: "Directs business operations, strategic growth, preschool management and administrative compliance at Hasanth Engineering.",
     highlights: [
       "Master of Technology (M.Tech) in Power Systems",
@@ -75,7 +69,7 @@ export const teamMembers: TeamMember[] = [
     name: "Mr. Jagadish",
     title: "Director of Technology (R&D)",
     credentials: "M.Tech in Embedded Systems & FPGA",
-    image: JagadishImg,
+    icon: Binary,
     summary: "Sensory hardware specialist and aerospace-grade embedded systems developer holding multiple technology patents.",
     highlights: [
       "Over 18 years of experience in hardware design and FPGA processing frameworks",
@@ -93,7 +87,7 @@ export const teamMembers: TeamMember[] = [
     name: "Mr. Prakash",
     title: "Senior Aerospace Design Consultant",
     credentials: "B.Tech Mechanical Engineering | 17+ Years Experience",
-    image: PrakashImg,
+    icon: Blocks,
     summary: "17+ years in Aerospace OEM, structure engineering, Catia V5 design, and aircraft cabin installations.",
     highlights: [
       "Worked with major customers like Boeing, Airbus, National Aerospace Labs, and HAL",
@@ -111,7 +105,7 @@ export const teamMembers: TeamMember[] = [
     name: "Ms. Swathi Kakulla",
     title: "CAD/CAM Developer & Project Coordinator",
     credentials: "M.Tech in CAD/CAM",
-    image: SwathiImg,
+    icon: Settings,
     summary: "Directs vendor interactions, CAD/CAM educational programs, and project milestones mapping.",
     highlights: [
       "Master of Technology (M.Tech) in CAD/CAM Design & Automation",
@@ -129,7 +123,7 @@ export const teamMembers: TeamMember[] = [
     name: "Dr. S. Uday Bhaskar",
     title: "Senior Systems & Instrumentation Engineer",
     credentials: "P.hD - Mechanical Engineering",
-    image: UdayImg,
+    icon: Microscope,
     summary: "Oversees high-resolution sensor interfaces, telemetry signals validation, and data logging calibration setups.",
     highlights: [
       "Specialist in real-time telemetry pipelines and avionics data acquisition calibration",
@@ -147,7 +141,7 @@ export const teamMembers: TeamMember[] = [
     name: "Mr. Chary",
     title: "Senior Precision Machining Consultant",
     credentials: "Specialist in Tooling & CNC Operations",
-    image: CharyImg,
+    icon: Hammer,
     summary: "Aviation-grade fixture construction, dynamic toolpath optimization, and metallurgic auditing leader.",
     highlights: [
       "Expert in multi-axis CNC milling setups and dynamic cutting tool calibrations",
@@ -169,9 +163,8 @@ export function TeamGallery({ onSelectMember }: TeamGalleryProps) {
     const el = containerRef.current;
     if (!el) return;
 
-    // Reset initial styles prior to transition to avoid flash/jumpiness
     const cards = el.querySelectorAll('.member-card');
-    gsap.set(cards, { opacity: 0, y: 50 });
+    gsap.set(cards, { opacity: 0, y: 30 });
 
     const trigger = ScrollTrigger.create({
       trigger: el,
@@ -180,79 +173,85 @@ export function TeamGallery({ onSelectMember }: TeamGalleryProps) {
         gsap.to(cards, {
           opacity: 1,
           y: 0,
-          duration: 0.8,
-          stagger: 0.12,
-          ease: 'power2.out',
+          duration: 0.6,
+          stagger: 0.1,
+          ease: 'expo.out',
           overwrite: 'auto'
         });
       },
       onLeaveBack: () => {
-        // Reset state for beautiful replay upon scrolling up and back down
         gsap.to(cards, {
           opacity: 0,
-          y: 50,
-          duration: 0.4,
+          y: 30,
+          duration: 0.3,
           overwrite: 'auto'
         });
       }
     });
 
-    return () => {
-      trigger.kill();
-    };
+    return () => trigger.kill();
   }, []);
 
   return (
     <div 
       ref={containerRef}
-      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"
-      id="team-gallery-container"
+      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
     >
-      {teamMembers.map((member) => (
-        <div key={member.id} className="member-card opacity-0">
-          <InteractiveCard className="h-full flex flex-col justify-between p-5 bg-white border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-500 rounded-3xl hover:border-[#002b5c]/10 hover:scale-[1.02] hover:z-10">
-            <div className="space-y-5 relative z-10">
-              {/* Photo Headshot frame */}
-              <div className="relative w-full aspect-square rounded-2xl overflow-hidden bg-slate-100 border border-slate-200">
-                <img 
-                  src={member.image} 
-                  alt={member.name}
-                  referrerPolicy="no-referrer"
-                  loading="lazy"
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                />
+      {teamMembers.map((member) => {
+        const Icon = member.icon || Cpu;
+        return (
+          <div key={member.id} className="member-card opacity-0 group">
+            <InteractiveCard className="h-full flex flex-col justify-between p-6 bg-white border border-slate-200 shadow-sm hover:shadow-xl hover:border-[#002b5c]/20 transition-all duration-500 rounded-[2rem] hover:scale-[1.02] relative overflow-hidden">
+              {/* Decorative Watermark Icon */}
+              <div className="absolute -top-4 -right-4 p-8 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity duration-700">
+                <Icon size={140} strokeWidth={1} />
               </div>
 
-              <div className="space-y-1">
-                <h3 className="text-xl font-sans font-black text-[#002b5c] leading-tight">
-                  {member.name}
-                </h3>
-                <p className="text-[#002b5c] font-sans text-[10px] font-black uppercase tracking-wider">
-                  {member.title}
-                </p>
-                <p className="text-slate-500 font-sans text-[10.5px] font-semibold tracking-wide leading-tight pt-1">
-                  {member.credentials}
+              <div className="space-y-5 relative z-10">
+                <div className="flex items-center justify-between">
+                  {/* Styled Icon Badge */}
+                  <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center border border-slate-100 group-hover:bg-[#002b5c]/5 group-hover:border-[#002b5c]/10 transition-colors">
+                    <Icon size={18} className="text-[#002b5c]/70 group-hover:text-[#002b5c]" />
+                  </div>
+                  <div className="flex -space-x-1">
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="w-1.5 h-1.5 rounded-full bg-slate-200 group-hover:bg-[#002b5c]/20" />
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <h3 className="text-lg font-sans font-black text-[#002b5c] leading-none tracking-tight group-hover:tracking-normal transition-all">
+                    {member.name}
+                  </h3>
+                  <p className="text-[#2563eb] font-sans text-[10px] font-black uppercase tracking-[0.15em]">
+                    {member.title}
+                  </p>
+                  <p className="text-slate-400 font-mono text-[9px] font-bold tracking-tight pt-1">
+                    {member.credentials}
+                  </p>
+                </div>
+
+                <div className="h-px w-8 bg-slate-100 group-hover:w-full transition-all duration-700" />
+
+                <p className="text-[11px] text-slate-500 font-medium leading-relaxed font-sans line-clamp-3">
+                  {member.summary}
                 </p>
               </div>
 
-              <p className="text-[11.5px] text-slate-500 font-medium leading-relaxed font-sans line-clamp-3">
-                {member.summary}
-              </p>
-            </div>
-
-            <div className="mt-6 pt-5 border-t border-slate-100 flex items-center justify-between">
-              <button 
-                onClick={() => onSelectMember(member)}
-                className="inline-flex items-center gap-1.5 text-[10.5px] font-sans font-extrabold uppercase text-[#002b5c] tracking-wider hover:text-blue-700 cursor-pointer transition-colors"
-                id={`read-bio-btn-${member.id}`}
-              >
-                <span>Read Profile</span>
-                <ArrowRight size={12} />
-              </button>
-            </div>
-          </InteractiveCard>
-        </div>
-      ))}
+              <div className="mt-6 pt-5 flex items-center justify-between relative z-10">
+                <button 
+                  onClick={() => onSelectMember(member)}
+                  className="inline-flex items-center gap-2 text-[10px] font-sans font-black uppercase text-[#002b5c] tracking-widest hover:gap-3 transition-all cursor-pointer group/btn"
+                >
+                  <span>Explore Portfolio</span>
+                  <ArrowRight size={14} className="group-hover/btn:translate-x-1 transition-transform" />
+                </button>
+              </div>
+            </InteractiveCard>
+          </div>
+        );
+      })}
     </div>
   );
 }

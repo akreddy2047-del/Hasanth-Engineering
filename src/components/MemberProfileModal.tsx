@@ -7,10 +7,10 @@ interface Member {
   name: string;
   title: string;
   credentials: string;
-  image: string;
   summary: string;
   highlights: string[];
   bio: string[];
+  icon?: any;
 }
 
 interface MemberProfileModalProps {
@@ -20,6 +20,8 @@ interface MemberProfileModalProps {
 
 export function MemberProfileModal({ member, onClose }: MemberProfileModalProps) {
   if (!member) return null;
+
+  const Icon = member.icon;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 md:p-10">
@@ -55,21 +57,15 @@ export function MemberProfileModal({ member, onClose }: MemberProfileModalProps)
         <div className="overflow-y-auto p-6 sm:p-8 md:p-10 space-y-8">
           
           {/* Meta details header layout */}
-          <div className="flex flex-col md:flex-row gap-6 items-start">
-            
-            {/* Photo frame */}
-            <div className="w-28 h-28 sm:w-36 sm:h-36 shrink-0 rounded-2xl overflow-hidden border border-slate-200 shadow bg-slate-100 relative">
-              <img 
-                src={member.image} 
-                alt={member.name} 
-                referrerPolicy="no-referrer"
-                className="w-full h-full object-cover"
-              />
-            </div>
-
+          <div className="flex flex-col sm:flex-row gap-6 items-start">
+            {Icon && (
+              <div className="w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-2xl bg-[#002b5c]/5 flex items-center justify-center border border-[#002b5c]/10">
+                <Icon size={32} className="text-[#002b5c]" />
+              </div>
+            )}
             {/* Text details */}
             <div className="space-y-2">
-              <h3 className="text-2xl sm:text-3.5xl font-sans font-black text-[#002b5c] tracking-tight leading-none">
+              <h3 className="text-2xl sm:text-3xl font-sans font-black text-[#002b5c] tracking-tight leading-none">
                 {member.name}
               </h3>
 
@@ -77,7 +73,7 @@ export function MemberProfileModal({ member, onClose }: MemberProfileModalProps)
                 {member.title}
               </p>
 
-              <p className="text-[#002b5c]/70 font-sans text-xs font-semibold tracking-wide pt-1">
+              <p className="text-[#002b5c]/70 font-sans text-[11px] font-semibold tracking-wide pt-1">
                 {member.credentials}
               </p>
             </div>

@@ -1,19 +1,23 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { Calendar, User, ArrowRight, ArrowLeft, Share2, Link, Check, Twitter, Linkedin, PenTool, Radio, CheckCircle2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence, useScroll, useSpring } from 'motion/react';
+import { Calendar, User, ArrowRight, ArrowLeft, Share2, Link, Check, Twitter, Linkedin, PenTool, Radio, CheckCircle2, Clock } from 'lucide-react';
 import SEO from './SEO';
 import { InteractiveCard } from './InteractiveCard';
 import { ScrollEntrance, StaggerContainer, StaggerItem } from './ScrollEntrance';
 import { useToast } from '../hooks/useToast';
 import { pingGoogleSearchConsole } from '../utils/searchConsolePing';
+import { db } from '../lib/firebase';
+import { collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from 'firebase/firestore';
 
 const INITIAL_POSTS = [
   {
+    id: '1',
     title: 'Optimal Thermal Vias Placement for High-Density Multilayer PCBs',
     date: 'June 12, 2026',
     author: 'Systems Architect Desk',
     excerpt: 'How to correctly position copper thermal relief barrels under heavy power FETs to prevent thermal throttling without compromising high-speed SPI signaling path.',
     category: 'Electronics Engineering',
+    readingTime: '8 min read',
     bgUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80',
     content: `In dense multilayer PCB layouts, modern surface-mount power transistors and FETs generate extensive localised heat. Standard conduction cooling is insufficient. 
 To preserve standard performance without throttling, engineers rely on Thermal Vias placement directly underneath the thermal pad of the power ic. 
@@ -26,11 +30,13 @@ Here is our recommended, certified design workflow:
 By applying this structured flow, thermal resistance drop (Θja) can decrease by up to 45%, protecting embedded hardware layers from intense heat.`
   },
   {
+    id: '2',
     title: 'PID Parameters Calibration Loops for High-Stability UAV Systems',
     date: 'May 28, 2026',
     author: 'UAV Autopilot Team',
     excerpt: 'A practical, bench-calibrated guide to tuning Proportional, Integral, and Derivative loops on drone custom airframes for heavy payloads.',
     category: 'UAV & Aerospace',
+    readingTime: '12 min read',
     bgUrl: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=600&q=80',
     content: `Tuning heavy drone platforms carrying high-spec surveillance camera gimbals requires cautious calibration of primary flight logs. Standard auto-tuning algorithms often overshoot when managing dynamic, off-axis loads.
 We recommend a systematic three-stage manual tuning procedure:
@@ -41,11 +47,13 @@ We recommend a systematic three-stage manual tuning procedure:
 This manual feedback cascade ensures the autopilot behaves predictably in high-vibration defense scenarios.`
   },
   {
+    id: '3',
     title: 'MEMS Micro-Valves and Gating for Digital AromaCode Scent Technology',
     date: 'May 05, 2026',
     author: 'Research & Innovation Desk',
     excerpt: 'An inside look at how our AromaCode scent technology translates binary logic into fine, real-time physical scent diffusion.',
     category: 'Research & Innovation',
+    readingTime: '6 min read',
     bgUrl: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=600&q=80',
     content: `AromaCode bridges digital processing with delicate organic molecular release. Standard electronic vaporizers trigger slow, uncontrolled heat resulting in molecular decay and slow startup delays.
 To bypass this limitation, Hasanth R&D engineered custom silicon Micro-Electro-Mechanical System (MEMS) microvalves.
@@ -53,11 +61,13 @@ When microvolts pulse across our structured piezoceramic gates, the valve plates
 This ultra-fast feedback permits accurate dispensation of micro-dose aroma liquids, delivering rich layered scent profiles without heat degradation.`
   },
   {
+    id: '4',
     title: 'Structural CAD Optimization for AS9100 Aerospace Brackets',
     date: 'April 14, 2026',
     author: 'Mechanical Division',
     excerpt: 'Utilizing finite-element shear analysis to reduce aerospace brackets weight while guaranteeing safety margins.',
     category: 'Mechanical Engineering',
+    readingTime: '10 min read',
     bgUrl: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80',
     content: `Aircraft structures dictate strict lightweight targets. Yet, safety remains non-negotiable. 
 By compiling linear FEA stress models into parametric CAD assemblies, we pinpoint low-shear density regions.
@@ -67,7 +77,7 @@ By optimizing the model using multi-axis pocket milling instead of generic brack
 ];
 
 export default function BlogPage() {
-  const [posts, setPosts] = useState(INITIAL_POSTS);
+  const [posts, setPosts] = useState<any[]>([]);
   const [selectedPost, setSelectedPost] = useState<number | null>(null);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [shareCopied, setShareCopied] = useState(false);
@@ -79,7 +89,35 @@ export default function BlogPage() {
   const [newExcerpt, setNewExcerpt] = useState('');
   const [newContent, setNewContent] = useState('');
   const [newCategory, setNewCategory] = useState('Electronics Engineering');
+  const [newReadingTime, setNewReadingTime] = useState('5 min read');
+  const [adminKey, setAdminKey] = useState('');
   const [isPinging, setIsPinging] = useState(false);
+
+  // Scroll Progress Implementation
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001
+  });
+
+  useEffect(() => {
+    const q = query(collection(db, 'blogs'), orderBy('timestamp', 'desc'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const blogsData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      // Merge with initial posts if db is empty or just use db
+      if (blogsData.length === 0) {
+        setPosts(INITIAL_POSTS);
+      } else {
+        setPosts(blogsData);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const handlePublishPost = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,38 +126,53 @@ export default function BlogPage() {
       return;
     }
 
-    const newPost = {
-      title: newTitle,
-      date: new Date().toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' }),
-      author: 'Systems Engineering division',
-      excerpt: newExcerpt,
-      category: newCategory,
-      bgUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80',
-      content: newContent
-    };
+    if (adminKey !== 'HASANTH2026') {
+      showToast('Auth Failure', 'Incorrect administrator access key. Entry rejected.', 'warning');
+      return;
+    }
 
-    // Add to local state list
-    setPosts([newPost, ...posts]);
     setIsPinging(true);
     showToast('Compiling Entry', 'Logging new aerospace brief to catalog database schema...', 'info');
 
-    // Trigger instant Search Console sitemap ping
-    const result = await pingGoogleSearchConsole();
-    setIsPinging(false);
+    try {
+      await addDoc(collection(db, 'blogs'), {
+        title: newTitle,
+        date: new Date().toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' }),
+        author: 'Systems Engineering division',
+        excerpt: newExcerpt,
+        category: newCategory,
+        readingTime: newReadingTime,
+        bgUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80',
+        content: newContent,
+        timestamp: serverTimestamp()
+      });
 
-    if (result.success) {
-      showToast(
-        'Crawled & Indexed', 
-        'Google Search Console sitemap crawler successfully pinged. New post added to sitemap schema recrawl queue.', 
-        'success'
-      );
+      // Trigger instant Search Console sitemap ping
+      const result = await pingGoogleSearchConsole();
+      
+      if (result.success) {
+        showToast(
+          'Crawled & Indexed', 
+          'Google Search Console sitemap crawler successfully pinged. New post added to sitemap schema recrawl queue.', 
+          'success'
+        );
+      } else {
+        showToast('Published', 'New blog post successfully deployed.', 'success');
+      }
+
+      // Reset inputs
+      setNewTitle('');
+      setNewExcerpt('');
+      setNewContent('');
+      setAdminKey('');
+      setNewReadingTime('5 min read');
+      setIsAuthorPanelOpen(false);
+    } catch (err) {
+      console.error("Failed to publish blog:", err);
+      showToast('Publish Error', 'Database rejection. Check system permissions.', 'warning');
+    } finally {
+      setIsPinging(false);
     }
-
-    // Reset inputs
-    setNewTitle('');
-    setNewExcerpt('');
-    setNewContent('');
-    setIsAuthorPanelOpen(false);
   };
 
   const handleCopyLink = (index: number, e?: React.MouseEvent) => {
@@ -213,44 +266,68 @@ export default function BlogPage() {
               className="overflow-hidden mb-10"
             >
               <form onSubmit={handlePublishPost} className="p-6 bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <label className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Paper Title *</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. Finite-Element Design of Symmetrical UAV Rotors"
-                      value={newTitle}
-                      onChange={(e) => setNewTitle(e.target.value)}
-                      className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-800 font-semibold focus:outline-none focus:border-[#002b5c]"
-                    />
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Paper Title *</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. Finite-Element Design"
+                        value={newTitle}
+                        onChange={(e) => setNewTitle(e.target.value)}
+                        className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-800 font-semibold focus:outline-none focus:border-[#002b5c]"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Category *</label>
+                      <select
+                        value={newCategory}
+                        onChange={(e) => setNewCategory(e.target.value)}
+                        className="w-full bg-white border border-slate-200 h-[38px] rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-850 font-semibold focus:outline-none focus:border-[#002b5c]"
+                      >
+                        <option value="Electronics Engineering">Electronics Engineering</option>
+                        <option value="UAV & Aerospace">UAV & Aerospace</option>
+                        <option value="Mechanical Engineering">Mechanical Engineering</option>
+                        <option value="Research & Innovation">Research & Innovation</option>
+                      </select>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Reading Time *</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. 5 min read"
+                        value={newReadingTime}
+                        onChange={(e) => setNewReadingTime(e.target.value)}
+                        className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-800 font-semibold focus:outline-none focus:border-[#002b5c]"
+                      />
+                    </div>
                   </div>
-                  <div className="space-y-1">
-                    <label className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Category *</label>
-                    <select
-                      value={newCategory}
-                      onChange={(e) => setNewCategory(e.target.value)}
-                      className="w-full bg-white border border-slate-200 h-[38px] rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-850 font-semibold focus:outline-none focus:border-[#002b5c]"
-                    >
-                      <option value="Electronics Engineering">Electronics Engineering</option>
-                      <option value="UAV & Aerospace">UAV & Aerospace</option>
-                      <option value="Mechanical Engineering">Mechanical Engineering</option>
-                      <option value="Research & Innovation">Research & Innovation</option>
-                    </select>
-                  </div>
-                </div>
 
-                <div className="space-y-1">
-                  <label className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Abstract / Summary Excerpt *</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Brief description of findings or engineering methodology..."
-                    value={newExcerpt}
-                    onChange={(e) => setNewExcerpt(e.target.value)}
-                    className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-800 font-semibold focus:outline-none focus:border-[#002b5c]"
-                  />
-                </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Abstract / Summary Excerpt *</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="Brief description of findings..."
+                        value={newExcerpt}
+                        onChange={(e) => setNewExcerpt(e.target.value)}
+                        className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-800 font-semibold focus:outline-none focus:border-[#002b5c]"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-widest block">ADMIN ACCESS KEY (Secure) *</label>
+                      <input
+                        type="password"
+                        required
+                        placeholder="••••••••"
+                        value={adminKey}
+                        onChange={(e) => setAdminKey(e.target.value)}
+                        className="w-full bg-white border-2 border-amber-100 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-800 font-mono focus:outline-none focus:border-[#002b5c]"
+                      />
+                    </div>
+                  </div>
 
                 <div className="space-y-1">
                   <label className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Complete Technical Report Body *</label>
@@ -300,7 +377,10 @@ export default function BlogPage() {
                       <span className="text-[9px] font-mono font-bold text-[#002b5c] bg-blue-50 px-2.5 py-1 rounded">
                         {post.category}
                       </span>
-                      <span className="text-[10px] font-mono text-slate-400 font-semibold">{post.date}</span>
+                    <div className="flex items-center gap-2">
+                      <Clock size={10} className="text-slate-400" />
+                      <span className="text-[10px] font-mono text-slate-400 font-semibold">{post.date} • {post.readingTime || '5 min read'}</span>
+                    </div>
                     </div>
 
                     <h3 className="text-lg sm:text-xl font-sans font-black uppercase tracking-tight text-[#002b5c] group-hover:text-blue-900 transition-colors leading-snug">
@@ -371,8 +451,13 @@ export default function BlogPage() {
           <motion.div 
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-slate-50 border-2 border-slate-100 p-8 sm:p-12 rounded-[32px] space-y-8"
+            className="bg-slate-50 border-2 border-slate-100 p-8 sm:p-12 rounded-[32px] space-y-8 relative"
           >
+            {/* Reading progress bar fixed at top of post container */}
+            <motion.div
+              className="absolute top-0 left-0 right-0 h-1.5 bg-[#002b5c] origin-left rounded-t-[32px]"
+              style={{ scaleX }}
+            />
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <button 
                 onClick={() => setSelectedPost(null)}
@@ -422,6 +507,9 @@ export default function BlogPage() {
                 <span className="text-[#002b5c] font-bold bg-blue-50 px-2.5 py-1 rounded">
                   {posts[selectedPost].category}
                 </span>
+                <span>•</span>
+                <Clock size={12} className="inline" />
+                <span className="font-bold">{posts[selectedPost].readingTime || '5 min read'}</span>
                 <span>•</span>
                 <span>{posts[selectedPost].date}</span>
                 <span>•</span>

@@ -44,6 +44,23 @@
         "timestamp": { "type": "string", "format": "date-time" }
       },
       "required": ["applicantName", "applicantEmail", "subject", "message", "timestamp"]
+    },
+    "Blog": {
+      "title": "Blog Post",
+      "description": "A technical paper or blog post.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "date": { "type": "string" },
+        "author": { "type": "string" },
+        "excerpt": { "type": "string" },
+        "category": { "type": "string" },
+        "content": { "type": "string" },
+        "readingTime": { "type": "string" },
+        "bgUrl": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "excerpt", "content", "category", "readingTime", "timestamp"]
     }
   },
   "firestore": {
@@ -58,6 +75,10 @@
     "/enquiries/{enquiryId}": {
       "schema": "Enquiry",
       "description": "Contact inquiries"
+    },
+    "/blogs/{blogId}": {
+      "schema": "Blog",
+      "description": "Technical blog posts"
     }
   }
 }
