@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../lib/firebase';
-import { collection, addDoc, getDocs, deleteDoc, doc, query, orderBy } from 'firebase/firestore';
+import { collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, onSnapshot, serverTimestamp } from 'firebase/firestore';
 import { 
   Lock, CheckCircle, Trash2, Plus, Briefcase, FileText, Mail, 
-  MapPin, Clock, Calendar, Shield, LogOut, ChevronRight, RefreshCw, AlertCircle 
+  MapPin, Clock, Calendar, Shield, LogOut, ChevronRight, RefreshCw, AlertCircle, Download
 } from 'lucide-react';
 import { useToast } from '../hooks/useToast';
 
@@ -77,53 +77,40 @@ export default function AdminPanel() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      refreshData();
+      setIsLoading(true);
+      const unsubEnquiries = onSnapshot(query(collection(db, 'enquiries'), orderBy('timestamp', 'desc')), (snapshot) => {
+        setEnquiries(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+        setIsLoading(false);
+      });
+      const unsubJobs = onSnapshot(collection(db, 'jobs'), (snapshot) => {
+        const fetchedJobs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const uniqueJobs: any[] = [];
+        const seen = new Set();
+        fetchedJobs.forEach((jb: any) => {
+          const key = `${jb.title}-${jb.location}-${jb.type}`;
+          if (!seen.has(key)) {
+            seen.add(key);
+            uniqueJobs.push(jb);
+          } else {
+            // Optional: If you want active cleanup of duplicates, you could delete it here
+            // deleteDoc(doc(db, 'jobs', jb.id));
+          }
+        });
+        setJobs(uniqueJobs);
+        setIsLoading(false);
+      });
+      const unsubApps = onSnapshot(query(collection(db, 'applications'), orderBy('timestamp', 'desc')), (snapshot) => {
+        setApplications(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+        setIsLoading(false);
+      });
+      return () => {
+        unsubEnquiries();
+        unsubJobs();
+        unsubApps();
+      };
     }
   }, [isAuthenticated]);
 
-  const refreshData = async () => {
-    setIsLoading(true);
-    try {
-      await Promise.all([
-        fetchJobs(),
-        fetchApplications(),
-        fetchEnquiries()
-      ]);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const fetchEnquiries = async () => {
-    try {
-      const q = query(collection(db, 'enquiries'), orderBy('timestamp', 'desc'));
-      const querySnapshot = await getDocs(q);
-      setEnquiries(querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-    } catch (e) {
-      console.warn("Could not fetch enquiries: ", e);
-    }
-  };
-
-  const fetchJobs = async () => {
-    try {
-      const querySnapshot = await getDocs(collection(db, 'jobs'));
-      setJobs(querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-    } catch (e) {
-      console.warn("Could not fetch jobs: ", e);
-    }
-  };
-
-  const fetchApplications = async () => {
-    try {
-      const q = query(collection(db, 'applications'), orderBy('timestamp', 'desc'));
-      const querySnapshot = await getDocs(q);
-      setApplications(querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-    } catch (e) {
-      console.warn("Could not fetch applications: ", e);
-    }
-  };
 
   // Login handler
   const handleLogin = (e: React.FormEvent) => {
@@ -164,23 +151,22 @@ export default function AdminPanel() {
         location: newJob.location,
         exp: newJob.exp,
         desc: newJob.desc,
-        skills: newJob.skills ? newJob.skills.split(',').map(s => s.trim()).filter(Boolean) : []
+        skills: newJob.skills ? newJob.skills.split(',').map((s: string) => s.trim()).filter(Boolean) : [],
+        timestamp: serverTimestamp()
       });
       showToast('Position Loaded', `"${newJob.title}" added to active vacancy nodes.`, 'success');
       setNewJob({ title: '', type: '', location: '', exp: '', desc: '', skills: '' });
-      fetchJobs();
     } catch (error) {
+      console.error(error);
       showToast('Failed to add job', 'Firestore write rejected', 'warning');
     }
   };
 
   // Delete vacancy (Jobs CRUD)
   const handleDeleteJob = async (jobId: string, title: string) => {
-    if (!window.confirm(`Are you sure you want to delete the vacancy for "${title}"?`)) return;
     try {
       await deleteDoc(doc(db, 'jobs', jobId));
       showToast('Vacancy Purged', 'Position removed from recruitment pipeline.', 'success');
-      fetchJobs();
     } catch (e) {
       showToast('Error purging job', 'Firestore deletion failed.', 'warning');
     }
@@ -188,11 +174,9 @@ export default function AdminPanel() {
 
   // Delete Candidate Application (Applications CRUD)
   const handleDeleteApplication = async (appId: string, name: string) => {
-    if (!window.confirm(`Are you sure you want to delete ${name}'s application?`)) return;
     try {
       await deleteDoc(doc(db, 'applications', appId));
       showToast('Application Purged', 'Candidate data file deleted securely.', 'success');
-      fetchApplications();
     } catch (e) {
       showToast('Deletion failed', 'Could not delete entry document.', 'warning');
     }
@@ -200,11 +184,9 @@ export default function AdminPanel() {
 
   // Delete Enquiry (Enquiries CRUD)
   const handleDeleteEnquiry = async (enqId: string, fromName: string) => {
-    if (!window.confirm(`Are you sure you want to clear the enquiry from ${fromName}?`)) return;
     try {
       await deleteDoc(doc(db, 'enquiries', enqId));
       showToast('Inquiry Cleared', 'Inquiry log removed from active queue.', 'success');
-      fetchEnquiries();
     } catch (e) {
       showToast('Deletion failed', 'Failed to clear system log.', 'warning');
     }
@@ -316,14 +298,6 @@ export default function AdminPanel() {
           </div>
 
           <div className="flex items-center gap-2 self-stretch md:self-auto justify-end">
-            <button 
-              onClick={refreshData}
-              disabled={isLoading}
-              title="Reload pipeline query status"
-              className="p-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-600 rounded-xl cursor-pointer transition-colors"
-            >
-              <RefreshCw size={16} className={isLoading ? 'animate-spin' : ''} />
-            </button>
             <button 
               onClick={handleLogout}
               className="px-4 py-2.5 bg-slate-150 hover:bg-red-50 hover:text-red-600 text-slate-700 font-mono text-[10px] font-black uppercase tracking-widest rounded-xl border border-slate-200 cursor-pointer transition-all flex items-center gap-2"
@@ -612,6 +586,19 @@ export default function AdminPanel() {
                           {app.portfolioLink && (
                             <div className="text-[10px] text-blue-600 font-mono hover:underline">
                               Portfolio: <a href={app.portfolioLink} target="_blank" rel="noopener noreferrer">{app.portfolioLink}</a>
+                            </div>
+                          )}
+
+                          {app.resumeData && (
+                            <div className="mt-2 text-[10px] text-slate-500 font-mono">
+                              <a 
+                                href={app.resumeData} 
+                                download={app.resumeName || 'resume'} 
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-slate-200 hover:border-slate-300 rounded-lg bg-white transition-colors text-slate-600 hover:text-[#002b5c] font-semibold"
+                              >
+                                <Download size={14} />
+                                {app.resumeName || 'Download Resume Document'}
+                              </a>
                             </div>
                           )}
                         </div>

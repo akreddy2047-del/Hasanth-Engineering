@@ -5,32 +5,45 @@
       "description": "A job opportunity at the company.",
       "type": "object",
       "properties": {
-        "id": { "type": "string" },
         "title": { "type": "string" },
         "type": { "type": "string" },
         "location": { "type": "string" },
-        "experience": { "type": "string" },
+        "exp": { "type": "string" },
         "skills": { "type": "array", "description": "List of required skills" },
-        "description": { "type": "string" }
+        "desc": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
       },
-      "required": ["title", "type", "location", "experience", "skills"]
+      "required": ["title", "type", "location", "exp", "desc", "skills", "timestamp"]
     },
     "Application": {
       "title": "Job Application",
       "description": "Information from a candidate applying for a job.",
       "type": "object",
       "properties": {
-        "id": { "type": "string" },
         "jobId": { "type": "string" },
         "applicantName": { "type": "string" },
         "applicantEmail": { "type": "string", "format": "email" },
         "applicantPhone": { "type": "string" },
         "portfolioLink": { "type": "string" },
         "coverLetter": { "type": "string" },
-        "resumeUrl": { "type": "string" },
+        "resumeName": { "type": "string" },
+        "resumeData": { "type": "string" },
         "timestamp": { "type": "string", "format": "date-time" }
       },
-      "required": ["jobId", "applicantName", "applicantEmail", "applicantPhone"]
+      "required": ["jobId", "applicantName", "applicantEmail", "timestamp"]
+    },
+    "Enquiry": {
+      "title": "Enquiry",
+      "description": "Contact form submissions.",
+      "type": "object",
+      "properties": {
+        "applicantName": { "type": "string" },
+        "applicantEmail": { "type": "string", "format": "email" },
+        "subject": { "type": "string" },
+        "message": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["applicantName", "applicantEmail", "subject", "message", "timestamp"]
     }
   },
   "firestore": {
@@ -41,6 +54,10 @@
     "/applications/{applicationId}": {
       "schema": "Application",
       "description": "Job applications"
+    },
+    "/enquiries/{enquiryId}": {
+      "schema": "Enquiry",
+      "description": "Contact inquiries"
     }
   }
 }

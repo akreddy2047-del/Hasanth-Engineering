@@ -1,0 +1,69 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+    
+    function incoming() { return request.resource.data; }
+    function isValidString(val, maxLen) { return val is string && val.size() <= maxLen; }
+
+    match /jobs/{jobId} {
+      allow read: if true;
+      
+      function isValidJob(data) {
+        return data.keys().hasAll(['title', 'type', 'location', 'exp', 'desc', 'skills', 'timestamp'])
+          && data.keys().size() == 7
+          && isValidString(data.title, 200)
+          && isValidString(data.type, 100)
+          && isValidString(data.location, 200)
+          && isValidString(data.exp, 200)
+          && isValidString(data.desc, 10000)
+          && data.skills is list
+          && data.skills.size() <= 50;
+      }
+      
+      allow create: if isValidJob(incoming());
+      allow update: if isValidJob(incoming());
+      allow delete: if true;
+    }
+
+    match /applications/{applicationId} {
+      allow read: if true;
+      
+      function isValidApplication(data) {
+        return data.keys().hasAll(['jobId', 'applicantName', 'applicantEmail', 'timestamp'])
+          && data.keys().hasOnly(['jobId', 'applicantName', 'applicantEmail', 'applicantPhone', 'coverLetter', 'portfolioLink', 'resumeName', 'resumeData', 'timestamp'])
+          && isValidString(data.jobId, 200)
+          && isValidString(data.applicantName, 200)
+          && isValidString(data.applicantEmail, 200)
+          && (!("applicantPhone" in data.keys()) || isValidString(data.applicantPhone, 50))
+          && (!("coverLetter" in data.keys()) || isValidString(data.coverLetter, 5000))
+          && (!("portfolioLink" in data.keys()) || isValidString(data.portfolioLink, 500))
+          && (!("resumeName" in data.keys()) || data.resumeName == null || isValidString(data.resumeName, 200))
+          && (!("resumeData" in data.keys()) || data.resumeData == null || isValidString(data.resumeData, 2000000));
+      }
+      
+      allow create: if isValidApplication(incoming());
+      allow update: if isValidApplication(incoming());
+      allow delete: if true;
+    }
+
+    match /enquiries/{enquiryId} {
+      allow read: if true;
+      
+      function isValidEnquiry(data) {
+        return data.keys().hasAll(['applicantName', 'applicantEmail', 'subject', 'message', 'timestamp'])
+          && data.keys().size() == 5
+          && isValidString(data.applicantName, 200)
+          && isValidString(data.applicantEmail, 200)
+          && isValidString(data.subject, 300)
+          && isValidString(data.message, 10000);
+      }
+      
+      allow create: if isValidEnquiry(incoming());
+      allow update: if isValidEnquiry(incoming());
+      allow delete: if true;
+    }
+  }
+}

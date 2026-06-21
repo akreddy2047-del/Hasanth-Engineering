@@ -356,7 +356,6 @@ export default function App() {
     if (validPages.includes(path)) {
       return path;
     }
-    if (window.location.hash === '#admin') return 'admin';
     return 'home';
   });
   const [scrollProgress, setScrollProgress] = useState(0);
