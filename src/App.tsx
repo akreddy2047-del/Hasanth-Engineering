@@ -350,7 +350,15 @@ const getContrastColor = (color: string) => {
 
 export default function App() {
   const [isConsultationOpen, setIsConsultationOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState<string>('home');
+  const [currentPage, setCurrentPage] = useState<string>(() => {
+    const path = window.location.pathname.slice(1);
+    const validPages = ['about', 'services', 'research', 'projects', 'industries', 'admin', 'careers', 'blog', 'contact'];
+    if (validPages.includes(path)) {
+      return path;
+    }
+    if (window.location.hash === '#admin') return 'admin';
+    return 'home';
+  });
   const [scrollProgress, setScrollProgress] = useState(0);
   const [selectedArenaIdx, setSelectedArenaIdx] = useState<number | null>(null);
 
@@ -359,6 +367,22 @@ export default function App() {
   const breadcrumbSchema = generateBreadcrumbSchema(currentPage);
   const siteNavigationSchema = generateSiteNavigationSchema();
   const canonicalUrl = getCanonicalUrl(currentPage);
+
+  useEffect(() => {
+    const handlePopState = () => {
+      const path = window.location.pathname.slice(1);
+      const validPages = ['about', 'services', 'research', 'projects', 'industries', 'admin', 'careers', 'blog', 'contact'];
+      if (validPages.includes(path)) {
+        setCurrentPage(path);
+      } else {
+        setCurrentPage('home');
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []);
 
   useEffect(() => {
     // Staggered entrance animation
@@ -407,6 +431,10 @@ export default function App() {
   const handlePageChange = (pageId: string) => {
     setCurrentPage(pageId);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    const nextPath = pageId === 'home' ? '/' : `/${pageId}`;
+    if (window.location.pathname !== nextPath) {
+      window.history.pushState(null, '', nextPath);
+    }
   };
 
   return (
