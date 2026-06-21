@@ -7,6 +7,7 @@ interface MagneticCardProps {
   className: string;
   imageSrc?: string;
   bgUrl?: string; // Backwards compatibility
+  alt?: string; // Alt text for image SEO
   themeColor?: string; // Dynamic highlight color (e.g. #0284c7)
   isLight?: boolean; // Adapts card styling for light background areas
 }
@@ -17,6 +18,7 @@ export const MagneticCard = ({
   className, 
   imageSrc, 
   bgUrl, 
+  alt = "",
   themeColor = '#0056b3',
   isLight = false
 }: MagneticCardProps) => {
@@ -145,7 +147,7 @@ export const MagneticCard = ({
               referrerPolicy="no-referrer"
               loading="lazy"
               decoding="async"
-              alt=""
+              alt={alt}
               onError={() => setImgError(true)}
               className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 pointer-events-none ${
                 isLight 

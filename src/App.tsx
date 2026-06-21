@@ -518,6 +518,7 @@ export default function App() {
                         key={sol.id} 
                         onClick={() => setSelectedArenaIdx(solIdx)}
                         imageSrc={sol.bgUrl}
+                        alt={`${sol.name} - ${sol.tag}`}
                         themeColor={sol.themeColor}
                         className="bg-[#01162d] text-white p-6 rounded-[24px] h-[310px] flex flex-col justify-between hover:scale-[1.03] transition-all duration-500 relative overflow-hidden text-left cursor-pointer group border-transparent"
                       >
