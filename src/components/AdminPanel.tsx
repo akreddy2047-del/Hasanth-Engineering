@@ -164,6 +164,7 @@ export default function AdminPanel() {
 
   // Delete vacancy (Jobs CRUD)
   const handleDeleteJob = async (jobId: string, title: string) => {
+    if (!window.confirm(`Permanently remove the listing for "${title}"?`)) return;
     try {
       await deleteDoc(doc(db, 'jobs', jobId));
       showToast('Vacancy Purged', 'Position removed from recruitment pipeline.', 'success');
@@ -174,6 +175,7 @@ export default function AdminPanel() {
 
   // Delete Candidate Application (Applications CRUD)
   const handleDeleteApplication = async (appId: string, name: string) => {
+    if (!window.confirm(`Delete application file for "${name}" from the database?`)) return;
     try {
       await deleteDoc(doc(db, 'applications', appId));
       showToast('Application Purged', 'Candidate data file deleted securely.', 'success');
@@ -184,6 +186,10 @@ export default function AdminPanel() {
 
   // Delete Enquiry (Enquiries CRUD)
   const handleDeleteEnquiry = async (enqId: string, fromName: string) => {
+    if (!window.confirm(`Are you sure you want to purge the inquiry from "${fromName}"? This action cannot be undone.`)) {
+      return;
+    }
+    
     try {
       await deleteDoc(doc(db, 'enquiries', enqId));
       showToast('Inquiry Cleared', 'Inquiry log removed from active queue.', 'success');
@@ -529,20 +535,36 @@ export default function AdminPanel() {
                   </div>
                 ) : (
                   enquiries.map((enq) => (
-                    <div key={enq.id} className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm flex items-start gap-6">
-                      <div className="w-12 h-12 bg-slate-50 flex items-center justify-center rounded-xl text-slate-400 shrink-0 border border-slate-100">
+                    <div key={enq.id} className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm flex items-start gap-6 transition-all hover:border-[#002b5c]/20 hover:shadow-md group">
+                      <div className="w-12 h-12 bg-slate-50 flex items-center justify-center rounded-xl text-slate-400 shrink-0 border border-slate-100 group-hover:bg-[#002b5c]/5 group-hover:text-[#002b5c] transition-colors">
                         <Mail size={20} />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <div className="flex items-center justify-between mb-3 border-b border-slate-50 pb-2">
-                          <h3 className="text-sm font-bold text-slate-900">{enq.applicantName || 'Anonymous External'}</h3>
+                        <div className="flex items-center justify-between mb-2 border-b border-slate-50 pb-2">
+                          <div className="flex items-center gap-2">
+                            <h3 className="text-sm font-bold text-slate-900">{enq.applicantName || 'Anonymous External'}</h3>
+                            {enq.type === 'consultation' && (
+                              <span className="px-1.5 py-0.5 bg-blue-50 text-[#002b5c] text-[8px] font-bold uppercase rounded border border-blue-100">Consultation</span>
+                            )}
+                          </div>
                           <span className="text-[10px] text-slate-400 font-mono italic">
-                            {enq.timestamp?.toDate ? enq.timestamp.toDate().toLocaleDateString() : 'Recent Correspondence'}
+                            {enq.timestamp?.toDate ? enq.timestamp.toDate().toLocaleString() : 'Recent Correspondence'}
                           </span>
                         </div>
-                        <p className="text-xs text-slate-500 font-medium mb-3">{enq.applicantEmail}</p>
-                        <div className="bg-[#002b5c]/5 p-4 rounded-lg border-l-2 border-[#002b5c]/30">
-                          <p className="text-xs text-slate-700 leading-relaxed font-semibold italic">"{enq.message}"</p>
+                        
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 mb-3">
+                          <p className="text-[11px] text-slate-500 font-medium">Email: <span className="text-slate-700">{enq.applicantEmail}</span></p>
+                          {enq.phone && <p className="text-[11px] text-slate-500 font-medium">Phone: <span className="text-slate-700">{enq.phone}</span></p>}
+                          {enq.company && <p className="text-[11px] text-slate-500 font-medium">Co: <span className="text-slate-700">{enq.company}</span></p>}
+                          {enq.industry && <p className="text-[11px] text-slate-500 font-medium">Ind: <span className="text-slate-700">{enq.industry}</span></p>}
+                        </div>
+
+                        <div className="bg-slate-50 p-4 rounded-lg border-l-4 border-[#002b5c] group-hover:bg-white transition-colors duration-300">
+                          <p className="text-[10px] text-[#002b5c] font-mono uppercase mb-2 font-black tracking-tighter opacity-70 flex items-center gap-2">
+                            <Zap size={10} />
+                            {enq.subject || 'Message Payload'}
+                          </p>
+                          <p className="text-[13px] text-slate-800 leading-relaxed font-semibold">"{enq.message}"</p>
                         </div>
                       </div>
                       <button onClick={() => handleDeleteEnquiry(enq.id, enq.applicantName || 'Anonymous')} className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all shrink-0">

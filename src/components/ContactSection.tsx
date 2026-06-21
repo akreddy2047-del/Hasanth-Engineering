@@ -19,6 +19,7 @@ export default function ContactSection() {
           applicantEmail: formData.email,
           subject: formData.subject || 'General Inquiry',
           message: formData.message,
+          type: 'general',
           timestamp: serverTimestamp()
         });
         setSent(true);

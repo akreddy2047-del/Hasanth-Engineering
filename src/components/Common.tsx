@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { X, Send, CheckCircle } from 'lucide-react';
-import { motion } from 'motion/react';
+import { X, Send, CheckCircle, Cpu, Shield, Zap, Sparkles } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { useToast } from '../hooks/useToast';
+import { db } from '../lib/firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 interface ConsultationModalProps {
   isOpen: boolean;
@@ -25,10 +27,23 @@ export function ConsultationModal({ isOpen, onClose }: ConsultationModalProps) {
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setTimeout(() => {
+    try {
+      await addDoc(collection(db, 'enquiries'), {
+        applicantName: formData.name,
+        applicantEmail: formData.email,
+        company: formData.company,
+        phone: formData.phone,
+        industry: formData.industry,
+        serviceType: formData.serviceType,
+        message: formData.projectScope,
+        subject: `Consultation: ${formData.serviceType}`,
+        type: 'consultation',
+        timestamp: serverTimestamp()
+      });
+      
       setIsSubmitting(false);
       setIsSubmitted(true);
       showToast(
@@ -36,7 +51,15 @@ export function ConsultationModal({ isOpen, onClose }: ConsultationModalProps) {
         `Our senior engineering leads have flagged your project for support.`, 
         'success'
       );
-    }, 1000);
+    } catch (err) {
+      console.error("Consultation submission failed: ", err);
+      setIsSubmitting(false);
+      showToast(
+        'Submission Error',
+        'Could not transmit your requirements. Please check your network.',
+        'warning'
+      );
+    }
   };
 
   return (
