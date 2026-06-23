@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db, handleFirestoreError, OperationType } from '../lib/firebase';
-import { collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, onSnapshot, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, getDocs, deleteDoc, doc, setDoc, query, orderBy, onSnapshot, serverTimestamp } from 'firebase/firestore';
 import { 
   Lock, CheckCircle, Trash2, Plus, Briefcase, FileText, Mail, 
   MapPin, Clock, Calendar, Shield, LogOut, ChevronRight, RefreshCw, AlertCircle, Download, Zap, PenTool, ArrowLeft,
@@ -221,6 +221,43 @@ export default function AdminPanel() {
     setIsAuthenticated(false);
     sessionStorage.removeItem('hasanth_admin_auth');
     showToast('Logged Out', 'Secure session terminated successfully.', 'info');
+  };
+
+  // System Reset & Sync
+  const handleReset = async () => {
+    if (!window.confirm('WARNING: This will reset all localized Page Content to engineering defaults. Proceed with synchronization?')) return;
+    
+    setIsLoading(true);
+    try {
+      const defaultPages = [
+        { id: 'home', title: 'Hasanth Engineering', subtitle: 'Advanced Systems, Mechanical Assemblies & Aerospace Support', content: 'Leading industrial innovation in Hyderabad since mission inception.', sections: [] },
+        { id: 'about', title: 'About Hasanth', subtitle: 'Our Legacy of Precision', content: 'Built on the foundation of technical excellence and mechanical integrity.', sections: [] },
+        { id: 'services', title: 'Service Directory', subtitle: 'Modular Engineering Solutions', content: 'Comprehensive support from CAD drafting to fleet diagnostics.', sections: [] },
+        { id: 'research', title: 'R&D Division', subtitle: 'The Future of Motion', content: 'Pioneering new standards in robotics and automation systems.', sections: [] },
+        { id: 'industries', title: 'Strategic Sectors', subtitle: 'Global Industrial Impact', content: 'Serving Aerospace, Defense, and Heavy Manufacturing nodes.', sections: [] },
+        { id: 'projects', title: 'Project Portfolio', subtitle: 'Executed Physical Assemblies', content: 'Archive of our complex engineering deployments.', sections: [] },
+        { id: 'blog', title: 'Technical Journals', subtitle: 'Engineering Knowlege Base', content: 'Latest reports from the laboratory floor.', sections: [] },
+        { id: 'careers', title: 'Talent Acquisition', subtitle: 'Join the Core Team', content: 'Seeking high-performance individuals for the engineering nodes.', sections: [] },
+        { id: 'contact', title: 'Node Locations', subtitle: 'Reach Our Facilities', content: 'Direct correspondence channels for business enquiries.', sections: [] },
+        { id: 'privacy', title: 'Privacy Protocols', subtitle: 'Data Safety Standards', content: 'Our commitment to information security.', sections: [] },
+        { id: 'terms', title: 'Service Terms', subtitle: 'Operational Framework', content: 'Legal guidelines for corporate engagement.', sections: [] }
+      ];
+
+      for (const page of defaultPages) {
+        await setDoc(doc(db, 'page_content', page.id), {
+          ...page,
+          pageId: page.id,
+          timestamp: serverTimestamp()
+        });
+      }
+
+      showToast('System Synchronized', 'All website nodes restored to factory defaults.', 'success');
+    } catch (error) {
+      console.error(error);
+      showToast('Sync Failed', 'Firestore write rejected during synchronization.', 'warning');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Add job
