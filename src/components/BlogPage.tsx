@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence, useScroll, useSpring } from 'motion/react';
-import { Calendar, User, ArrowRight, ArrowLeft, Share2, Link, Check, Twitter, Linkedin, PenTool, Radio, CheckCircle2, Clock } from 'lucide-react';
+import { Calendar, User, ArrowRight, ArrowLeft, Share2, Link, Check, Twitter, Linkedin, PenTool, Radio, CheckCircle2, Clock, Zap } from 'lucide-react';
 import SEO from './SEO';
 import { InteractiveCard } from './InteractiveCard';
 import { ScrollEntrance, StaggerContainer, StaggerItem } from './ScrollEntrance';
@@ -108,11 +108,21 @@ export default function BlogPage() {
         id: doc.id,
         ...doc.data()
       }));
+      
+      // Filter for published posts only
+      const publishedPosts = blogsData.filter((p: any) => p.status === 'published' || !p.status);
+
       // Merge with initial posts if db is empty or just use db
-      if (blogsData.length === 0) {
+      if (publishedPosts.length === 0 && blogsData.length === 0) {
         setPosts(INITIAL_POSTS);
       } else {
-        setPosts(blogsData);
+        // Sort: Featured first, then by date
+        const sorted = [...publishedPosts].sort((a: any, b: any) => {
+          if (a.featured && !b.featured) return -1;
+          if (!a.featured && b.featured) return 1;
+          return 0; // Keep the desc timestamp order from query for the rest
+        });
+        setPosts(sorted);
       }
     });
 
@@ -232,8 +242,9 @@ export default function BlogPage() {
     <div className="bg-white min-h-screen text-slate-800 pb-24 font-sans">
       <SEO 
         title={selectedPost !== null ? `${posts[selectedPost].title}` : "Engineering Journal & Tech Papers"}
-        description="Verify our R&D updates, high density thermal vias layouts, drone autopilot PID tunings, and microfluidics scent mechanisms."
+        description={selectedPost !== null ? posts[selectedPost].excerpt : "Verify our R&D updates, high density thermal vias layouts, drone autopilot PID tunings, and microfluidics scent mechanisms."}
         keywords="Hasanth Blog, Thermal Vias PCB, Drone Autopilot PID, MEMS scent valves, Aerospace bracket design Hyderabad"
+        ogImage={selectedPost !== null ? posts[selectedPost].bgUrl : undefined}
         schema={blogSchema}
       />
       
@@ -244,124 +255,11 @@ export default function BlogPage() {
         {selectedPost === null && (
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8 border-b border-slate-100 pb-6">
             <div>
-              <span className="text-[10px] font-mono text-slate-400 font-bold uppercase tracking-widest block">ADMINISTRATIVE AUTHORING</span>
-              <h2 className="text-2xl sm:text-3xl font-sans font-black text-[#002b5c] uppercase tracking-tight">Technical Publications Office</h2>
+              <span className="text-[10px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Engineering Journal</span>
+              <h2 className="text-2xl sm:text-3xl font-sans font-black text-[#002b5c] uppercase tracking-tight">Technical Publications</h2>
             </div>
-            <button
-              onClick={() => setIsAuthorPanelOpen(!isAuthorPanelOpen)}
-              className="px-5 py-2.5 bg-[#002b5c] text-white font-mono text-xs font-black uppercase tracking-widest rounded-xl hover:bg-blue-900 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md active:scale-98"
-            >
-              <PenTool size={14} />
-              <span>{isAuthorPanelOpen ? 'Close Composer' : 'Compose Technical Digest'}</span>
-            </button>
           </div>
         )}
-
-        <AnimatePresence>
-          {selectedPost === null && isAuthorPanelOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="overflow-hidden mb-10"
-            >
-              <form onSubmit={handlePublishPost} className="p-6 bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Paper Title *</label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="e.g. Finite-Element Design"
-                        value={newTitle}
-                        onChange={(e) => setNewTitle(e.target.value)}
-                        className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-800 font-semibold focus:outline-none focus:border-[#002b5c]"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Category *</label>
-                      <select
-                        value={newCategory}
-                        onChange={(e) => setNewCategory(e.target.value)}
-                        className="w-full bg-white border border-slate-200 h-[38px] rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-850 font-semibold focus:outline-none focus:border-[#002b5c]"
-                      >
-                        <option value="Electronics Engineering">Electronics Engineering</option>
-                        <option value="UAV & Aerospace">UAV & Aerospace</option>
-                        <option value="Mechanical Engineering">Mechanical Engineering</option>
-                        <option value="Research & Innovation">Research & Innovation</option>
-                      </select>
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Reading Time *</label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="e.g. 5 min read"
-                        value={newReadingTime}
-                        onChange={(e) => setNewReadingTime(e.target.value)}
-                        className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-800 font-semibold focus:outline-none focus:border-[#002b5c]"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Abstract / Summary Excerpt *</label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="Brief description of findings..."
-                        value={newExcerpt}
-                        onChange={(e) => setNewExcerpt(e.target.value)}
-                        className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-800 font-semibold focus:outline-none focus:border-[#002b5c]"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-widest block">ADMIN ACCESS KEY (Secure) *</label>
-                      <input
-                        type="password"
-                        required
-                        placeholder="••••••••"
-                        value={adminKey}
-                        onChange={(e) => setAdminKey(e.target.value)}
-                        className="w-full bg-white border-2 border-amber-100 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-800 font-mono focus:outline-none focus:border-[#002b5c]"
-                      />
-                    </div>
-                  </div>
-
-                <div className="space-y-1">
-                  <label className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Complete Technical Report Body *</label>
-                  <textarea
-                    rows={5}
-                    required
-                    placeholder="Write detailed formulas, experimental parameters, and hardware specifications..."
-                    value={newContent}
-                    onChange={(e) => setNewContent(e.target.value)}
-                    className="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-slate-850 font-semibold focus:outline-none focus:border-[#002b5c]"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isPinging}
-                  className="px-6 py-3 bg-[#002b5c] disabled:bg-slate-300 text-white font-mono text-xs font-black uppercase tracking-widest rounded-xl hover:bg-blue-900 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md active:scale-98"
-                >
-                  {isPinging ? (
-                    <>
-                      <Radio size={12} className="animate-pulse duration-700 text-blue-300" />
-                      <span>Broadcasting Sitemap crawl ping...</span>
-                    </>
-                  ) : (
-                    <>
-                      <CheckCircle2 size={12} />
-                      <span>Compile & Trigger Search Console crawling</span>
-                    </>
-                  )}
-                </button>
-              </form>
-            </motion.div>
-          )}
-        </AnimatePresence>
 
         {selectedPost === null ? (
           /* Post Lists View */
@@ -374,9 +272,16 @@ export default function BlogPage() {
                 >
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <span className="text-[9px] font-mono font-bold text-[#002b5c] bg-blue-50 px-2.5 py-1 rounded">
-                        {post.category}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[9px] font-mono font-bold text-[#002b5c] bg-blue-50 px-2.5 py-1 rounded">
+                          {post.category}
+                        </span>
+                        {post.featured && (
+                          <span className="text-[9px] font-mono font-bold text-amber-600 bg-amber-50 px-2.5 py-1 rounded border border-amber-100 flex items-center gap-1">
+                            <Zap size={10} /> FEATURED
+                          </span>
+                        )}
+                      </div>
                     <div className="flex items-center gap-2">
                       <Clock size={10} className="text-slate-400" />
                       <span className="text-[10px] font-mono text-slate-400 font-semibold">{post.date} • {post.readingTime || '5 min read'}</span>

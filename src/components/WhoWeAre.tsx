@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { Factory, Cpu, Compass } from 'lucide-react';
+import EngineeringLabImg from '../assets/images/engineering_lab_high_tech_1782203074469.jpg';
 
 export default function WhoWeAre() {
 
@@ -23,9 +24,7 @@ export default function WhoWeAre() {
             <div className="relative rounded-2xl overflow-hidden border border-slate-200/60 shadow-xl group">
               <div className="absolute inset-0 bg-slate-950/20 group-hover:bg-slate-950/10 transition-colors duration-500 z-10" />
               <img 
-                src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1200&q=80" 
-                srcSet="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=75 600w, https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1200&q=80 1200w"
-                sizes="(max-width: 768px) 600px, 1200px"
+                src={EngineeringLabImg} 
                 loading="lazy"
                 alt="Hasanth Prototyping Laboratory" 
                 className="w-full h-[380px] md:h-[480px] object-cover group-hover:scale-105 transition-transform duration-700 ease-out"

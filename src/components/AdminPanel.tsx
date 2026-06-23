@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { db } from '../lib/firebase';
+import { db, handleFirestoreError, OperationType } from '../lib/firebase';
 import { collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, onSnapshot, serverTimestamp } from 'firebase/firestore';
 import { 
   Lock, CheckCircle, Trash2, Plus, Briefcase, FileText, Mail, 
-  MapPin, Clock, Calendar, Shield, LogOut, ChevronRight, RefreshCw, AlertCircle, Download, Zap, PenTool, ArrowLeft
+  MapPin, Clock, Calendar, Shield, LogOut, ChevronRight, RefreshCw, AlertCircle, Download, Zap, PenTool, ArrowLeft,
+  Share2, Link, Check, Twitter, Linkedin, Radio, CheckCircle2, ExternalLink, Activity, Search, Globe, User
 } from 'lucide-react';
 import { useToast } from '../hooks/useToast';
+import { pingGoogleSearchConsole } from '../utils/searchConsolePing';
 
 // Predefined high-quality templates for immediate loading
 const JOB_TEMPLATES = [
@@ -63,18 +65,26 @@ export default function AdminPanel() {
   const [applications, setApplications] = useState<any[]>([]);
   const [enquiries, setEnquiries] = useState<any[]>([]);
   const [blogs, setBlogs] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'jobs' | 'applications' | 'enquiries' | 'blogs'>('jobs');
+  const [categories, setCategories] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState<'jobs' | 'applications' | 'enquiries' | 'blogs' | 'categories' | 'seo'>('jobs');
   
-  // Blog Creation State
+  // Blog Management State
   const [isAddingBlog, setIsAddingBlog] = useState(false);
+  const [editingBlogId, setEditingBlogId] = useState<string | null>(null);
   const [newBlog, setNewBlog] = useState({
     title: '',
     category: 'Electronics Engineering',
     readingTime: '5 min read',
     excerpt: '',
     content: '',
-    author: 'Systems Engineering Division'
+    author: 'Systems Engineering Division',
+    status: 'published' as 'published' | 'draft',
+    featured: false,
+    bgUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80'
   });
+
+  // Category Management State
+  const [newCategory, setNewCategory] = useState({ name: '', slug: '' });
 
   // Loading & Action States
   const [isLoading, setIsLoading] = useState(false);
@@ -119,11 +129,15 @@ export default function AdminPanel() {
         setBlogs(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
         setIsLoading(false);
       });
+      const unsubCategories = onSnapshot(query(collection(db, 'blog_categories'), orderBy('timestamp', 'desc')), (snapshot) => {
+        setCategories(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      });
       return () => {
         unsubEnquiries();
         unsubJobs();
         unsubApps();
         unsubBlogs();
+        unsubCategories();
       };
     }
   }, [isAuthenticated]);
@@ -226,8 +240,25 @@ export default function AdminPanel() {
     }
   };
 
-  // Create Blog (Blogs CRUD)
-  const handleCreateBlog = async (e: React.FormEvent) => {
+  // Edit Blog trigger
+  const handleEditBlog = (blog: any) => {
+    setEditingBlogId(blog.id);
+    setNewBlog({
+      title: blog.title || '',
+      category: blog.category || 'Electronics Engineering',
+      readingTime: blog.readingTime || '5 min read',
+      excerpt: blog.excerpt || '',
+      content: blog.content || '',
+      author: blog.author || 'Systems Engineering Division',
+      status: blog.status || 'published',
+      featured: blog.featured || false,
+      bgUrl: blog.bgUrl || 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80'
+    });
+    setIsAddingBlog(true);
+  };
+
+  // Create or Update Blog
+  const handleSaveBlog = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newBlog.title || !newBlog.content || !newBlog.excerpt || !newBlog.readingTime) {
       showToast('Validation Error', 'All fields are mandatory for publication.', 'warning');
@@ -235,29 +266,72 @@ export default function AdminPanel() {
     }
     
     setIsLoading(true);
+    const path = 'blogs';
     try {
-      await addDoc(collection(db, 'blogs'), {
+      const blogData = {
         ...newBlog,
         date: new Date().toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' }),
-        bgUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80',
         timestamp: serverTimestamp()
-      });
+      };
+
+      if (editingBlogId) {
+        const { updateDoc } = await import('firebase/firestore');
+        await updateDoc(doc(db, path, editingBlogId), blogData);
+        showToast('Blog Updated', 'Changes saved to the engineering journal.', 'success');
+      } else {
+        await addDoc(collection(db, path), blogData);
+        showToast('Blog Published', 'Technical paper successfully added to the journal.', 'success');
+      }
       
-      showToast('Blog Published', 'Technical paper successfully added to the journal.', 'success');
       setIsAddingBlog(false);
+      setEditingBlogId(null);
       setNewBlog({
         title: '',
         category: 'Electronics Engineering',
         readingTime: '5 min read',
         excerpt: '',
         content: '',
-        author: 'Systems Engineering Division'
+        author: 'Systems Engineering Division',
+        status: 'published',
+        featured: false,
+        bgUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80'
       });
     } catch (e) {
-      console.error("Firestore Blog Creation Error:", e);
-      showToast('Publishing failed', 'Database rejection. Check field lengths or connectivity.', 'warning');
+      console.error("Firestore Blog Save Error:", e);
+      try {
+        handleFirestoreError(e, OperationType.WRITE, path);
+      } catch (f) {
+        showToast('Save failed', 'Database rejection. Check field lengths or connectivity.', 'warning');
+      }
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Category Handlers
+  const handleAddCategory = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCategory.name || !newCategory.slug) return;
+    
+    try {
+      await addDoc(collection(db, 'blog_categories'), {
+        ...newCategory,
+        timestamp: serverTimestamp()
+      });
+      setNewCategory({ name: '', slug: '' });
+      showToast('Category Added', 'New classification node indexed.', 'success');
+    } catch (err) {
+      showToast('Failed to add category', 'Firestore rejection', 'warning');
+    }
+  };
+
+  const handleDeleteCategory = async (id: string) => {
+    if (!window.confirm('Delete this category?')) return;
+    try {
+      await deleteDoc(doc(db, 'blog_categories', id));
+      showToast('Category Removed', 'Classification node purged.', 'success');
+    } catch (err) {
+      showToast('Deletion failed', 'Firestore rejection', 'warning');
     }
   };
 
@@ -404,6 +478,26 @@ export default function AdminPanel() {
             }`}
           >
             Blogs ({blogs.length})
+          </button>
+          <button 
+            onClick={() => setActiveTab('categories')}
+            className={`pb-3 text-xs font-bold uppercase tracking-widest transition-all relative ${
+              activeTab === 'categories' 
+              ? 'text-[#002b5c] border-b-2 border-[#002b5c]' 
+              : 'text-slate-400 hover:text-slate-600'
+            }`}
+          >
+            Categories ({categories.length})
+          </button>
+          <button 
+            onClick={() => setActiveTab('seo')}
+            className={`pb-3 text-xs font-bold uppercase tracking-widest transition-all relative ${
+              activeTab === 'seo' 
+              ? 'text-[#002b5c] border-b-2 border-[#002b5c]' 
+              : 'text-slate-400 hover:text-slate-600'
+            }`}
+          >
+            SEO & Indexing
           </button>
         </nav>
 
@@ -666,9 +760,8 @@ export default function AdminPanel() {
                   {isAddingBlog ? 'Cancel Publishing' : 'New Publication'}
                 </button>
               </div>
-
               {isAddingBlog ? (
-                <form onSubmit={handleCreateBlog} className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl p-6 space-y-4 animate-in slide-in-from-top-4 duration-500">
+                <form onSubmit={handleSaveBlog} className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl p-6 space-y-4 animate-in slide-in-from-top-4 duration-500">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1">
                       <label className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Publication Title *</label>
@@ -702,14 +795,20 @@ export default function AdminPanel() {
                         onChange={(e) => setNewBlog({...newBlog, category: e.target.value})}
                         className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-800 font-semibold focus:border-[#002b5c] outline-none"
                       >
-                        <option value="Electronics Engineering">Electronics Engineering</option>
-                        <option value="UAV & Aerospace">UAV & Aerospace</option>
-                        <option value="Mechanical Engineering">Mechanical Engineering</option>
-                        <option value="Research & Innovation">Research & Innovation</option>
+                        {categories.length > 0 ? (
+                          categories.map(cat => <option key={cat.id} value={cat.name}>{cat.name}</option>)
+                        ) : (
+                          <>
+                            <option value="Electronics Engineering">Electronics Engineering</option>
+                            <option value="UAV & Aerospace">UAV & Aerospace</option>
+                            <option value="Mechanical Engineering">Mechanical Engineering</option>
+                            <option value="Research & Innovation">Research & Innovation</option>
+                          </>
+                        )}
                       </select>
                     </div>
                     <div className="space-y-1">
-                      <label className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Reading Time *</label>
+                      <label className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Reading Time (e.g. 5 min read) *</label>
                       <input
                         type="text"
                         required
@@ -719,6 +818,46 @@ export default function AdminPanel() {
                         placeholder="5 min read"
                       />
                     </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Status *</label>
+                      <div className="flex gap-4 p-2 bg-white rounded-xl border border-slate-200">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input type="radio" checked={newBlog.status === 'published'} onChange={() => setNewBlog({...newBlog, status: 'published'})} className="accent-[#002b5c]" />
+                          <span className="text-xs font-bold text-slate-600">Published</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input type="radio" checked={newBlog.status === 'draft'} onChange={() => setNewBlog({...newBlog, status: 'draft'})} className="accent-[#002b5c]" />
+                          <span className="text-xs font-bold text-slate-600">Draft</span>
+                        </label>
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Featured Post</label>
+                      <label className="flex items-center gap-3 p-2.5 bg-white rounded-xl border border-slate-200 cursor-pointer">
+                        <input type="checkbox" checked={newBlog.featured} onChange={(e) => setNewBlog({...newBlog, featured: e.target.checked})} className="w-4 h-4 accent-[#002b5c]" />
+                        <span className="text-xs font-bold text-slate-600 uppercase tracking-wider text-[10px]">Mark as Featured</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Featured Image URL (High Resolution)*</label>
+                    <input
+                      type="url"
+                      required
+                      value={newBlog.bgUrl}
+                      onChange={(e) => setNewBlog({...newBlog, bgUrl: e.target.value})}
+                      className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-800 font-semibold focus:border-[#002b5c] outline-none"
+                      placeholder="https://images.unsplash.com/..."
+                    />
+                    {newBlog.bgUrl && (
+                      <div className="mt-2 h-24 w-40 relative rounded-lg overflow-hidden border border-slate-200">
+                        <img src={newBlog.bgUrl} alt="Preview" className="w-full h-full object-cover" />
+                      </div>
+                    )}
                   </div>
 
                   <div className="space-y-1">
@@ -746,10 +885,10 @@ export default function AdminPanel() {
                   <button 
                     type="submit"
                     disabled={isLoading}
-                    className="w-full bg-[#002b5c] text-white py-3 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-blue-900 transition-all flex items-center justify-center gap-2"
+                    className="w-full bg-[#002b5c] text-white py-3 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-blue-900 transition-all flex items-center justify-center gap-2 active:scale-95"
                   >
                     {isLoading ? <RefreshCw className="animate-spin" size={16} /> : <CheckCircle size={16} />}
-                    {isLoading ? 'Cataloging Publication...' : 'Publish to Engineering Journal'}
+                    {isLoading ? 'Processing...' : (editingBlogId ? 'Update Publication' : 'Publish to Engineering Journal')}
                   </button>
                 </form>
               ) : (
@@ -760,13 +899,20 @@ export default function AdminPanel() {
                   </div>
                 ) : (
                   blogs.map((blog) => (
-                    <div key={blog.id} className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm flex items-start gap-6 hover:border-[#002b5c]/20 transition-all">
-                      <div className="w-12 h-12 bg-slate-50 flex items-center justify-center rounded-xl text-[#002b5c] shrink-0 border border-slate-100">
-                        <PenTool size={20} />
+                    <div key={blog.id} className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm flex items-start gap-6 hover:border-[#002b5c]/20 transition-all relative group overflow-hidden">
+                      {blog.featured && (
+                        <div className="absolute top-0 right-0 bg-amber-400 text-white text-[8px] font-black uppercase px-3 py-1 rounded-bl-lg tracking-widest z-10">
+                          Featured
+                        </div>
+                      )}
+                      
+                      <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0 border border-slate-100">
+                        <img src={blog.bgUrl} alt={blog.title} className="w-full h-full object-cover" />
                       </div>
+
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center justify-between mb-1">
-                          <h3 className="text-base font-bold text-slate-900 truncate">{blog.title}</h3>
+                          <h3 className="text-base font-bold text-slate-900 truncate pr-16">{blog.title}</h3>
                           <span className="text-[10px] text-slate-400 font-mono italic">
                             {blog.date || 'Undated'}
                           </span>
@@ -775,15 +921,25 @@ export default function AdminPanel() {
                           <span className="px-2 py-0.5 bg-blue-50 text-[#002b5c] text-[9px] font-bold uppercase rounded border border-blue-100">
                             {blog.category}
                           </span>
-                          <span className="text-[10px] text-slate-400 font-medium">By {blog.author}</span>
+                          <span className={`px-2 py-0.5 text-[9px] font-bold uppercase rounded border ${
+                            blog.status === 'published' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-slate-50 text-slate-500 border-slate-200'
+                          }`}>
+                            {blog.status || 'published'}
+                          </span>
                         </div>
                         <p className="text-xs text-slate-500 leading-relaxed line-clamp-2">
                           {blog.excerpt}
                         </p>
+                        
+                        <div className="mt-4 flex items-center gap-4">
+                          <button onClick={() => handleEditBlog(blog)} className="text-[10px] font-black uppercase tracking-widest text-[#002b5c] hover:underline flex items-center gap-1">
+                            <PenTool size={12} /> Edit Details
+                          </button>
+                          <button onClick={() => handleDeleteBlog(blog.id, blog.title)} className="text-[10px] font-black uppercase tracking-widest text-red-500 hover:underline flex items-center gap-1">
+                            <Trash2 size={12} /> Delete Entry
+                          </button>
+                        </div>
                       </div>
-                      <button onClick={() => handleDeleteBlog(blog.id, blog.title)} className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all shrink-0">
-                        <Trash2 size={18} />
-                      </button>
                     </div>
                   ))
                 )}
@@ -792,8 +948,166 @@ export default function AdminPanel() {
           </div>
         )}
 
+        {/* TAB 5: CATEGORIES */}
+        {activeTab === 'categories' && (
+          <div className="space-y-8 animate-in fade-in duration-500">
+            <header className="flex items-center justify-between">
+              <h2 className="text-xs font-bold uppercase tracking-widest text-[#002b5c]">Taxonomy Management</h2>
+              <p className="text-[10px] text-slate-400 font-medium">Controlled Nodes: {categories.length}</p>
+            </header>
+
+            <form onSubmit={handleAddCategory} className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col md:flex-row gap-4 items-end">
+              <div className="flex-1 space-y-1 w-full">
+                <label className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Category Name</label>
+                <input
+                  type="text"
+                  required
+                  value={newCategory.name}
+                  onChange={(e) => {
+                    const name = e.target.value;
+                    const slug = name.toLowerCase().replace(/\s+/g, '-');
+                    setNewCategory({ name, slug });
+                  }}
+                  placeholder="e.g. Avionics Systems"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-800 font-semibold focus:bg-white outline-none"
+                />
+              </div>
+              <div className="flex-1 space-y-1 w-full">
+                <label className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-widest block">URL Slug (Auto)</label>
+                <input
+                  type="text"
+                  readOnly
+                  value={newCategory.slug}
+                  className="w-full bg-slate-100 border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-400 font-mono"
+                />
+              </div>
+              <button
+                type="submit"
+                className="bg-[#002b5c] text-white px-8 h-[42px] rounded-xl text-xs font-black uppercase tracking-widest hover:bg-blue-900 transition-all flex items-center justify-center gap-2"
+              >
+                <Plus size={14} /> Add Node
+              </button>
+            </form>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {categories.map(cat => (
+                <div key={cat.id} className="bg-white p-4 border border-slate-200 rounded-xl flex items-center justify-between shadow-sm group hover:border-[#002b5c]/30 transition-all">
+                  <div>
+                    <h4 className="text-sm font-bold text-slate-800">{cat.name}</h4>
+                    <span className="text-[10px] font-mono text-slate-400">/{cat.slug}</span>
+                  </div>
+                  <button
+                    onClick={() => handleDeleteCategory(cat.id)}
+                    className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* TAB 6: SEO & INDEXING */}
+        {activeTab === 'seo' && (
+          <div className="space-y-10 animate-in fade-in duration-500">
+            <header className="flex items-center justify-between">
+              <h2 className="text-xs font-bold uppercase tracking-widest text-[#002b5c]">Search Engine Control</h2>
+              <p className="text-[10px] text-slate-400 font-medium">Global Sitemap Mapping Enabled</p>
+            </header>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Google Search Console Status */}
+              <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-blue-50 rounded-lg text-[#002b5c]">
+                    <Search size={20} />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-900">Google Search Console</h3>
+                    <span className="text-[10px] text-emerald-600 font-bold uppercase tracking-wider">Configuration Applied</span>
+                  </div>
+                </div>
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  The website is configured with valid verification meta tags and a dynamically referenced robots.txt file to assist Google's crawler in traversing the engineering journal.
+                </p>
+                <div className="pt-2">
+                  <button 
+                    onClick={async () => {
+                      setIsLoading(true);
+                      const result = await pingGoogleSearchConsole();
+                      setIsLoading(false);
+                      showToast('Indexing Requested', result.message, 'success');
+                    }}
+                    disabled={isLoading}
+                    className="w-full h-10 border border-[#002b5c] text-[#002b5c] rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[#002b5c] hover:text-white transition-all flex items-center justify-center gap-2 group"
+                  >
+                    <Activity size={14} className="group-hover:animate-pulse" />
+                    {isLoading ? 'Requesting Ping...' : 'Submit Indexing Request'}
+                  </button>
+                </div>
+              </div>
+
+              {/* Google Analytics Status */}
+              <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-pink-50 rounded-lg text-pink-600">
+                    <Activity size={20} />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-900">Google Analytics (GA4)</h3>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Tracking Integrated</span>
+                  </div>
+                </div>
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  Global tracking scripts (gtag.js) are injected with performance-optimized loading to monitor visitor traffic, engineering paper engagement, and career application flows.
+                </p>
+                <div className="pt-2">
+                  <a 
+                    href="https://analytics.google.com/"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-full h-10 border border-slate-200 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all flex items-center justify-center gap-2"
+                  >
+                    <ExternalLink size={14} />
+                    Open Dashboard
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            {/* Sitemap & Meta Preview */}
+            <div className="bg-slate-900 rounded-2xl p-8 text-white relative overflow-hidden">
+              <Globe size={180} className="absolute -bottom-20 -right-20 text-white/5" />
+              <div className="relative z-10 space-y-6">
+                <div>
+                  <h3 className="text-sm font-bold uppercase tracking-wider mb-2">Sitemap Mapping</h3>
+                  <code className="text-[11px] font-mono text-blue-300 block bg-black/30 p-3 rounded-lg border border-white/10 break-all">
+                    URL: https://www.hasanthengineering.co.in/sitemap.xml
+                  </code>
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold uppercase tracking-wider mb-2">Current Page Meta Engine</h3>
+                  <p className="text-xs text-slate-400 max-w-xl leading-relaxed">
+                    Our architectural SEO engine utilizes "react-helmet-async" to inject precision meta tags, canonical URLs, and JSON-LD structured data into the DOM before search engine bots begin their analysis.
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-4 pt-2">
+                  <div className="flex items-center gap-2 text-[10px] font-mono text-emerald-400">
+                    <CheckCircle size={12} /> Open Graph v3.0
+                  </div>
+                  <div className="flex items-center gap-2 text-[10px] font-mono text-emerald-400">
+                    <CheckCircle size={12} /> Twitter Card Support
+                  </div>
+                  <div className="flex items-center gap-2 text-[10px] font-mono text-emerald-400">
+                    <CheckCircle size={12} /> Schema.org LD-JSON
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
         </main>
-        
       </div>
     </div>
   );

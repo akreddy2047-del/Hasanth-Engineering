@@ -10,7 +10,7 @@ export default function ProductExperience() {
     {
       title: 'Audio Control Systems',
       tagline: 'High-Fidelity Rugged Passenger PA & intercoms',
-      imageUrl: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=600&q=80',
+      imageUrl: 'https://images.unsplash.com/photo-1530268576404-5e16548d1c9f?auto=format&fit=crop&w=600&q=80',
       features: ['Balanced audio line matching', 'ESD & surge isolation', 'Active voice activity sensors (VOX)', 'Microprocessor path routing'],
       applications: ['Railway locomotive driver intercoms', 'Mass Transit active PA channels', 'Vibration-immune industrial announcer panels'],
       industries: ['Railways & Mass Transit', 'Mining & Refineries'],
@@ -25,7 +25,7 @@ export default function ProductExperience() {
     {
       title: 'Data Acquisition Controllers',
       tagline: 'Multi-Channel Precision ADCs with SPI & Modbus',
-      imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80',
+      imageUrl: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=600&q=80',
       features: ['24-bit resolution Delta-Sigma ADC cores', 'Simultaneous sampling on all input ports', 'Industrial Modbus RTU/TCP telemetry', 'High density onboard flash buffers'],
       applications: ['Structural weld monitoring rigs', 'Climatic temperature array monitors', 'Process-line stress tracking setups'],
       industries: ['Automotive & EV', 'Metrology & R&D Labs'],
@@ -40,7 +40,7 @@ export default function ProductExperience() {
     {
       title: 'Pyro Test Setup',
       tagline: 'Aerospace Safe Pulse Detoration Control Triggers',
-      imageUrl: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80',
+      imageUrl: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=600&q=80',
       features: ['High-energy redundant ignition lines', 'Deterministic pulse delay timing circuits', 'Interlock safety loop feedback sensors', 'Rugged transportable shock chassis cases'],
       applications: ['Pyrotechnic separation inspections', 'Rocket actuator validation triggers', 'Explosion-proof safety trigger audits'],
       industries: ['Defense & Aerospace'],
@@ -55,7 +55,7 @@ export default function ProductExperience() {
     {
       title: 'Electronic Sourcing Solutions',
       tagline: 'Turnkey Component Bill-of-Materials Procurement',
-      imageUrl: 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&w=600&q=80',
+      imageUrl: 'https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=600&q=80',
       features: ['Strict anti-counterfeit inspection audits', 'Alternative chip mapping and footprint fit analyses', 'Bulk procurement cost optimization lines', 'Warehouse inventory storage and buffer support'],
       applications: ['Fast component substitutions', 'Obsolescence management of legacy assets', 'Turnkey Bill-of-Materials builds'],
       industries: ['OEM Manufacturing', 'Railway Mass Sourcing'],
@@ -70,7 +70,7 @@ export default function ProductExperience() {
     {
       title: 'Industrial Control Systems',
       tagline: 'Custom PLCs and Power Grid Relays',
-      imageUrl: 'https://images.unsplash.com/photo-1618042164219-62c820f10723?auto=format&fit=crop&w=600&q=80',
+      imageUrl: 'https://images.unsplash.com/photo-1537462715879-330eaebac0af?auto=format&fit=crop&w=600&q=80',
       features: ['Heavy copper circuit paths for power boards', 'Redundant auxiliary contact sensors', 'Deterministic cycle loops', 'Ethernet telemetry interfacing'],
       applications: ['Heater element relay cabinets', 'Air compressor sequence controllers', 'Power grid switch gear automation'],
       industries: ['HVAC Solutions', 'Power & Energy Grid'],
@@ -85,7 +85,7 @@ export default function ProductExperience() {
     {
       title: 'Custom Product Development',
       tagline: 'Full Concept-to-Production Turnkey Engineering',
-      imageUrl: 'https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&w=600&q=80',
+      imageUrl: 'https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80',
       features: ['In-house 3D modeling and multi-layer layout', 'FEA stress analysis & testing audits', 'Functional and environmental chamber reviews', 'Complete manufacturing production packaging'],
       applications: ['Proprietary customer inventions', 'OEM specialized tool conversions', 'Specialized laboratory diagnostic test columns'],
       industries: ['All Target Enterprise Verticals'],

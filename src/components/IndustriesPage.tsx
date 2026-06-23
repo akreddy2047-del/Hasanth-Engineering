@@ -7,6 +7,7 @@ import {
 import SEO from './SEO';
 import { InteractiveCard } from './InteractiveCard';
 import { ScrollEntrance, StaggerContainer, StaggerItem } from './ScrollEntrance';
+import EnergyImg from '../assets/images/energy_grid_telemetry_1782203163686.jpg';
 
 export default function IndustriesPage() {
   const industries = [
@@ -56,7 +57,7 @@ export default function IndustriesPage() {
       focus: 'Smart Grid & Renewable Storage Nodes',
       desc: 'Connected telemetry modules and power gate nodes designed to monitor high-voltage sub-stations and solar banks.',
       apps: ['Isolated MODBUS grid sensors', 'Sub-station telemetry cabinets', 'Thermal overload triggers'],
-      bgUrl: 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&w=600&q=80'
+      bgUrl: EnergyImg
     },
     {
       title: 'Healthcare Technology',
@@ -72,7 +73,7 @@ export default function IndustriesPage() {
       focus: 'AI-Driven Actuation & Mechatronics',
       desc: 'Pre-calibrated coordinate joint controllers, automated camera-guided sorters, and multi-axis actuator enclosures.',
       apps: ['Multi-joint controller cards', 'Active stereoscopic sorting', 'Highly rigid carbon mounts'],
-      bgUrl: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80'
+      bgUrl: 'https://agratasedutech.com/wp-content/uploads/2023/11/robotics_1.jpg?auto=format&fit=crop&w=600&q=80'
     }
   ];
 

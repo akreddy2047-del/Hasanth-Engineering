@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { X, Send, CheckCircle, Cpu, Shield, Zap, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useToast } from '../hooks/useToast';
-import { db } from '../lib/firebase';
+import { db, handleFirestoreError, OperationType } from '../lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 interface ConsultationModalProps {
@@ -30,8 +30,9 @@ export function ConsultationModal({ isOpen, onClose }: ConsultationModalProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    const path = 'enquiries';
     try {
-      await addDoc(collection(db, 'enquiries'), {
+      await addDoc(collection(db, path), {
         applicantName: formData.name,
         applicantEmail: formData.email,
         company: formData.company,
@@ -54,11 +55,16 @@ export function ConsultationModal({ isOpen, onClose }: ConsultationModalProps) {
     } catch (err) {
       console.error("Consultation submission failed: ", err);
       setIsSubmitting(false);
-      showToast(
-        'Submission Error',
-        'Could not transmit your requirements. Please check your network.',
-        'warning'
-      );
+      
+      try {
+        handleFirestoreError(err, OperationType.CREATE, path);
+      } catch (finalErr) {
+        showToast(
+          'Submission Error',
+          'Could not transmit your requirements. Please check your network connection.',
+          'warning'
+        );
+      }
     }
   };
 

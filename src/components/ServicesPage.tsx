@@ -10,6 +10,9 @@ import { ScrollEntrance, StaggerContainer, StaggerItem } from './ScrollEntrance'
 import { GSAPSection } from './GSAPSection';
 import EngineeringBg from '../assets/images/engineering_background_tech_1781764962777.jpg';
 import BlueprintModal from './BlueprintModal';
+import SmtImg from '../assets/images/pcb_assembly_smt_1782203107700.jpg';
+import CncImg from '../assets/images/cnc_milling_precision_1782203124738.jpg';
+import UavImg from '../assets/images/uav_drone_tech_research_1782203142482.jpg';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -173,7 +176,7 @@ export default function ServicesPage() {
       title: 'Multi-layer SMT & PCB Assembly',
       desc: 'Deploying controlled impedance layouts (50Ω and 100Ω) with dense thermal vias and sub-millimeter component pitch solder optimization.',
       icon: CircuitBoard,
-      bgUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80',
+      bgUrl: SmtImg,
       stats: [
         { label: 'IMPEDANCE TOLERANCE', value: '±5%' },
         { label: 'MAX LAYERS MODEL', value: '16 Layers' },
@@ -194,7 +197,7 @@ export default function ServicesPage() {
       title: 'Precision Multi-Axis CNC Milling',
       desc: 'Translating tight SolidWorks assemblies into optimized physical tooling toolpaths with micron-perfect dimensional calibrations.',
       icon: Hammer,
-      bgUrl: 'https://images.unsplash.com/photo-1620283085439-39620a1e21c4?auto=format&fit=crop&w=600&q=80',
+      bgUrl: CncImg,
       stats: [
         { label: 'MACHINING TOLERANCE', value: '±5μm' },
         { label: 'SPINDLE SPEEDS ROUTE', value: '24K RPM' },
@@ -215,7 +218,7 @@ export default function ServicesPage() {
       title: 'UAV Autopilot PX4 Integration',
       desc: 'Developing redundant sensors telemetry systems and custom PID parameter coordinates for dynamic drone payloads control loops.',
       icon: Microscope,
-      bgUrl: 'https://images.unsplash.com/photo-1527977966376-1c8408f9f108?auto=format&fit=crop&w=600&q=80',
+      bgUrl: UavImg,
       stats: [
         { label: 'REACTION FREQUENCY', value: '400Hz' },
         { label: 'LATENCY FEEDBACK', value: '<10ms' },

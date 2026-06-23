@@ -34,7 +34,7 @@ export default function HomeNavigationCards({ onPageChange, onOpenConsultation }
       title: 'Engineered Products',
       category: 'SYSTEM INTEGRATION',
       desc: 'Browse our established railway intercom terminals, redundant Modbus telemetry interfaces, verified industrial OEM suppliers, and historic corporate partners.',
-      image: 'https://images.unsplash.com/photo-1618042164219-62c820f10723?auto=format&fit=crop&w=600&q=80',
+      image: 'https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80',
       icon: Cpu,
       target: 'products',
       btnText: 'Review Product Catalog'

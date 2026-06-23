@@ -18,42 +18,42 @@ export default function EngineeringGallery() {
     {
       title: 'Multilayer Impedance PCB',
       category: 'PCB Design',
-      imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80',
+      imageUrl: 'https://images.unsplash.com/photo-1517071994978-209e214ff97f?auto=format&fit=crop&w=600&q=80',
       description: 'Controlled impedance differential traces designed for 3.3V high-frequency signal integrity in locomotives.',
       specs: ['8-Layer FR4', 'ENIG finish', '4 mil width']
     },
     {
       title: 'Locomotive Driver Console',
       category: 'Audio Systems',
-      imageUrl: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=600&q=80',
+      imageUrl: 'https://images.unsplash.com/photo-1550009158-9ebf69173e03?auto=format&fit=crop&w=600&q=80',
       description: 'Ultra-robust microcontroller console containing redundant intercom lines and noise-gate controls.',
       specs: ['IP65 waterproof', 'Opto-coupled', 'EN50155 certified']
     },
     {
       title: 'SCADA Master Module',
       category: 'Controllers',
-      imageUrl: 'https://images.unsplash.com/photo-1618042164219-62c820f10723?auto=format&fit=crop&w=600&q=80',
+      imageUrl: 'https://images.unsplash.com/photo-1555664424-778a1e5e1b48?auto=format&fit=crop&w=600&q=80',
       description: 'Central microcontroller module processing 48 telemetry points on serial Modbus lanes concurrently.',
       specs: ['STM32 processor', 'RS485 paths', 'DIN-Rail Case']
     },
     {
       title: 'Concentric Coupling Hub',
       category: 'Machined Parts',
-      imageUrl: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80',
+      imageUrl: 'https://images.unsplash.com/photo-1485217988980-11786ced9454?auto=format&fit=crop&w=600&q=80',
       description: 'Multi-axis CNC milled motor alignment hub utilizing custom tool profiles to minimize eccentric jitter.',
       specs: ['SS316 Steel', '±0.005mm tol', 'CAD Optimized']
     },
     {
       title: 'Clamping Inspection Jig',
       category: 'Machined Parts',
-      imageUrl: 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&w=600&q=80',
+      imageUrl: 'https://images.unsplash.com/photo-1537462715879-330eaebac0af?auto=format&fit=crop&w=600&q=80',
       description: 'Custom inspection jig to align car body sheet panels during high pressure laser scans.',
       specs: ['Al6061 Aluminum', 'Flat Grinding', 'Dowels: 2μm']
     },
     {
       title: 'Heavy Structural Scaffold',
       category: 'Fabrication',
-      imageUrl: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=600&q=80',
+      imageUrl: 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&w=600&q=80',
       description: 'High tensile carbon steel load-bearing weldment built for HVAC condenser supports on rooftops.',
       specs: ['TIG continuous', 'Hot-dip galv', 'Max: 3.5 Tons']
     }

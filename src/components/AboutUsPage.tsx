@@ -7,6 +7,7 @@ import { ScrollEntrance, StaggerContainer, StaggerItem } from './ScrollEntrance'
 import HasanthLogo from './HasanthLogo';
 import { TeamGallery, TeamMember } from './TeamGallery';
 import { MemberProfileModal } from './MemberProfileModal';
+import AutomationFacilityImg from '../assets/images/industrial_automation_facility_1782203090622.jpg';
 
 export default function AboutUsPage() {
   const futureFocusAreas = [
@@ -46,7 +47,7 @@ export default function AboutUsPage() {
       title: 'Industrial Automation', 
       desc: 'Smart PLC arrays, robot visual coordination & connected factory systems.', 
       count: '05', 
-      bgUrl: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80',
+      bgUrl: 'https://img.magnific.com/free-photo/robotic-arm-placing-chip-circuit-board_23-2152011751.jpg?auto=format&fit=crop&w=600&q=80',
       category: 'SMART INDUSTRY',
       icon: 'Settings'
     },
@@ -220,9 +221,7 @@ export default function AboutUsPage() {
               <div className="lg:col-span-6 relative">
                 <div className="border-4 border-white/10 p-3 rounded-3xl bg-white/5 shadow-2xl">
                   <img 
-                    src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80" 
-                    srcSet="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=400&q=70 400w, https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80 800w"
-                    sizes="(max-width: 768px) 400px, 800px"
+                    src={AutomationFacilityImg} 
                     loading="lazy"
                     decoding="async"
                     alt="Industrial Automation Facility" 

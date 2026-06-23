@@ -12,7 +12,7 @@ export default function ManufacturingStrength() {
       desc: 'Multi-axis vertical machining centers capable of milling structural alloys with sub-micron repeat tolerances.',
       tolerance: '±0.005 mm',
       capacity: '800 x 500 x 550 mm envelope',
-      imageUrl: 'https://images.unsplash.com/photo-1618042164219-62c820f10723?auto=format&fit=crop&w=600&q=80'
+      imageUrl: 'https://images.unsplash.com/photo-1530639834082-0c2136f0c6a7?auto=format&fit=crop&w=600&q=80'
     },
     {
       name: 'CNC Turning',
@@ -20,7 +20,7 @@ export default function ManufacturingStrength() {
       desc: 'Heavy-duty CNC turning centers with live axis tooling, designed to produce complex concentric products.',
       tolerance: '±0.008 mm',
       capacity: 'Ø320 mm max turning diameter',
-      imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80'
+      imageUrl: 'https://images.unsplash.com/photo-1565172349268-9a5cdd04e4ff?auto=format&fit=crop&w=600&q=80'
     },
     {
       name: 'Surface Grinding',
@@ -28,7 +28,7 @@ export default function ManufacturingStrength() {
       desc: 'Precision hydraulic surface grinding machines yielding mirror mechanical finishes and flat sealing interfaces.',
       tolerance: '±0.002 mm',
       capacity: '600 x 300 mm workspace',
-      imageUrl: 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&w=600&q=80'
+      imageUrl: 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&w=600&q=80'
     },
     {
       name: 'Wire EDM',
@@ -36,7 +36,7 @@ export default function ManufacturingStrength() {
       desc: 'High-precision Wire Electrical Discharge Machining for cutting conductive hardened tool steels and exotic alloys.',
       tolerance: '±0.003 mm',
       capacity: 'Submerged 400 x 300 mm bath',
-      imageUrl: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80'
+      imageUrl: 'https://images.unsplash.com/photo-1593106410288-caf603774d12?auto=format&fit=crop&w=600&q=80'
     },
     {
       name: 'Laser Cutting',

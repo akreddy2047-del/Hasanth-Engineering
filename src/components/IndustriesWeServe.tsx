@@ -38,7 +38,7 @@ export default function IndustriesWeServe() {
       name: 'OEM Manufacturing',
       description: 'High-precision turning, milling, and surface grinding batches for heavy equipment builders.',
       items: ['Custom concentric shafts', 'High tolerance surface pins', 'Machined structural gears', 'Specialized insert tools'],
-      imageUrl: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&q=80&w=600'
+      imageUrl: 'https://images.unsplash.com/photo-1549484433-289520473264?auto=format&fit=crop&q=80&w=600'
     }
   ];
 

@@ -44,7 +44,7 @@ export default function FacilityShowcase() {
     {
       title: 'Prototype Verification Lab',
       category: 'Research & Development',
-      imageUrl: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80',
+      imageUrl: 'https://images.unsplash.com/photo-1558494949-ef010978911e?auto=format&fit=crop&w=800&q=80',
       specs: ['4-Ch high-speed oscilloscopes', 'Programmable DC power suppliers', 'Climatic Chamber stress cycles'],
       calibration: 'NABL compliant reference'
     },

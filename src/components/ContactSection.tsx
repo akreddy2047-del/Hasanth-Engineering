@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Mail, Phone, MapPin, Search, Globe, ChevronRight, BarChart3, TrendingUp, CheckCircle, Send, Radio, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useToast } from '../hooks/useToast';
-import { db } from '../lib/firebase';
+import { db, handleFirestoreError, OperationType } from '../lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 export default function ContactSection() {
@@ -13,8 +13,9 @@ export default function ContactSection() {
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.name && formData.email && formData.message) {
+      const path = 'enquiries';
       try {
-        await addDoc(collection(db, 'enquiries'), {
+        await addDoc(collection(db, path), {
           applicantName: formData.name,
           applicantEmail: formData.email,
           subject: formData.subject || 'General Inquiry',
@@ -34,11 +35,15 @@ export default function ContactSection() {
         }, 3000);
       } catch (err) {
         console.error("Enquiry submission failed: ", err);
-        showToast(
-          'Transmission Failed', 
-          'Failed to send. Please check your network connection.', 
-          'warning'
-        );
+        try {
+          handleFirestoreError(err, OperationType.CREATE, path);
+        } catch (f) {
+          showToast(
+            'Transmission Failed', 
+            'Failed to send. Please check your network connection.', 
+            'warning'
+          );
+        }
       }
     }
   };
