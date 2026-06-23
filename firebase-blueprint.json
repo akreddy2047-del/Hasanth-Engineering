@@ -79,6 +79,71 @@
         "timestamp": { "type": "string", "format": "date-time" }
       },
       "required": ["name", "slug", "timestamp"]
+    },
+    "Legal": {
+      "title": "Legal Page",
+      "description": "Content for legal pages like Privacy Policy and Terms & Conditions.",
+      "type": "object",
+      "properties": {
+        "type": { "type": "string", "enum": ["privacy", "terms"] },
+        "content": { "type": "string" },
+        "lastUpdated": { "type": "string", "format": "date-time" },
+        "sections": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "title": { "type": "string" },
+              "body": { "type": "string" },
+              "icon": { "type": "string" }
+            }
+          }
+        }
+      },
+      "required": ["type", "content", "lastUpdated", "sections"]
+    },
+    "Project": {
+      "title": "Engineering Project",
+      "description": "Selected blueprints and corporate project archives.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "category": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "description": { "type": "string" },
+        "specs": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "category", "imageUrl", "description", "specs", "timestamp"]
+    },
+    "PageContent": {
+      "title": "Page Content",
+      "description": "Customizable content for various pages on the website.",
+      "type": "object",
+      "properties": {
+        "pageId": { "type": "string" },
+        "title": { "type": "string" },
+        "subtitle": { "type": "string" },
+        "content": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "sections": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "heading": { "type": "string" },
+              "body": { "type": "string" },
+              "imageUrl": { "type": "string" }
+            }
+          }
+        },
+        "lastUpdated": { "type": "string", "format": "date-time" }
+      },
+      "required": ["pageId", "lastUpdated"]
     }
   },
   "firestore": {
@@ -101,6 +166,18 @@
     "/blog_categories/{categoryId}": {
       "schema": "BlogCategory",
       "description": "Blog categories"
+    },
+    "/legal/{pageType}": {
+      "schema": "Legal",
+      "description": "Legal pages content"
+    },
+    "/projects/{projectId}": {
+      "schema": "Project",
+      "description": "Project portfolio items"
+    },
+    "/page_content/{pageId}": {
+      "schema": "PageContent",
+      "description": "Website page content management"
     }
   }
 }

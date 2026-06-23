@@ -18,7 +18,11 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
+import { usePageContent } from '../lib/usePageContent';
+import { DynamicContent } from './DynamicContent';
+
 export default function ServicesPage() {
+  const { data: pageData, loading } = usePageContent('services');
   const [activeDivision, setActiveDivision] = useState<number>(0);
   const [selectedSpotlightIdx, setSelectedSpotlightIdx] = useState<number | null>(null);
   const spotlightSectionRef = useRef<HTMLDivElement>(null);
@@ -371,6 +375,9 @@ export default function ServicesPage() {
       />
       
 
+
+      {/* Dynamic Content from CMS */}
+      <DynamicContent sections={pageData?.sections} content={pageData?.content} />
 
       {/* Main Interactive Grid Layout */}
       <ScrollEntrance delay={0.15}>

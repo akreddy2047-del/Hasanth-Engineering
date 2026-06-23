@@ -82,9 +82,9 @@ export default function Footer({ onOpenConsultation, onPageChange }: FooterProps
               {/* Column 2 */}
               <div className="flex flex-col gap-3">
                 {[
-                  { id: 'industries', label: 'Industries' },
-                  { id: 'careers', label: 'Careers' },
-                  { id: 'blog', label: 'Blog' },
+                  { id: 'jobs', label: 'Careers' },
+                  { id: 'privacy', label: 'Privacy Policy' },
+                  { id: 'terms', label: 'T&C' },
                   { id: 'contact', label: 'Contact' },
                 ].map((item) => (
                   <button
@@ -165,10 +165,24 @@ export default function Footer({ onOpenConsultation, onPageChange }: FooterProps
             <span className="text-white/80 font-medium">Est. 2016 • CIN: U74999KA2016OPC093023</span>
           </div>
 
-          <div className="flex gap-4">
+          <div className="flex gap-4 items-center">
+            <button 
+              onClick={() => handleLinksScroll('privacy')}
+              className="hover:text-white transition-colors cursor-pointer uppercase tracking-widest font-bold border-b border-transparent hover:border-white/20 pb-0.5"
+            >
+              Privacy Policy
+            </button>
+            <span className="text-white/20">•</span>
+            <button 
+              onClick={() => handleLinksScroll('terms')}
+              className="hover:text-white transition-colors cursor-pointer uppercase tracking-widest font-bold border-b border-transparent hover:border-white/20 pb-0.5"
+            >
+              T&C
+            </button>
+            <span className="hidden md:inline text-white/50 ml-2">|</span>
             <button 
               onClick={onOpenConsultation}
-              className="text-white hover:text-white transition-all uppercase tracking-widest focus:outline-none cursor-pointer font-bold flex items-center gap-1"
+              className="text-white hover:text-white transition-all uppercase tracking-widest focus:outline-none cursor-pointer font-bold flex items-center gap-1 ml-2"
               id="footer-scheduler-cta"
             >
               <span>Get Consultation</span>

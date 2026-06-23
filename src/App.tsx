@@ -25,6 +25,7 @@ import CareersPage from './components/CareersPage';
 import AdminPanel from './components/AdminPanel';
 import BlogPage from './components/BlogPage';
 import ContactSection from './components/ContactSection';
+import LegalPage from './components/LegalPage';
 
 import { ConsultationModal, StickyWhatsApp, LiveRippleText, PrecisionBackdrop } from './components/Common';
 import { MagneticCard } from './components/MagneticCard';
@@ -39,6 +40,7 @@ import { GlossaryProvider, GlossarySidebar } from './components/Glossary';
 import { motion } from 'motion/react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { usePageContent } from './lib/usePageContent';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -49,7 +51,12 @@ interface SubpageHeaderProps {
   badge?: string;
 }
 
-function SubpageHeader({ category, title, description, badge }: SubpageHeaderProps) {
+function SubpageHeader({ category, title, description, badge, pageId }: SubpageHeaderProps & { pageId?: string }) {
+  const { data: pageData, loading } = usePageContent(pageId || '');
+  
+  const displayTitle = pageData?.title || title;
+  const displayDescription = pageData?.subtitle || description;
+
   return (
     <div className="relative bg-[#000b18] border-b border-[#001f3f]/50 py-20 px-4 overflow-hidden">
       <PrecisionBackdrop />
@@ -68,10 +75,14 @@ function SubpageHeader({ category, title, description, badge }: SubpageHeaderPro
             <span>{category}</span>
           </div>
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-sans font-black text-white uppercase tracking-tight leading-none block">
-            {title}
+            {loading ? (
+              <span className="opacity-50">SYNCING NODE...</span>
+            ) : (
+              displayTitle
+            )}
           </h1>
           <p className="text-xs sm:text-sm text-white/80 max-w-2xl leading-relaxed font-semibold">
-            {description}
+            {loading ? "Accessing Balanagar Digital Archives..." : displayDescription}
           </p>
         </motion.div>
         
@@ -352,7 +363,7 @@ export default function App() {
   const [isConsultationOpen, setIsConsultationOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState<string>(() => {
     const path = window.location.pathname.slice(1);
-    const validPages = ['about', 'services', 'research', 'projects', 'industries', 'admin', 'careers', 'blog', 'contact'];
+    const validPages = ['about', 'services', 'research', 'projects', 'industries', 'admin', 'careers', 'blog', 'contact', 'privacy', 'terms'];
     if (validPages.includes(path)) {
       return path;
     }
@@ -370,7 +381,7 @@ export default function App() {
   useEffect(() => {
     const handlePopState = () => {
       const path = window.location.pathname.slice(1);
-      const validPages = ['about', 'services', 'research', 'projects', 'industries', 'admin', 'careers', 'blog', 'contact'];
+      const validPages = ['about', 'services', 'research', 'projects', 'industries', 'admin', 'careers', 'blog', 'contact', 'privacy', 'terms'];
       if (validPages.includes(path)) {
         setCurrentPage(path);
       } else {
@@ -575,6 +586,7 @@ export default function App() {
                 title="About Us"
                 description="Hasanth Engineering (OPC) Private Limited is a pioneering multidisciplinary engineering company based in Balanagar, Hyderabad."
                 badge="Established 2016"
+                pageId="about"
               />
               <AboutUsPage />
             </div>
@@ -587,6 +599,7 @@ export default function App() {
                 title="Our Services"
                 description="Explore our robust array of high-precision and automated systems across multiple arenas."
                 badge="ISO Standards"
+                pageId="services"
               />
               <ServicesPage />
             </div>
@@ -599,6 +612,7 @@ export default function App() {
                 title="Research & Innovation"
                 description="Discover our newest technological patents, smart aroma systems, and advanced defense networks."
                 badge="Patented R&D"
+                pageId="research"
               />
               <ResearchPage />
             </div>
@@ -611,6 +625,7 @@ export default function App() {
                 title="Projects Division"
                 description="A glimpse of our executed physical setups, customized CAD alignments, and drone platforms."
                 badge="Verified Work"
+                pageId="projects"
               />
               <ProjectsPage />
             </div>
@@ -623,6 +638,7 @@ export default function App() {
                 title="Industries We Serve"
                 description="Ensuring high-integrity custom parts and systems reach global standards."
                 badge="Global Focus"
+                pageId="industries"
               />
               <IndustriesPage />
             </div>
@@ -640,6 +656,7 @@ export default function App() {
                 title="Careers at Hasanth"
                 description="Join a legacy of high-performance developers, mechanical designers, and aerospace system builders."
                 badge="Join Us"
+                pageId="careers"
               />
               <CareersPage />
             </div>
@@ -652,6 +669,7 @@ export default function App() {
                 title="Technical Insights"
                 description="Read our engineering journals, software integration reports, and design analyses."
                 badge="Knowledge Hub"
+                pageId="blog"
               />
               <BlogPage />
             </div>
@@ -664,8 +682,35 @@ export default function App() {
                 title="Contact and Location"
                 description="Reach our engineering laboratory and administrative offices in Hyderabad."
                 badge="Call 24/7"
+                pageId="contact"
               />
               <ContactSection />
+            </div>
+          )}
+
+          {currentPage === 'privacy' && (
+            <div className="animate-fade-in pt-8">
+              <SubpageHeader 
+                category="Legal"
+                title="Privacy Policy"
+                description="Our commitment to safeguarding your technical data and intellectual property."
+                badge="Data Security"
+                pageId="privacy"
+              />
+              <LegalPage type="privacy" />
+            </div>
+          )}
+
+          {currentPage === 'terms' && (
+            <div className="animate-fade-in pt-8">
+              <SubpageHeader 
+                category="Legal"
+                title="Terms & Conditions"
+                description="Corporate standards and operational protocols for Hasanth Engineering services."
+                badge="Operational Standard"
+                pageId="terms"
+              />
+              <LegalPage type="terms" />
             </div>
           )}
         </PageTransition>

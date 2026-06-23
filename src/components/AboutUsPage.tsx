@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Target, Compass, Eye, ShieldCheck, Cpu, Anchor, ArrowRight, Award, Compass as DCompass, X, Sparkles, CheckCircle2, User, Briefcase, Plane, Shield, Navigation, Settings, Laptop } from 'lucide-react';
+import { Target, Compass, Eye, ShieldCheck, Cpu, Anchor, ArrowRight, Award, Compass as DCompass, X, Sparkles, CheckCircle2, User, Briefcase, Plane, Shield, Navigation, Settings, Laptop, Loader2 } from 'lucide-react';
 import SEO from './SEO';
 import { InteractiveCard } from './InteractiveCard';
 import { ScrollEntrance, StaggerContainer, StaggerItem } from './ScrollEntrance';
@@ -8,8 +8,12 @@ import HasanthLogo from './HasanthLogo';
 import { TeamGallery, TeamMember } from './TeamGallery';
 import { MemberProfileModal } from './MemberProfileModal';
 import AutomationFacilityImg from '../assets/images/industrial_automation_facility_1782203090622.jpg';
+import { usePageContent } from '../lib/usePageContent';
+import { DynamicContent } from './DynamicContent';
 
 export default function AboutUsPage() {
+  const { data: pageData, loading } = usePageContent('about');
+  
   const futureFocusAreas = [
     { 
       title: 'Aerospace Systems', 
@@ -87,56 +91,68 @@ export default function AboutUsPage() {
   return (
     <div className="bg-white min-h-screen text-slate-800 pb-24 animate-fadeIn">
       <SEO 
-        title="About Our Corporate Operations"
-        description="Learn about Hasanth Engineering (OPC) Private Limited, our vision, mission, and our advanced research and development division in Balanagar, Hyderabad."
+        title={pageData?.title || "About Our Corporate Operations"}
+        description={pageData?.subtitle || "Learn about Hasanth Engineering (OPC) Private Limited, our vision, mission, and our advanced research and development division in Balanagar, Hyderabad."}
         keywords="About Hasanth Engineering, Mechanical Design, Embedded PCBs, Aerospace Wing Brackets, Hyderabad Engineering Hub"
         schema={aboutSchema}
       />
 
-      {/* Brand & Mission Integration Section - Refined & Simple */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-16">
-        <ScrollEntrance>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
-            
-            {/* Logo Card - Simplified */}
-            <div className="bg-white border border-slate-100 rounded-3xl p-8 flex flex-col items-center justify-center text-center gap-6 transition-all duration-500 hover:border-blue-100/50 shadow-sm">
-              <div className="p-4 bg-slate-50/50 rounded-2xl">
-                <HasanthLogo size={90} />
-              </div>
-              <div className="space-y-1">
-                <h2 className="text-lg font-sans text-[#002b5c] font-black tracking-widest uppercase">
-                  HASANTH ENGINEERING
-                </h2>
-                <p className="text-slate-400 font-sans text-[9px] uppercase tracking-[0.3em] font-bold">
-                  (OPC) PVT LTD • ESTD 2016
-                </p>
-              </div>
-            </div>
-
-            {/* Mission Quote - Clean & Neat */}
-            <div className="bg-slate-50 border border-slate-100 rounded-3xl p-8 sm:p-10 flex flex-col justify-center relative overflow-hidden group">
-              <div className="absolute left-0 top-0 w-1 h-full bg-[#002b5c]" />
+      {loading ? (
+        <div className="flex flex-col items-center justify-center py-32 gap-4">
+          <Loader2 className="animate-spin text-[#002b5c]" size={48} />
+          <p className="text-[10px] font-mono text-slate-400 font-black uppercase tracking-widest">Accessing Portal Metadata...</p>
+        </div>
+      ) : (
+        <>
+        {/* Brand & Mission Integration Section - Refined & Simple */}
+        <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-16">
+          <ScrollEntrance>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
               
-              <div className="space-y-6 relative z-10">
-                <p className="text-base sm:text-lg font-sans font-black italic tracking-tight leading-relaxed uppercase text-[#002b5c]">
-                  "We bridge the gap between engineering blueprints and physical systems by pairing meticulous AS9100 aerospace metrics with continuous field-level operations."
-                </p>
-
-                <div className="flex items-center gap-4">
-                  <div className="h-px w-8 bg-[#002b5c]/20" />
-                  <span className="text-[8px] font-bold uppercase tracking-widest text-slate-400">Tactical Engineering Philosophy</span>
+              {/* Logo Card - Simplified */}
+              <div className="bg-white border border-slate-100 rounded-3xl p-8 flex flex-col items-center justify-center text-center gap-6 transition-all duration-500 hover:border-blue-100/50 shadow-sm">
+                <div className="p-4 bg-slate-50/50 rounded-2xl">
+                  <HasanthLogo size={90} />
+                </div>
+                <div className="space-y-1">
+                  <h2 className="text-lg font-sans text-[#002b5c] font-black tracking-widest uppercase">
+                    {pageData?.title || "HASANTH ENGINEERING"}
+                  </h2>
+                  <p className="text-slate-400 font-sans text-[9px] uppercase tracking-[0.3em] font-bold">
+                    {pageData?.subtitle || "(OPC) PVT LTD • ESTD 2016"}
+                  </p>
                 </div>
               </div>
 
-              {/* Minimalist Background Icon */}
-              <div className="absolute -bottom-4 -right-4 opacity-[0.03] rotate-12 transition-transform group-hover:rotate-0 duration-700">
-                <Cpu size={120} />
-              </div>
-            </div>
+              {/* Mission Quote - Clean & Neat */}
+              <div className="bg-slate-50 border border-slate-100 rounded-3xl p-8 sm:p-10 flex flex-col justify-center relative overflow-hidden group">
+                <div className="absolute left-0 top-0 w-1 h-full bg-[#002b5c]" />
+                
+                <div className="space-y-6 relative z-10">
+                  <p className="text-base sm:text-lg font-sans font-black italic tracking-tight leading-relaxed uppercase text-[#002b5c]">
+                    {pageData?.content || "\"We bridge the gap between engineering blueprints and physical systems by pairing meticulous AS9100 aerospace metrics with continuous field-level operations.\""}
+                  </p>
 
-          </div>
-        </ScrollEntrance>
-      </section>
+                  <div className="flex items-center gap-4">
+                    <div className="h-px w-8 bg-[#002b5c]/20" />
+                    <span className="text-[8px] font-bold uppercase tracking-widest text-slate-400">Tactical Engineering Philosophy</span>
+                  </div>
+                </div>
+
+                {/* Minimalist Background Icon */}
+                <div className="absolute -bottom-4 -right-4 opacity-[0.03] rotate-12 transition-transform group-hover:rotate-0 duration-700">
+                  <Cpu size={120} />
+                </div>
+              </div>
+
+            </div>
+          </ScrollEntrance>
+        </section>
+        </>
+      )}
+
+      {/* Dynamic Content from CMS */}
+      <DynamicContent sections={pageData?.sections} content={pageData?.content} />
 
       {/* Vision & Mission Bento Cards */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-24">

@@ -66,9 +66,29 @@ export default function AdminPanel() {
   const [enquiries, setEnquiries] = useState<any[]>([]);
   const [blogs, setBlogs] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'jobs' | 'applications' | 'enquiries' | 'blogs' | 'categories' | 'seo'>('jobs');
+  const [legalPages, setLegalPages] = useState<any[]>([]);
+  const [projects, setProjects] = useState<any[]>([]);
+  const [pageContent, setPageContent] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'jobs' | 'applications' | 'enquiries' | 'blogs' | 'projects' | 'content'>('dashboard');
   
-  // Blog Management State
+  // Content Management State
+  const [editingPageId, setEditingPageId] = useState<string | null>(null);
+  const [editingPageData, setEditingPageData] = useState<any>(null);
+  
+  // Project Management State
+  const [isAddingProject, setIsAddingProject] = useState(false);
+  const [editingProjectId, setEditingProjectId] = useState<string | null>(null);
+  const [newProject, setNewProject] = useState({
+    title: '',
+    category: 'Aerospace Systems',
+    imageUrl: '',
+    description: '',
+    specs: ['', '', '']
+  });
+  
+  // Legal Management State
+  const [editingLegal, setEditingLegal] = useState<any>(null);
+  const [legalTab, setLegalTab] = useState<'privacy' | 'terms'>('privacy');
   const [isAddingBlog, setIsAddingBlog] = useState(false);
   const [editingBlogId, setEditingBlogId] = useState<string | null>(null);
   const [newBlog, setNewBlog] = useState({
@@ -103,7 +123,8 @@ export default function AdminPanel() {
       const unsubEnquiries = onSnapshot(query(collection(db, 'enquiries'), orderBy('timestamp', 'desc')), (snapshot) => {
         setEnquiries(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
         setIsLoading(false);
-      });
+      }, (err) => handleFirestoreError(err, OperationType.GET, 'enquiries'));
+
       const unsubJobs = onSnapshot(collection(db, 'jobs'), (snapshot) => {
         const fetchedJobs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         const uniqueJobs: any[] = [];
@@ -113,35 +134,70 @@ export default function AdminPanel() {
           if (!seen.has(key)) {
             seen.add(key);
             uniqueJobs.push(jb);
-          } else {
-            // Optional: If you want active cleanup of duplicates, you could delete it here
-            // deleteDoc(doc(db, 'jobs', jb.id));
           }
         });
         setJobs(uniqueJobs);
         setIsLoading(false);
-      });
+      }, (err) => handleFirestoreError(err, OperationType.GET, 'jobs'));
+
       const unsubApps = onSnapshot(query(collection(db, 'applications'), orderBy('timestamp', 'desc')), (snapshot) => {
         setApplications(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
         setIsLoading(false);
-      });
+      }, (err) => handleFirestoreError(err, OperationType.GET, 'applications'));
+
       const unsubBlogs = onSnapshot(query(collection(db, 'blogs'), orderBy('timestamp', 'desc')), (snapshot) => {
         setBlogs(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
         setIsLoading(false);
-      });
+      }, (err) => handleFirestoreError(err, OperationType.GET, 'blogs'));
+
       const unsubCategories = onSnapshot(query(collection(db, 'blog_categories'), orderBy('timestamp', 'desc')), (snapshot) => {
         setCategories(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-      });
+      }, (err) => handleFirestoreError(err, OperationType.GET, 'blog_categories'));
+
+      const unsubLegal = onSnapshot(collection(db, 'legal'), (snapshot) => {
+        setLegalPages(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      }, (err) => handleFirestoreError(err, OperationType.GET, 'legal'));
+
+      const unsubProjects = onSnapshot(query(collection(db, 'projects'), orderBy('timestamp', 'desc')), (snapshot) => {
+        setProjects(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      }, (err) => handleFirestoreError(err, OperationType.GET, 'projects'));
+
+      const unsubPageContent = onSnapshot(collection(db, 'page_content'), (snapshot) => {
+        setPageContent(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      }, (err) => handleFirestoreError(err, OperationType.GET, 'page_content'));
+
       return () => {
         unsubEnquiries();
         unsubJobs();
         unsubApps();
         unsubBlogs();
         unsubCategories();
+        unsubLegal();
+        unsubProjects();
+        unsubPageContent();
       };
     }
   }, [isAuthenticated]);
 
+  useEffect(() => {
+    if (activeTab === 'content' && pageContent.length > 0) {
+      if (!editingPageId) {
+        setEditingPageId('home');
+      }
+      const page = pageContent.find(p => p.id === (editingPageId || 'home') || p.pageId === (editingPageId || 'home'));
+      if (page) {
+        setEditingPageData({
+          title: page.title || '',
+          subtitle: page.subtitle || '',
+          content: page.content || '',
+          imageUrl: page.imageUrl || '',
+          sections: page.sections || []
+        });
+      } else {
+        setEditingPageData(null);
+      }
+    }
+  }, [activeTab, editingPageId, pageContent]);
 
   // Login handler
   const handleLogin = (e: React.FormEvent) => {
@@ -335,6 +391,243 @@ export default function AdminPanel() {
     }
   };
 
+  // Legal Handlers
+  const handleSaveLegal = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingLegal?.content) return;
+
+    setIsLoading(true);
+    try {
+      const { setDoc } = await import('firebase/firestore');
+      await setDoc(doc(db, 'legal', legalTab), {
+        ...editingLegal,
+        type: legalTab,
+        lastUpdated: serverTimestamp()
+      }, { merge: true });
+      showToast('Legal Page Updated', 'Changes saved to the secure database.', 'success');
+    } catch (err) {
+      console.error(err);
+      showToast('Save failed', 'Firestore rejection', 'warning');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSaveProject = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newProject.title || !newProject.imageUrl || !newProject.description) {
+      showToast('Form incomplete', 'Required fields missing for project archive.', 'warning');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const projectData = {
+        ...newProject,
+        specs: newProject.specs.filter(s => s.trim() !== ''),
+        timestamp: serverTimestamp()
+      };
+
+      if (editingProjectId) {
+        const { updateDoc } = await import('firebase/firestore');
+        await updateDoc(doc(db, 'projects', editingProjectId), projectData);
+        showToast('Project Updated', 'Blueprint archive successfully re-calibrated.', 'success');
+      } else {
+        await addDoc(collection(db, 'projects'), projectData);
+        showToast('Project Added', 'New project node established in infrastructure.', 'success');
+      }
+      setIsAddingProject(false);
+      setEditingProjectId(null);
+      setNewProject({ title: '', category: 'Aerospace Systems', imageUrl: '', description: '', specs: ['', '', ''] });
+    } catch (err) {
+      showToast('Operation Failed', 'Database write aborted.', 'warning');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteProject = async (id: string) => {
+    if (!window.confirm('Physically remove this project blueprint from archives?')) return;
+    try {
+      await deleteDoc(doc(db, 'projects', id));
+      showToast('Metadata Purged', 'Project archived and removed.', 'info');
+    } catch (err) {
+      showToast('Deletion Failed', 'Node could not be removed.', 'warning');
+    }
+  };
+
+  const initializeProjects = async () => {
+    if (!window.confirm('Seed projects database with default portfolio?')) return;
+    setIsLoading(true);
+    try {
+      const defaultProjects = [
+        {
+          title: 'Structural Aerospace Wing Brackets',
+          category: 'Aerospace Systems',
+          imageUrl: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80',
+          description: 'Generative lightweight bracket layout designed using high-strength structural constraints for commercial aviation.',
+          specs: ['Ti-6Al-4V Titanium', 'Safety limit: >2.8', 'AS9100 Certified']
+        },
+        {
+          title: 'Surveillance Gimbal Payload Housing',
+          category: 'Defense Tech',
+          imageUrl: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=600&q=80',
+          description: 'Sealed dual-axis electro-mechanical camera assembly enclosure designed to resist moisture, high dust, and intensive vibration environments.',
+          specs: ['IP67 Waterproof', 'MIL-STD rugged', 'Al6061-T6 Frame']
+        },
+        {
+          title: 'Multilayer Controlled-Impedance Controller',
+          category: 'Embedded PCBs',
+          imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80',
+          description: '8-layer high-frequency PCB stack designed to process redundant locomotive engine diagnostics without signal loss.',
+          specs: ['8-Layer stack', 'ENIG gold coat', 'Impedance: 90Ω']
+        }
+      ];
+
+      for (const p of defaultProjects) {
+        await addDoc(collection(db, 'projects'), { ...p, timestamp: serverTimestamp() });
+      }
+      showToast('Portfolio Initialized', 'Calibration data successfully populated.', 'success');
+    } catch (err) {
+      showToast('Seeding Failed', 'Database could not be populated.', 'warning');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Content Management Handlers
+  const handleSavePageContent = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingPageData) return;
+    setIsLoading(true);
+    try {
+      const { setDoc } = await import('firebase/firestore');
+      await setDoc(doc(db, 'page_content', editingPageId!), {
+        ...editingPageData,
+        pageId: editingPageId,
+        lastUpdated: serverTimestamp()
+      }, { merge: true });
+      showToast('Page Updated', 'Content successfully synchronized with public servers.', 'success');
+    } catch (err) {
+      showToast('Update Failed', 'Firestore write rejected.', 'warning');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleInitAllPages = async () => {
+    if (!window.confirm('Bootstrap entire website content nodes? This sets baseline data for all pages.')) return;
+    setIsLoading(true);
+    try {
+      const { setDoc } = await import('firebase/firestore');
+      const pages = [
+        { 
+          id: 'home', 
+          pageId: 'home', 
+          title: 'Precision Engineering & Prototyping Hub', 
+          subtitle: 'From sub-micron tolerances to full-scale aerospace assemblies, we bridge the gap between design and physical realization.',
+          content: 'Hasanth Engineering (OPC) Private Limited is a specialized firm dedicated to high-precision manufacturing, electronic prototyping, and mechanical design. Located in the industrial heart of Hyderabad, we serve clients across Aerospace, Defence, and Industrial sectors.',
+          sections: [
+            { id: 'mission', heading: 'Our Industrial Mission', body: 'To provide sovereign engineering capabilities through rigorous design standards and localized manufacturing excellence.' }
+          ]
+        },
+        { 
+          id: 'about', 
+          pageId: 'about', 
+          title: 'About Us', 
+          subtitle: 'Industrial Legacy & Modern Capability',
+          content: 'Synthesizing decades of regional industrial expertise with cutting-edge parametric design tools. Our journey began with a focus on high-tolerance mechanical parts and evolved into a multi-disciplinary engineering powerhouse.',
+          sections: [
+            { id: 'leadership', heading: 'Technical Stewardship', body: 'Led by industry veterans with deep roots in aerospace manufacturing and electronic systems integration.' }
+          ]
+        },
+        {
+          id: 'services',
+          pageId: 'services',
+          title: 'Our Services',
+          subtitle: 'Integrated Engineering Solutions',
+          content: 'Modular service protocols designed for rapid prototyping and scale production. We offer a turnkey approach to product development, from initial CAD drafting to final assembly testing.',
+          sections: [
+            { id: 'mechanical', heading: 'Precision Machining', body: '5-axis CNC capabilities and precision turning for complex aerospace alloys.' }
+          ]
+        },
+        {
+          id: 'research',
+          pageId: 'research',
+          title: 'Research & Innovation',
+          subtitle: 'Pioneering Technological Frontiers',
+          content: 'Our R&D division focuses on smart systems, advanced materials, and industrial automation protocols.',
+          sections: []
+        },
+        {
+          id: 'industries',
+          pageId: 'industries',
+          title: 'Industries We Serve',
+          subtitle: 'Global Domain Expertise',
+          content: 'Providing niche engineering solutions across the most demanding industrial sectors.',
+          sections: []
+        },
+        {
+          id: 'privacy', 
+          pageId: 'privacy', 
+          title: 'Privacy Policy', 
+          subtitle: 'Data Integrity Protocols',
+          content: 'Standard privacy policy regarding technical data safety.',
+          sections: []
+        },
+        {
+          id: 'terms', 
+          pageId: 'terms', 
+          title: 'Terms & Conditions', 
+          subtitle: 'Operational Framework',
+          content: 'Standard terms and conditions for industrial service delivery.',
+          sections: []
+        },
+        {
+          id: 'projects', 
+          pageId: 'projects', 
+          title: 'Projects Division', 
+          subtitle: 'A glimpse of our executed physical setups.',
+          content: 'Portfolio of engineering projects.',
+          sections: []
+        },
+        {
+          id: 'blog', 
+          pageId: 'blog', 
+          title: 'Technical Insights', 
+          subtitle: 'Engineering journals and software reports.',
+          content: 'Engineering knowledge base.',
+          sections: []
+        },
+        {
+          id: 'careers', 
+          pageId: 'careers', 
+          title: 'Careers at Hasanth', 
+          subtitle: 'Join a legacy of high-performance developers.',
+          content: 'Join our team.',
+          sections: []
+        },
+        {
+          id: 'contact', 
+          pageId: 'contact', 
+          title: 'Contact and Location', 
+          subtitle: 'Reach our engineering laboratory in Hyderabad.',
+          content: 'Get in touch with us.',
+          sections: []
+        }
+      ];
+
+      for (const p of pages) {
+        await setDoc(doc(db, 'page_content', p.id), { ...p, lastUpdated: serverTimestamp() });
+      }
+      showToast('Core Reset Complete', 'Website nodes successfully initialized.', 'success');
+    } catch (err) {
+      showToast('Reset Failed', 'Error communicating with database infrastructure.', 'warning');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Preset Template loader
   const handleLoadTemplate = (template: typeof JOB_TEMPLATES[0]) => {
     setNewJob({
@@ -438,72 +731,130 @@ export default function AdminPanel() {
         </header>
 
         {/* Clean Navigation Tabs */}
-        <nav className="flex gap-8 mb-8 border-b border-slate-200">
+        <nav className="flex gap-8 mb-8 border-b border-slate-200 overflow-x-auto pb-1 scrollbar-hide">
+          <button 
+            onClick={() => setActiveTab('dashboard')}
+            className={`pb-3 text-xs font-bold uppercase tracking-widest transition-all relative shrink-0 ${
+              activeTab === 'dashboard' 
+              ? 'text-[#002b5c] border-b-2 border-[#002b5c]' 
+              : 'text-slate-400 hover:text-slate-600'
+            }`}
+          >
+            Dashboard
+          </button>
+          <button 
+            onClick={() => setActiveTab('content')}
+            className={`pb-3 text-xs font-bold uppercase tracking-widest transition-all relative shrink-0 ${
+              activeTab === 'content' 
+              ? 'text-[#002b5c] border-b-2 border-[#002b5c]' 
+              : 'text-slate-400 hover:text-slate-600'
+            }`}
+          >
+            Website Content
+          </button>
           <button 
             onClick={() => setActiveTab('jobs')}
-            className={`pb-3 text-xs font-bold uppercase tracking-widest transition-all relative ${
+            className={`pb-3 text-xs font-bold uppercase tracking-widest transition-all relative shrink-0 ${
               activeTab === 'jobs' 
               ? 'text-[#002b5c] border-b-2 border-[#002b5c]' 
               : 'text-slate-400 hover:text-slate-600'
             }`}
           >
-            Vacancies ({jobs.length})
-          </button>
-          <button 
-            onClick={() => setActiveTab('applications')}
-            className={`pb-3 text-xs font-bold uppercase tracking-widest transition-all relative ${
-              activeTab === 'applications' 
-              ? 'text-[#002b5c] border-b-2 border-[#002b5c]' 
-              : 'text-slate-400 hover:text-slate-600'
-            }`}
-          >
-            Resumes ({applications.length})
+            Open Careers
           </button>
           <button 
             onClick={() => setActiveTab('enquiries')}
-            className={`pb-3 text-xs font-bold uppercase tracking-widest transition-all relative ${
+            className={`pb-3 text-xs font-bold uppercase tracking-widest transition-all relative shrink-0 ${
               activeTab === 'enquiries' 
               ? 'text-[#002b5c] border-b-2 border-[#002b5c]' 
               : 'text-slate-400 hover:text-slate-600'
             }`}
           >
-            Inquiries ({enquiries.length})
+            Business Inquiries
           </button>
+          {/* Applications kept as sub-tab or hidden if requested, but I'll keep it for utility */}
           <button 
-            onClick={() => setActiveTab('blogs')}
-            className={`pb-3 text-xs font-bold uppercase tracking-widest transition-all relative ${
-              activeTab === 'blogs' 
+            onClick={() => setActiveTab('applications')}
+            className={`pb-3 text-xs font-bold uppercase tracking-widest transition-all relative shrink-0 ${
+              activeTab === 'applications' 
               ? 'text-[#002b5c] border-b-2 border-[#002b5c]' 
               : 'text-slate-400 hover:text-slate-600'
             }`}
           >
-            Blogs ({blogs.length})
-          </button>
-          <button 
-            onClick={() => setActiveTab('categories')}
-            className={`pb-3 text-xs font-bold uppercase tracking-widest transition-all relative ${
-              activeTab === 'categories' 
-              ? 'text-[#002b5c] border-b-2 border-[#002b5c]' 
-              : 'text-slate-400 hover:text-slate-600'
-            }`}
-          >
-            Categories ({categories.length})
-          </button>
-          <button 
-            onClick={() => setActiveTab('seo')}
-            className={`pb-3 text-xs font-bold uppercase tracking-widest transition-all relative ${
-              activeTab === 'seo' 
-              ? 'text-[#002b5c] border-b-2 border-[#002b5c]' 
-              : 'text-slate-400 hover:text-slate-600'
-            }`}
-          >
-            SEO & Indexing
+            Candidate Resumes
           </button>
         </nav>
 
         {/* Structured Content Area */}
         <main className="space-y-12">
           
+          {/* TAB 0: DASHBOARD */}
+          {activeTab === 'dashboard' && (
+            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                
+                {/* Widget 1: Content */}
+                <button 
+                  onClick={() => setActiveTab('content')}
+                  className="bg-white p-8 rounded-3xl border border-slate-200 hover:border-[#002b5c]/30 hover:shadow-xl transition-all text-left group"
+                >
+                  <div className="w-12 h-12 bg-blue-50 text-[#002b5c] rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                    <Globe size={24} />
+                  </div>
+                  <h3 className="text-sm font-black uppercase tracking-widest text-[#002b5c] mb-2">Website Content Management</h3>
+                  <p className="text-[11px] text-slate-500 font-medium leading-relaxed">Update hero titles, descriptions, and dynamic page sections across all Balanagar digital nodes.</p>
+                </button>
+
+                {/* Widget 2: Careers */}
+                <button 
+                  onClick={() => setActiveTab('jobs')}
+                  className="bg-white p-8 rounded-3xl border border-slate-200 hover:border-[#002b5c]/30 hover:shadow-xl transition-all text-left group"
+                >
+                  <div className="w-12 h-12 bg-blue-50 text-[#002b5c] rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                    <Briefcase size={24} />
+                  </div>
+                  <h3 className="text-sm font-black uppercase tracking-widest text-[#002b5c] mb-2">Open Careers</h3>
+                  <p className="text-[11px] text-slate-500 font-medium leading-relaxed">Publish new vacancies and manage the local engineering recruitment pipeline ({jobs.length} active).</p>
+                </button>
+
+                {/* Widget 3: Enquiries */}
+                <button 
+                  onClick={() => setActiveTab('enquiries')}
+                  className="bg-white p-8 rounded-3xl border border-slate-200 hover:border-[#002b5c]/30 hover:shadow-xl transition-all text-left group"
+                >
+                  <div className="w-12 h-12 bg-blue-50 text-[#002b5c] rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                    <Mail size={24} />
+                  </div>
+                  <h3 className="text-sm font-black uppercase tracking-widest text-[#002b5c] mb-2">Business Enquiries</h3>
+                  <p className="text-[11px] text-slate-500 font-medium leading-relaxed">Review incoming consultation requests and corporate correspondence ({enquiries.length} logged).</p>
+                </button>
+
+                {/* Widget 4: System Sync */}
+                <button 
+                  onClick={handleReset}
+                  disabled={isLoading}
+                  className="bg-white p-8 rounded-3xl border border-slate-200 hover:border-[#002b5c]/30 hover:shadow-xl transition-all text-left group"
+                >
+                  <div className="w-12 h-12 bg-blue-50 text-[#002b5c] rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                    <RefreshCw size={24} className={isLoading ? 'animate-spin' : ''} />
+                  </div>
+                  <h3 className="text-sm font-black uppercase tracking-widest text-[#002b5c] mb-2">System Reset & Sync</h3>
+                  <p className="text-[11px] text-slate-500 font-medium leading-relaxed">Initialize website nodes and restore default engineering catalogs if data integrity is compromised.</p>
+                </button>
+
+              </div>
+
+              {/* Maintenance placeholder as empty state or info card */}
+              <div className="bg-slate-50 border border-slate-100 rounded-2xl p-6 flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <Activity size={18} className="text-slate-400" />
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Facility System Status: All Nodes Nominal</span>
+                </div>
+                <span className="text-[9px] font-mono text-slate-400 uppercase tracking-widest">Last Sync: {new Date().toLocaleTimeString()}</span>
+              </div>
+            </div>
+          )}
+
           {/* TAB 1: VACANCIES */}
           {activeTab === 'jobs' && (
             <div className="space-y-10 animate-in fade-in duration-500">
@@ -948,163 +1299,337 @@ export default function AdminPanel() {
           </div>
         )}
 
-        {/* TAB 5: CATEGORIES */}
-        {activeTab === 'categories' && (
-          <div className="space-y-8 animate-in fade-in duration-500">
-            <header className="flex items-center justify-between">
-              <h2 className="text-xs font-bold uppercase tracking-widest text-[#002b5c]">Taxonomy Management</h2>
-              <p className="text-[10px] text-slate-400 font-medium">Controlled Nodes: {categories.length}</p>
+        {/* TAB 5-7: REPLACED BY CONTENT MANAGEMENT */}
+        {activeTab === 'content' && (
+          <div className="space-y-10 animate-in fade-in duration-500">
+             <header className="flex items-center justify-between mb-8">
+              <div>
+                <h2 className="text-xs font-bold uppercase tracking-widest text-[#002b5c]">Website Content Management</h2>
+                <p className="text-[10px] text-slate-400 font-medium">Balanagar Facility Digital Core</p>
+              </div>
+              <div className="flex gap-4">
+                {pageContent.length === 0 && (
+                  <button 
+                    onClick={handleInitAllPages}
+                    className="flex items-center gap-2 bg-slate-100 text-slate-600 px-4 py-2 rounded-xl text-xs font-bold hover:bg-slate-200 transition-all border border-slate-200"
+                  >
+                    <RefreshCw size={16} /> Bootstrap Global Nodes
+                  </button>
+                )}
+              </div>
             </header>
 
-            <form onSubmit={handleAddCategory} className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col md:flex-row gap-4 items-end">
-              <div className="flex-1 space-y-1 w-full">
-                <label className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Category Name</label>
-                <input
-                  type="text"
-                  required
-                  value={newCategory.name}
-                  onChange={(e) => {
-                    const name = e.target.value;
-                    const slug = name.toLowerCase().replace(/\s+/g, '-');
-                    setNewCategory({ name, slug });
-                  }}
-                  placeholder="e.g. Avionics Systems"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-800 font-semibold focus:bg-white outline-none"
-                />
-              </div>
-              <div className="flex-1 space-y-1 w-full">
-                <label className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-widest block">URL Slug (Auto)</label>
-                <input
-                  type="text"
-                  readOnly
-                  value={newCategory.slug}
-                  className="w-full bg-slate-100 border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-400 font-mono"
-                />
-              </div>
-              <button
-                type="submit"
-                className="bg-[#002b5c] text-white px-8 h-[42px] rounded-xl text-xs font-black uppercase tracking-widest hover:bg-blue-900 transition-all flex items-center justify-center gap-2"
-              >
-                <Plus size={14} /> Add Node
-              </button>
-            </form>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {categories.map(cat => (
-                <div key={cat.id} className="bg-white p-4 border border-slate-200 rounded-xl flex items-center justify-between shadow-sm group hover:border-[#002b5c]/30 transition-all">
-                  <div>
-                    <h4 className="text-sm font-bold text-slate-800">{cat.name}</h4>
-                    <span className="text-[10px] font-mono text-slate-400">/{cat.slug}</span>
-                  </div>
-                  <button
-                    onClick={() => handleDeleteCategory(cat.id)}
-                    className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all opacity-0 group-hover:opacity-100"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
+          <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
+              {['home', 'about', 'services', 'research', 'industries', 'projects', 'blog', 'careers', 'contact', 'privacy', 'terms'].map((pId) => (
+                <button 
+                  key={pId}
+                  onClick={() => setEditingPageId(pId)}
+                  className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all shrink-0 ${
+                    editingPageId === pId 
+                    ? 'bg-[#002b5c] text-white shadow-lg' 
+                    : 'bg-white text-slate-400 hover:text-slate-600 border border-slate-100'
+                  }`}
+                >
+                  {pId}
+                </button>
               ))}
             </div>
+
+            {editingPageData ? (
+              <form onSubmit={handleSavePageContent} className="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm space-y-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-4">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block px-1">Page Hero Title</label>
+                    <input 
+                      type="text"
+                      className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-3 text-xs font-bold text-slate-800 outline-none focus:border-[#002b5c] focus:bg-white transition-all underline decoration-slate-200"
+                      value={editingPageData.title}
+                      onChange={e => setEditingPageData({...editingPageData, title: e.target.value})}
+                    />
+                  </div>
+                  <div className="space-y-4">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block px-1">Page Subtitle</label>
+                    <input 
+                      type="text"
+                      className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-3 text-xs font-bold text-slate-800 outline-none focus:border-[#002b5c] focus:bg-white transition-all underline decoration-slate-200"
+                      value={editingPageData.subtitle}
+                      onChange={e => setEditingPageData({...editingPageData, subtitle: e.target.value})}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block px-1">Main Narrative / Content</label>
+                  <textarea 
+                    rows={6}
+                    className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-4 text-xs font-medium text-slate-700 leading-relaxed outline-none focus:border-[#002b5c] focus:bg-white transition-all resize-none"
+                    value={editingPageData.content}
+                    onChange={e => setEditingPageData({...editingPageData, content: e.target.value})}
+                  />
+                </div>
+
+                <div className="space-y-4">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block px-1">Background Image URL</label>
+                   <input 
+                    type="text"
+                    className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-3 text-xs font-bold text-slate-800 outline-none focus:border-[#002b5c] focus:bg-white transition-all"
+                    value={editingPageData.imageUrl}
+                    onChange={e => setEditingPageData({...editingPageData, imageUrl: e.target.value})}
+                  />
+                </div>
+
+                <div className="space-y-6 pt-6 border-t border-slate-50">
+                   <div className="flex items-center justify-between">
+                    <h3 className="text-xs font-black uppercase tracking-widest text-slate-900">Custom Page Sections</h3>
+                    <button 
+                      type="button"
+                      onClick={() => setEditingPageData({...editingPageData, sections: [...(editingPageData.sections || []), { id: Math.random().toString(36).substr(2, 9), heading: '', body: '', imageUrl: '' }]})}
+                      className="text-[10px] font-bold text-blue-600 uppercase hover:underline"
+                    >
+                      + Add Section Node
+                    </button>
+                   </div>
+
+                   <div className="grid grid-cols-1 gap-6">
+                      {editingPageData.sections?.map((section: any, idx: number) => (
+                        <div key={idx} className="bg-slate-50/50 border border-slate-100 rounded-2xl p-6 relative group">
+                           <button 
+                            type="button"
+                            onClick={() => {
+                              const newSections = [...editingPageData.sections];
+                              newSections.splice(idx, 1);
+                              setEditingPageData({...editingPageData, sections: newSections});
+                            }}
+                            className="absolute top-4 right-4 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
+                           >
+                            <Trash2 size={14} />
+                           </button>
+                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                              <input 
+                                placeholder="Section Heading"
+                                className="bg-white border border-slate-200 rounded-lg px-4 py-2 text-xs font-bold text-slate-800 outline-none focus:border-[#002b5c]"
+                                value={section.heading}
+                                onChange={e => {
+                                  const newSections = [...editingPageData.sections];
+                                  newSections[idx].heading = e.target.value;
+                                  setEditingPageData({...editingPageData, sections: newSections});
+                                }}
+                              />
+                              <input 
+                                placeholder="Feature Image (Optional)"
+                                className="bg-white border border-slate-200 rounded-lg px-4 py-2 text-xs font-bold text-slate-800 outline-none focus:border-[#002b5c]"
+                                value={section.imageUrl}
+                                onChange={e => {
+                                  const newSections = [...editingPageData.sections];
+                                  newSections[idx].imageUrl = e.target.value;
+                                  setEditingPageData({...editingPageData, sections: newSections});
+                                }}
+                              />
+                           </div>
+                           <textarea 
+                              placeholder="Section Body Content"
+                              rows={3}
+                              className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-xs font-medium text-slate-600 outline-none focus:border-[#002b5c] transition-all resize-none"
+                              value={section.body}
+                              onChange={e => {
+                                const newSections = [...editingPageData.sections];
+                                newSections[idx].body = e.target.value;
+                                setEditingPageData({...editingPageData, sections: newSections});
+                              }}
+                           />
+                        </div>
+                      ))}
+                   </div>
+                </div>
+
+                <div className="pt-8 border-t border-slate-100 flex items-center justify-between">
+                  <p className="text-[10px] text-slate-400 font-medium italic">
+                    Changes to "{editingPageId}" node will be live globally upon synchronization.
+                  </p>
+                  <button 
+                    type="submit"
+                    disabled={isLoading}
+                    className="px-10 py-3.5 bg-[#002b5c] hover:bg-blue-900 text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-xl shadow-blue-900/10 transition-all flex items-center gap-2 active:scale-95 disabled:opacity-50"
+                  >
+                    {isLoading ? <RefreshCw size={14} className="animate-spin" /> : <Check size={14} />}
+                    Sync Page Content
+                  </button>
+                </div>
+              </form>
+            ) : (
+               <div className="p-20 bg-white border border-slate-200 rounded-3xl shadow-sm text-center">
+                <p className="text-sm text-slate-400 font-medium mb-6">No data mapping found for the "{editingPageId}" node.</p>
+                <button 
+                  onClick={handleInitAllPages}
+                  className="px-8 py-3 bg-[#002b5c] text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-blue-900 transition-all shadow-lg"
+                >
+                  Bootstrap Content Infrastructure
+                </button>
+              </div>
+            )}
           </div>
         )}
 
-        {/* TAB 6: SEO & INDEXING */}
-        {activeTab === 'seo' && (
+        {/* TAB 8: PROJECTS */}
+        {activeTab === 'projects' && (
           <div className="space-y-10 animate-in fade-in duration-500">
-            <header className="flex items-center justify-between">
-              <h2 className="text-xs font-bold uppercase tracking-widest text-[#002b5c]">Search Engine Control</h2>
-              <p className="text-[10px] text-slate-400 font-medium">Global Sitemap Mapping Enabled</p>
+            <header className="flex items-center justify-between mb-8">
+              <div>
+                <h2 className="text-xs font-bold uppercase tracking-widest text-[#002b5c]">Corporate Project Portfolios</h2>
+                <p className="text-[10px] text-slate-400 font-medium">Balanagar Engineering Design Core</p>
+              </div>
+              <div className="flex gap-4">
+                {projects.length === 0 && (
+                  <button 
+                    onClick={initializeProjects}
+                    className="flex items-center gap-2 bg-slate-100 text-slate-600 px-4 py-2 rounded-xl text-xs font-bold hover:bg-slate-200 transition-all border border-slate-200"
+                  >
+                    <RefreshCw size={16} /> Seed Default Projects
+                  </button>
+                )}
+                <button 
+                  onClick={() => {
+                    setIsAddingProject(!isAddingProject);
+                    setEditingProjectId(null);
+                    setNewProject({ title: '', category: 'Aerospace Systems', imageUrl: '', description: '', specs: ['', '', ''] });
+                  }}
+                  className="flex items-center gap-2 bg-[#002b5c] text-white px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-blue-900 transition-all shadow-xl shadow-blue-900/10"
+                >
+                  {isAddingProject ? <ArrowLeft size={16} /> : <Plus size={16} />}
+                  {isAddingProject ? 'Back to Archives' : 'Calibrate New Project'}
+                </button>
+              </div>
             </header>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Google Search Console Status */}
-              <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-50 rounded-lg text-[#002b5c]">
-                    <Search size={20} />
+            {isAddingProject ? (
+              <form onSubmit={handleSaveProject} className="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Project Identifier (Title)</label>
+                    <input 
+                      type="text"
+                      className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-3.5 text-xs font-bold text-slate-800 outline-none focus:border-[#002b5c] focus:bg-white transition-all"
+                      value={newProject.title}
+                      onChange={e => setNewProject({...newProject, title: e.target.value})}
+                      placeholder="e.g. Advanced Drone Gimbal Assembly"
+                    />
                   </div>
-                  <div>
-                    <h3 className="text-sm font-bold text-slate-900">Google Search Console</h3>
-                    <span className="text-[10px] text-emerald-600 font-bold uppercase tracking-wider">Configuration Applied</span>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Industry Vertical</label>
+                    <select 
+                      className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-3.5 text-xs font-bold text-slate-800 outline-none focus:border-[#002b5c] focus:bg-white transition-all"
+                      value={newProject.category}
+                      onChange={e => setNewProject({...newProject, category: e.target.value})}
+                    >
+                      <option>Aerospace Systems</option>
+                      <option>Defense Tech</option>
+                      <option>Mechanical CAD</option>
+                      <option>Embedded PCBs</option>
+                      <option>Automation PLCs</option>
+                    </select>
                   </div>
                 </div>
-                <p className="text-xs text-slate-500 leading-relaxed">
-                  The website is configured with valid verification meta tags and a dynamically referenced robots.txt file to assist Google's crawler in traversing the engineering journal.
-                </p>
-                <div className="pt-2">
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Technical Representation (Image URL)</label>
+                  <input 
+                    type="url"
+                    className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-3.5 text-xs font-bold text-slate-800 outline-none focus:border-[#002b5c] focus:bg-white transition-all"
+                    value={newProject.imageUrl}
+                    onChange={e => setNewProject({...newProject, imageUrl: e.target.value})}
+                    placeholder="https://images.unsplash.com/..."
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Project Abstract (Description)</label>
+                  <textarea 
+                    rows={4}
+                    className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-3.5 text-xs font-bold text-slate-800 outline-none focus:border-[#002b5c] focus:bg-white transition-all resize-none"
+                    value={newProject.description}
+                    onChange={e => setNewProject({...newProject, description: e.target.value})}
+                    placeholder="Provide technical overview of the project scope and outcomes..."
+                  />
+                </div>
+
+                <div className="space-y-4">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Parametric Specs (Tag List)</label>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {newProject.specs.map((spec, idx) => (
+                      <input 
+                        key={idx}
+                        type="text"
+                        className="bg-slate-50 border border-slate-100 rounded-xl px-5 py-3 text-[10px] font-black text-[#002b5c] outline-none focus:border-[#002b5c] focus:bg-white transition-all"
+                        value={spec}
+                        onChange={e => {
+                          const newSpecs = [...newProject.specs];
+                          newSpecs[idx] = e.target.value;
+                          setNewProject({...newProject, specs: newSpecs});
+                        }}
+                        placeholder={`Spec ${idx + 1}`}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <div className="pt-6 border-t border-slate-100 flex justify-end gap-4">
                   <button 
-                    onClick={async () => {
-                      setIsLoading(true);
-                      const result = await pingGoogleSearchConsole();
-                      setIsLoading(false);
-                      showToast('Indexing Requested', result.message, 'success');
-                    }}
+                    type="submit"
                     disabled={isLoading}
-                    className="w-full h-10 border border-[#002b5c] text-[#002b5c] rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[#002b5c] hover:text-white transition-all flex items-center justify-center gap-2 group"
+                    className="bg-[#002b5c] text-white px-10 py-3.5 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-blue-900 transition-all shadow-xl shadow-blue-900/10 flex items-center gap-2"
                   >
-                    <Activity size={14} className="group-hover:animate-pulse" />
-                    {isLoading ? 'Requesting Ping...' : 'Submit Indexing Request'}
+                    {isLoading ? <RefreshCw size={14} className="animate-spin" /> : <Check size={14} />}
+                    {editingProjectId ? 'Update Project Node' : 'Initialize Project Archive'}
                   </button>
                 </div>
+              </form>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {projects.map((p) => (
+                  <div key={p.id} className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all group">
+                    <div className="h-40 w-full relative">
+                      <img src={p.imageUrl} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" />
+                      <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button 
+                          onClick={() => {
+                            setIsAddingProject(true);
+                            setEditingProjectId(p.id);
+                            setNewProject({
+                              title: p.title,
+                              category: p.category,
+                              imageUrl: p.imageUrl,
+                              description: p.description,
+                              specs: [...(p.specs || []), '', '', ''].slice(0, 3)
+                            });
+                          }}
+                          className="p-2 bg-white text-blue-600 rounded-lg shadow-lg hover:bg-blue-50 transition-colors"
+                        >
+                          <PenTool size={14} />
+                        </button>
+                        <button 
+                          onClick={() => handleDeleteProject(p.id)}
+                          className="p-2 bg-white text-red-600 rounded-lg shadow-lg hover:bg-red-50 transition-colors"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                      <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-2.5 py-1 rounded-full text-[9px] font-black text-[#002b5c] uppercase tracking-wider shadow-sm">
+                        {p.category}
+                      </div>
+                    </div>
+                    <div className="p-6 space-y-3">
+                      <h3 className="text-sm font-black text-[#002b5c] uppercase leading-tight">{p.title}</h3>
+                      <p className="text-[10px] text-slate-500 font-medium line-clamp-3">{p.description}</p>
+                      <div className="flex flex-wrap gap-1.5 pt-2">
+                        {p.specs?.map((s: string, i: number) => (
+                          <span key={i} className="text-[8px] font-bold bg-slate-50 text-slate-400 px-2 py-0.5 rounded border border-slate-100">{s}</span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
-
-              {/* Google Analytics Status */}
-              <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-pink-50 rounded-lg text-pink-600">
-                    <Activity size={20} />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-bold text-slate-900">Google Analytics (GA4)</h3>
-                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Tracking Integrated</span>
-                  </div>
-                </div>
-                <p className="text-xs text-slate-500 leading-relaxed">
-                  Global tracking scripts (gtag.js) are injected with performance-optimized loading to monitor visitor traffic, engineering paper engagement, and career application flows.
-                </p>
-                <div className="pt-2">
-                  <a 
-                    href="https://analytics.google.com/"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="w-full h-10 border border-slate-200 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all flex items-center justify-center gap-2"
-                  >
-                    <ExternalLink size={14} />
-                    Open Dashboard
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            {/* Sitemap & Meta Preview */}
-            <div className="bg-slate-900 rounded-2xl p-8 text-white relative overflow-hidden">
-              <Globe size={180} className="absolute -bottom-20 -right-20 text-white/5" />
-              <div className="relative z-10 space-y-6">
-                <div>
-                  <h3 className="text-sm font-bold uppercase tracking-wider mb-2">Sitemap Mapping</h3>
-                  <code className="text-[11px] font-mono text-blue-300 block bg-black/30 p-3 rounded-lg border border-white/10 break-all">
-                    URL: https://www.hasanthengineering.co.in/sitemap.xml
-                  </code>
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold uppercase tracking-wider mb-2">Current Page Meta Engine</h3>
-                  <p className="text-xs text-slate-400 max-w-xl leading-relaxed">
-                    Our architectural SEO engine utilizes "react-helmet-async" to inject precision meta tags, canonical URLs, and JSON-LD structured data into the DOM before search engine bots begin their analysis.
-                  </p>
-                </div>
-                <div className="flex flex-wrap gap-4 pt-2">
-                  <div className="flex items-center gap-2 text-[10px] font-mono text-emerald-400">
-                    <CheckCircle size={12} /> Open Graph v3.0
-                  </div>
-                  <div className="flex items-center gap-2 text-[10px] font-mono text-emerald-400">
-                    <CheckCircle size={12} /> Twitter Card Support
-                  </div>
-                  <div className="flex items-center gap-2 text-[10px] font-mono text-emerald-400">
-                    <CheckCircle size={12} /> Schema.org LD-JSON
-                  </div>
-                </div>
-              </div>
-            </div>
+            )}
           </div>
         )}
         </main>
