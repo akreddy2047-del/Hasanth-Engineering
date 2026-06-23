@@ -9,7 +9,6 @@ import { TeamGallery, TeamMember } from './TeamGallery';
 import { MemberProfileModal } from './MemberProfileModal';
 import AutomationFacilityImg from '../assets/images/industrial_automation_facility_1782203090622.jpg';
 import { usePageContent } from '../lib/usePageContent';
-import { DynamicContent } from './DynamicContent';
 
 export default function AboutUsPage() {
   const { data: pageData, loading } = usePageContent('about');
@@ -150,9 +149,6 @@ export default function AboutUsPage() {
         </section>
         </>
       )}
-
-      {/* Dynamic Content from CMS */}
-      <DynamicContent sections={pageData?.sections} content={pageData?.content} />
 
       {/* Vision & Mission Bento Cards */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-24">

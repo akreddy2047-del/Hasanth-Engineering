@@ -5,11 +5,7 @@ import { useToast } from '../hooks/useToast';
 import { db, handleFirestoreError, OperationType } from '../lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
-import { usePageContent } from '../lib/usePageContent';
-import { DynamicContent } from './DynamicContent';
-
 export default function ContactSection() {
-  const { data: pageData } = usePageContent('contact');
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
   const [sent, setSent] = useState(false);
   const { showToast } = useToast();
@@ -57,8 +53,6 @@ export default function ContactSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-16">
         
         {/* Section Header */}
-        <DynamicContent sections={pageData?.sections} content={pageData?.content} />
-
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}

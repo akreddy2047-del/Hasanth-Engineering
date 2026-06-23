@@ -6,11 +6,7 @@ import {
 } from 'lucide-react';
 import SEO from './SEO';
 
-import { usePageContent } from '../lib/usePageContent';
-import { DynamicContent } from './DynamicContent';
-
 export default function ResearchPage() {
-  const { data: pageData, loading } = usePageContent('research');
   const focusAreas = [
     {
       title: 'AI Integrated Engineering Systems',
@@ -79,9 +75,6 @@ export default function ResearchPage() {
         schema={researchSchema}
       />
       
-      {/* Dynamic Content from CMS */}
-      <DynamicContent sections={pageData?.sections} content={pageData?.content} />
-
       {/* Focus Areas Grid */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-24 space-y-16">
         <div className="text-center space-y-3">

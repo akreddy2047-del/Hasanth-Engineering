@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db, handleFirestoreError, OperationType } from '../lib/firebase';
-import { collection, addDoc, getDocs, deleteDoc, doc, setDoc, query, orderBy, onSnapshot, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, onSnapshot, serverTimestamp } from 'firebase/firestore';
 import { 
   Lock, CheckCircle, Trash2, Plus, Briefcase, FileText, Mail, 
   MapPin, Clock, Calendar, Shield, LogOut, ChevronRight, RefreshCw, AlertCircle, Download, Zap, PenTool, ArrowLeft,
@@ -69,7 +69,7 @@ export default function AdminPanel() {
   const [legalPages, setLegalPages] = useState<any[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
   const [pageContent, setPageContent] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'jobs' | 'applications' | 'enquiries' | 'blogs' | 'projects' | 'content'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'jobs' | 'applications' | 'enquiries' | 'blogs' | 'projects' | 'content'>('jobs');
   
   // Content Management State
   const [editingPageId, setEditingPageId] = useState<string | null>(null);
@@ -123,8 +123,7 @@ export default function AdminPanel() {
       const unsubEnquiries = onSnapshot(query(collection(db, 'enquiries'), orderBy('timestamp', 'desc')), (snapshot) => {
         setEnquiries(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
         setIsLoading(false);
-      }, (err) => handleFirestoreError(err, OperationType.GET, 'enquiries'));
-
+      });
       const unsubJobs = onSnapshot(collection(db, 'jobs'), (snapshot) => {
         const fetchedJobs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         const uniqueJobs: any[] = [];
@@ -134,45 +133,39 @@ export default function AdminPanel() {
           if (!seen.has(key)) {
             seen.add(key);
             uniqueJobs.push(jb);
+          } else {
+            // Optional: If you want active cleanup of duplicates, you could delete it here
+            // deleteDoc(doc(db, 'jobs', jb.id));
           }
         });
         setJobs(uniqueJobs);
         setIsLoading(false);
-      }, (err) => handleFirestoreError(err, OperationType.GET, 'jobs'));
-
+      });
       const unsubApps = onSnapshot(query(collection(db, 'applications'), orderBy('timestamp', 'desc')), (snapshot) => {
         setApplications(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
         setIsLoading(false);
-      }, (err) => handleFirestoreError(err, OperationType.GET, 'applications'));
-
+      });
       const unsubBlogs = onSnapshot(query(collection(db, 'blogs'), orderBy('timestamp', 'desc')), (snapshot) => {
         setBlogs(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
         setIsLoading(false);
-      }, (err) => handleFirestoreError(err, OperationType.GET, 'blogs'));
-
+      });
       const unsubCategories = onSnapshot(query(collection(db, 'blog_categories'), orderBy('timestamp', 'desc')), (snapshot) => {
         setCategories(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-      }, (err) => handleFirestoreError(err, OperationType.GET, 'blog_categories'));
-
+      });
       const unsubLegal = onSnapshot(collection(db, 'legal'), (snapshot) => {
         setLegalPages(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-      }, (err) => handleFirestoreError(err, OperationType.GET, 'legal'));
-
+      });
       const unsubProjects = onSnapshot(query(collection(db, 'projects'), orderBy('timestamp', 'desc')), (snapshot) => {
         setProjects(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-      }, (err) => handleFirestoreError(err, OperationType.GET, 'projects'));
-
+      });
       const unsubPageContent = onSnapshot(collection(db, 'page_content'), (snapshot) => {
         setPageContent(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-      }, (err) => handleFirestoreError(err, OperationType.GET, 'page_content'));
-
+      });
       return () => {
         unsubEnquiries();
         unsubJobs();
         unsubApps();
         unsubBlogs();
-        unsubCategories();
-        unsubLegal();
         unsubProjects();
         unsubPageContent();
       };
@@ -184,7 +177,7 @@ export default function AdminPanel() {
       if (!editingPageId) {
         setEditingPageId('home');
       }
-      const page = pageContent.find(p => p.id === (editingPageId || 'home') || p.pageId === (editingPageId || 'home'));
+      const page = pageContent.find(p => p.id === (editingPageId || 'home'));
       if (page) {
         setEditingPageData({
           title: page.title || '',
@@ -193,8 +186,6 @@ export default function AdminPanel() {
           imageUrl: page.imageUrl || '',
           sections: page.sections || []
         });
-      } else {
-        setEditingPageData(null);
       }
     }
   }, [activeTab, editingPageId, pageContent]);
@@ -221,43 +212,6 @@ export default function AdminPanel() {
     setIsAuthenticated(false);
     sessionStorage.removeItem('hasanth_admin_auth');
     showToast('Logged Out', 'Secure session terminated successfully.', 'info');
-  };
-
-  // System Reset & Sync
-  const handleReset = async () => {
-    if (!window.confirm('WARNING: This will reset all localized Page Content to engineering defaults. Proceed with synchronization?')) return;
-    
-    setIsLoading(true);
-    try {
-      const defaultPages = [
-        { id: 'home', title: 'Hasanth Engineering', subtitle: 'Advanced Systems, Mechanical Assemblies & Aerospace Support', content: 'Leading industrial innovation in Hyderabad since mission inception.', sections: [] },
-        { id: 'about', title: 'About Hasanth', subtitle: 'Our Legacy of Precision', content: 'Built on the foundation of technical excellence and mechanical integrity.', sections: [] },
-        { id: 'services', title: 'Service Directory', subtitle: 'Modular Engineering Solutions', content: 'Comprehensive support from CAD drafting to fleet diagnostics.', sections: [] },
-        { id: 'research', title: 'R&D Division', subtitle: 'The Future of Motion', content: 'Pioneering new standards in robotics and automation systems.', sections: [] },
-        { id: 'industries', title: 'Strategic Sectors', subtitle: 'Global Industrial Impact', content: 'Serving Aerospace, Defense, and Heavy Manufacturing nodes.', sections: [] },
-        { id: 'projects', title: 'Project Portfolio', subtitle: 'Executed Physical Assemblies', content: 'Archive of our complex engineering deployments.', sections: [] },
-        { id: 'blog', title: 'Technical Journals', subtitle: 'Engineering Knowlege Base', content: 'Latest reports from the laboratory floor.', sections: [] },
-        { id: 'careers', title: 'Talent Acquisition', subtitle: 'Join the Core Team', content: 'Seeking high-performance individuals for the engineering nodes.', sections: [] },
-        { id: 'contact', title: 'Node Locations', subtitle: 'Reach Our Facilities', content: 'Direct correspondence channels for business enquiries.', sections: [] },
-        { id: 'privacy', title: 'Privacy Protocols', subtitle: 'Data Safety Standards', content: 'Our commitment to information security.', sections: [] },
-        { id: 'terms', title: 'Service Terms', subtitle: 'Operational Framework', content: 'Legal guidelines for corporate engagement.', sections: [] }
-      ];
-
-      for (const page of defaultPages) {
-        await setDoc(doc(db, 'page_content', page.id), {
-          ...page,
-          pageId: page.id,
-          timestamp: serverTimestamp()
-        });
-      }
-
-      showToast('System Synchronized', 'All website nodes restored to factory defaults.', 'success');
-    } catch (error) {
-      console.error(error);
-      showToast('Sync Failed', 'Firestore write rejected during synchronization.', 'warning');
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   // Add job
@@ -571,9 +525,9 @@ export default function AdminPanel() {
         { 
           id: 'about', 
           pageId: 'about', 
-          title: 'About Us', 
-          subtitle: 'Industrial Legacy & Modern Capability',
-          content: 'Synthesizing decades of regional industrial expertise with cutting-edge parametric design tools. Our journey began with a focus on high-tolerance mechanical parts and evolved into a multi-disciplinary engineering powerhouse.',
+          title: 'Industrial Legacy & Modern Capability', 
+          subtitle: 'Synthesizing decades of regional industrial expertise with cutting-edge parametric design tools.',
+          content: 'Our journey began with a focus on high-tolerance mechanical parts and evolved into a multi-disciplinary engineering powerhouse.',
           sections: [
             { id: 'leadership', heading: 'Technical Stewardship', body: 'Led by industry veterans with deep roots in aerospace manufacturing and electronic systems integration.' }
           ]
@@ -581,76 +535,12 @@ export default function AdminPanel() {
         {
           id: 'services',
           pageId: 'services',
-          title: 'Our Services',
-          subtitle: 'Integrated Engineering Solutions',
-          content: 'Modular service protocols designed for rapid prototyping and scale production. We offer a turnkey approach to product development, from initial CAD drafting to final assembly testing.',
+          title: 'Integrated Engineering Solutions',
+          subtitle: 'Modular service protocols designed for rapid prototyping and scale production.',
+          content: 'We offer a turnkey approach to product development, from initial CAD drafting to final assembly testing.',
           sections: [
             { id: 'mechanical', heading: 'Precision Machining', body: '5-axis CNC capabilities and precision turning for complex aerospace alloys.' }
           ]
-        },
-        {
-          id: 'research',
-          pageId: 'research',
-          title: 'Research & Innovation',
-          subtitle: 'Pioneering Technological Frontiers',
-          content: 'Our R&D division focuses on smart systems, advanced materials, and industrial automation protocols.',
-          sections: []
-        },
-        {
-          id: 'industries',
-          pageId: 'industries',
-          title: 'Industries We Serve',
-          subtitle: 'Global Domain Expertise',
-          content: 'Providing niche engineering solutions across the most demanding industrial sectors.',
-          sections: []
-        },
-        {
-          id: 'privacy', 
-          pageId: 'privacy', 
-          title: 'Privacy Policy', 
-          subtitle: 'Data Integrity Protocols',
-          content: 'Standard privacy policy regarding technical data safety.',
-          sections: []
-        },
-        {
-          id: 'terms', 
-          pageId: 'terms', 
-          title: 'Terms & Conditions', 
-          subtitle: 'Operational Framework',
-          content: 'Standard terms and conditions for industrial service delivery.',
-          sections: []
-        },
-        {
-          id: 'projects', 
-          pageId: 'projects', 
-          title: 'Projects Division', 
-          subtitle: 'A glimpse of our executed physical setups.',
-          content: 'Portfolio of engineering projects.',
-          sections: []
-        },
-        {
-          id: 'blog', 
-          pageId: 'blog', 
-          title: 'Technical Insights', 
-          subtitle: 'Engineering journals and software reports.',
-          content: 'Engineering knowledge base.',
-          sections: []
-        },
-        {
-          id: 'careers', 
-          pageId: 'careers', 
-          title: 'Careers at Hasanth', 
-          subtitle: 'Join a legacy of high-performance developers.',
-          content: 'Join our team.',
-          sections: []
-        },
-        {
-          id: 'contact', 
-          pageId: 'contact', 
-          title: 'Contact and Location', 
-          subtitle: 'Reach our engineering laboratory in Hyderabad.',
-          content: 'Get in touch with us.',
-          sections: []
         }
       ];
 
@@ -768,130 +658,72 @@ export default function AdminPanel() {
         </header>
 
         {/* Clean Navigation Tabs */}
-        <nav className="flex gap-8 mb-8 border-b border-slate-200 overflow-x-auto pb-1 scrollbar-hide">
-          <button 
-            onClick={() => setActiveTab('dashboard')}
-            className={`pb-3 text-xs font-bold uppercase tracking-widest transition-all relative shrink-0 ${
-              activeTab === 'dashboard' 
-              ? 'text-[#002b5c] border-b-2 border-[#002b5c]' 
-              : 'text-slate-400 hover:text-slate-600'
-            }`}
-          >
-            Dashboard
-          </button>
-          <button 
-            onClick={() => setActiveTab('content')}
-            className={`pb-3 text-xs font-bold uppercase tracking-widest transition-all relative shrink-0 ${
-              activeTab === 'content' 
-              ? 'text-[#002b5c] border-b-2 border-[#002b5c]' 
-              : 'text-slate-400 hover:text-slate-600'
-            }`}
-          >
-            Website Content
-          </button>
+        <nav className="flex gap-8 mb-8 border-b border-slate-200">
           <button 
             onClick={() => setActiveTab('jobs')}
-            className={`pb-3 text-xs font-bold uppercase tracking-widest transition-all relative shrink-0 ${
+            className={`pb-3 text-xs font-bold uppercase tracking-widest transition-all relative ${
               activeTab === 'jobs' 
               ? 'text-[#002b5c] border-b-2 border-[#002b5c]' 
               : 'text-slate-400 hover:text-slate-600'
             }`}
           >
-            Open Careers
+            Vacancies ({jobs.length})
           </button>
-          <button 
-            onClick={() => setActiveTab('enquiries')}
-            className={`pb-3 text-xs font-bold uppercase tracking-widest transition-all relative shrink-0 ${
-              activeTab === 'enquiries' 
-              ? 'text-[#002b5c] border-b-2 border-[#002b5c]' 
-              : 'text-slate-400 hover:text-slate-600'
-            }`}
-          >
-            Business Inquiries
-          </button>
-          {/* Applications kept as sub-tab or hidden if requested, but I'll keep it for utility */}
           <button 
             onClick={() => setActiveTab('applications')}
-            className={`pb-3 text-xs font-bold uppercase tracking-widest transition-all relative shrink-0 ${
+            className={`pb-3 text-xs font-bold uppercase tracking-widest transition-all relative ${
               activeTab === 'applications' 
               ? 'text-[#002b5c] border-b-2 border-[#002b5c]' 
               : 'text-slate-400 hover:text-slate-600'
             }`}
           >
-            Candidate Resumes
+            Resumes ({applications.length})
+          </button>
+          <button 
+            onClick={() => setActiveTab('enquiries')}
+            className={`pb-3 text-xs font-bold uppercase tracking-widest transition-all relative ${
+              activeTab === 'enquiries' 
+              ? 'text-[#002b5c] border-b-2 border-[#002b5c]' 
+              : 'text-slate-400 hover:text-slate-600'
+            }`}
+          >
+            Inquiries ({enquiries.length})
+          </button>
+          <button 
+            onClick={() => setActiveTab('blogs')}
+            className={`pb-3 text-xs font-bold uppercase tracking-widest transition-all relative ${
+              activeTab === 'blogs' 
+              ? 'text-[#002b5c] border-b-2 border-[#002b5c]' 
+              : 'text-slate-400 hover:text-slate-600'
+            }`}
+          >
+            Blogs ({blogs.length})
+          </button>
+          <button 
+            onClick={() => setActiveTab('projects')}
+            className={`pb-3 text-xs font-bold uppercase tracking-widest transition-all relative ${
+              activeTab === 'projects' 
+              ? 'text-[#002b5c] border-b-2 border-[#002b5c]' 
+              : 'text-slate-400 hover:text-slate-600'
+            }`}
+          >
+            Projects ({projects.length})
+          </button>
+          <button 
+            onClick={() => setActiveTab('content')}
+            className={`pb-3 text-xs font-bold uppercase tracking-widest transition-all relative ${
+              activeTab === 'content' 
+              ? 'text-[#002b5c] border-b-2 border-[#002b5c]' 
+              : 'text-slate-400 hover:text-slate-600'
+            }`}
+          >
+            Page Content ({pageContent.length})
           </button>
         </nav>
 
         {/* Structured Content Area */}
         <main className="space-y-12">
           
-          {/* TAB 0: DASHBOARD */}
-          {activeTab === 'dashboard' && (
-            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                
-                {/* Widget 1: Content */}
-                <button 
-                  onClick={() => setActiveTab('content')}
-                  className="bg-white p-8 rounded-3xl border border-slate-200 hover:border-[#002b5c]/30 hover:shadow-xl transition-all text-left group"
-                >
-                  <div className="w-12 h-12 bg-blue-50 text-[#002b5c] rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                    <Globe size={24} />
-                  </div>
-                  <h3 className="text-sm font-black uppercase tracking-widest text-[#002b5c] mb-2">Website Content Management</h3>
-                  <p className="text-[11px] text-slate-500 font-medium leading-relaxed">Update hero titles, descriptions, and dynamic page sections across all Balanagar digital nodes.</p>
-                </button>
-
-                {/* Widget 2: Careers */}
-                <button 
-                  onClick={() => setActiveTab('jobs')}
-                  className="bg-white p-8 rounded-3xl border border-slate-200 hover:border-[#002b5c]/30 hover:shadow-xl transition-all text-left group"
-                >
-                  <div className="w-12 h-12 bg-blue-50 text-[#002b5c] rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                    <Briefcase size={24} />
-                  </div>
-                  <h3 className="text-sm font-black uppercase tracking-widest text-[#002b5c] mb-2">Open Careers</h3>
-                  <p className="text-[11px] text-slate-500 font-medium leading-relaxed">Publish new vacancies and manage the local engineering recruitment pipeline ({jobs.length} active).</p>
-                </button>
-
-                {/* Widget 3: Enquiries */}
-                <button 
-                  onClick={() => setActiveTab('enquiries')}
-                  className="bg-white p-8 rounded-3xl border border-slate-200 hover:border-[#002b5c]/30 hover:shadow-xl transition-all text-left group"
-                >
-                  <div className="w-12 h-12 bg-blue-50 text-[#002b5c] rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                    <Mail size={24} />
-                  </div>
-                  <h3 className="text-sm font-black uppercase tracking-widest text-[#002b5c] mb-2">Business Enquiries</h3>
-                  <p className="text-[11px] text-slate-500 font-medium leading-relaxed">Review incoming consultation requests and corporate correspondence ({enquiries.length} logged).</p>
-                </button>
-
-                {/* Widget 4: System Sync */}
-                <button 
-                  onClick={handleReset}
-                  disabled={isLoading}
-                  className="bg-white p-8 rounded-3xl border border-slate-200 hover:border-[#002b5c]/30 hover:shadow-xl transition-all text-left group"
-                >
-                  <div className="w-12 h-12 bg-blue-50 text-[#002b5c] rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                    <RefreshCw size={24} className={isLoading ? 'animate-spin' : ''} />
-                  </div>
-                  <h3 className="text-sm font-black uppercase tracking-widest text-[#002b5c] mb-2">System Reset & Sync</h3>
-                  <p className="text-[11px] text-slate-500 font-medium leading-relaxed">Initialize website nodes and restore default engineering catalogs if data integrity is compromised.</p>
-                </button>
-
-              </div>
-
-              {/* Maintenance placeholder as empty state or info card */}
-              <div className="bg-slate-50 border border-slate-100 rounded-2xl p-6 flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <Activity size={18} className="text-slate-400" />
-                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Facility System Status: All Nodes Nominal</span>
-                </div>
-                <span className="text-[9px] font-mono text-slate-400 uppercase tracking-widest">Last Sync: {new Date().toLocaleTimeString()}</span>
-              </div>
-            </div>
-          )}
-
           {/* TAB 1: VACANCIES */}
           {activeTab === 'jobs' && (
             <div className="space-y-10 animate-in fade-in duration-500">
@@ -1356,8 +1188,8 @@ export default function AdminPanel() {
               </div>
             </header>
 
-          <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
-              {['home', 'about', 'services', 'research', 'industries', 'projects', 'blog', 'careers', 'contact', 'privacy', 'terms'].map((pId) => (
+            <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
+              {['home', 'about', 'services', 'research', 'industries', 'privacy', 'terms'].map((pId) => (
                 <button 
                   key={pId}
                   onClick={() => setEditingPageId(pId)}

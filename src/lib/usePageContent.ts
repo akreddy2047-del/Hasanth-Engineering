@@ -23,17 +23,10 @@ export function usePageContent(pageId: string) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!pageId || pageId === '') {
-      setLoading(false);
-      return;
-    }
     const unsub = onSnapshot(doc(db, 'page_content', pageId), (docSnap) => {
       if (docSnap.exists()) {
         setData(docSnap.data() as PageData);
       }
-      setLoading(false);
-    }, (error) => {
-      console.error(`Error loading page content for ${pageId}:`, error);
       setLoading(false);
     });
     return () => unsub();

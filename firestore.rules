@@ -1,63 +1,162 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // 1. Global Safety Net
     match /{document=**} {
       allow read, write: if false;
     }
-
-    // 2. Validation Helpers
-    function incoming() { return request.resource.data; }
-    function existing() { return resource.data; }
-    function isAuth() { return request.auth != null; }
-
-    // 3. Collection Rules
     
-    // Jobs & Vacancies
+    function incoming() { return request.resource.data; }
+    function isValidString(val, maxLen) { return val is string && val.size() <= maxLen; }
+
     match /jobs/{jobId} {
       allow read: if true;
-      allow write: if true; // In production, this should be isAuth() but for preview we keep it open for reset
+      
+      function isValidJob(data) {
+        return data.keys().hasAll(['title', 'type', 'location', 'exp', 'desc', 'skills', 'timestamp'])
+          && data.keys().size() == 7
+          && isValidString(data.title, 200)
+          && isValidString(data.type, 100)
+          && isValidString(data.location, 200)
+          && isValidString(data.exp, 200)
+          && isValidString(data.desc, 10000)
+          && data.skills is list
+          && data.skills.size() <= 50;
+      }
+      
+      allow create: if isValidJob(incoming());
+      allow update: if isValidJob(incoming());
+      allow delete: if true;
     }
 
-    // Enquiries
+    match /applications/{applicationId} {
+      allow read: if true;
+      
+      function isValidApplication(data) {
+        return data.keys().hasAll(['jobId', 'applicantName', 'applicantEmail', 'timestamp'])
+          && data.keys().size() >= 4 && data.keys().size() <= 9
+          && isValidString(data.jobId, 200)
+          && isValidString(data.applicantName, 200)
+          && isValidString(data.applicantEmail, 200)
+          && (!("applicantPhone" in data.keys()) || isValidString(data.applicantPhone, 50))
+          && (!("coverLetter" in data.keys()) || isValidString(data.coverLetter, 5000))
+          && (!("portfolioLink" in data.keys()) || isValidString(data.portfolioLink, 500))
+          && (!("resumeName" in data.keys()) || data.resumeName == null || isValidString(data.resumeName, 200))
+          && (!("resumeData" in data.keys()) || data.resumeData == null || isValidString(data.resumeData, 2000000));
+      }
+      
+      allow create: if isValidApplication(incoming());
+      allow update: if isValidApplication(incoming());
+      allow delete: if true;
+    }
+
     match /enquiries/{enquiryId} {
-      allow create: if true;
-      allow read, update, delete: if true;
+      allow read: if true;
+      
+      function isValidEnquiry(data) {
+        return data.keys().hasAll(['applicantName', 'applicantEmail', 'subject', 'message', 'timestamp'])
+          && isValidString(data.applicantName, 500)
+          && isValidString(data.applicantEmail, 500)
+          && isValidString(data.subject, 1000)
+          && isValidString(data.message, 20000)
+          && (!('type' in data.keys()) || isValidString(data.type, 100))
+          && (!('phone' in data.keys()) || isValidString(data.phone, 100))
+          && (!('company' in data.keys()) || isValidString(data.company, 500))
+          && (!('industry' in data.keys()) || isValidString(data.industry, 200))
+          && (!('serviceType' in data.keys()) || isValidString(data.serviceType, 500));
+      }
+      
+      allow create: if isValidEnquiry(incoming());
+      allow update: if isValidEnquiry(incoming());
+      allow delete: if true;
     }
 
-    // Applications
-    match /applications/{appId} {
-      allow create: if true;
-      allow read, update, delete: if true;
-    }
-
-    // Blogs
     match /blogs/{blogId} {
       allow read: if true;
-      allow write: if true;
+      
+      function isValidBlog(data) {
+        return data.keys().hasAll(['title', 'excerpt', 'content', 'category', 'readingTime', 'timestamp', 'status'])
+          && data.keys().size() >= 7 && data.keys().size() <= 11
+          && isValidString(data.title, 2000)
+          && isValidString(data.excerpt, 5000)
+          && isValidString(data.content, 1000000)
+          && isValidString(data.category, 500)
+          && isValidString(data.readingTime, 200)
+          && isValidString(data.status, 50)
+          && (!('featured' in data.keys()) || data.featured is bool)
+          && (!('author' in data.keys()) || isValidString(data.author, 500))
+          && (!('date' in data.keys()) || isValidString(data.date, 200))
+          && (!('bgUrl' in data.keys()) || isValidString(data.bgUrl, 2000));
+      }
+      
+      allow create: if isValidBlog(incoming());
+      allow update: if isValidBlog(incoming());
+      allow delete: if true;
     }
-    
+
     match /blog_categories/{categoryId} {
       allow read: if true;
-      allow write: if true;
+      
+      function isValidCategory(data) {
+        return data.keys().hasAll(['name', 'slug', 'timestamp'])
+          && data.keys().size() == 3
+          && isValidString(data.name, 100)
+          && isValidString(data.slug, 100);
+      }
+      
+      allow create: if isValidCategory(incoming());
+      allow update: if isValidCategory(incoming());
+      allow delete: if true;
     }
 
-    // Legal Documents
-    match /legal/{pageId} {
+    match /legal/{pageType} {
       allow read: if true;
-      allow write: if true;
+      
+      function isValidLegal(data) {
+        return data.keys().hasAll(['type', 'content', 'lastUpdated', 'sections'])
+          && isValidString(data.type, 50)
+          && isValidString(data.content, 10000)
+          && data.sections is list
+          && data.sections.size() <= 20;
+      }
+      
+      allow create: if isValidLegal(incoming());
+      allow update: if isValidLegal(incoming());
+      allow delete: if true;
     }
 
-    // Projects
     match /projects/{projectId} {
       allow read: if true;
-      allow write: if true;
+      
+      function isValidProject(data) {
+        return data.keys().hasAll(['title', 'category', 'imageUrl', 'description', 'specs', 'timestamp'])
+          && isValidString(data.title, 200)
+          && isValidString(data.category, 50)
+          && isValidString(data.imageUrl, 500)
+          && isValidString(data.description, 1000)
+          && data.specs is list
+          && data.specs.size() <= 6;
+      }
+      
+      allow create: if isValidProject(incoming());
+      allow update: if isValidProject(incoming());
+      allow delete: if true;
     }
 
-    // CMS Page Content
     match /page_content/{pageId} {
       allow read: if true;
-      allow write: if true;
+      
+      function isValidPageContent(data) {
+        return data.keys().hasAll(['pageId', 'lastUpdated'])
+          && isValidString(data.pageId, 100)
+          && (!('title' in data.keys()) || isValidString(data.title, 500))
+          && (!('subtitle' in data.keys()) || isValidString(data.subtitle, 1000))
+          && (!('content' in data.keys()) || isValidString(data.content, 50000))
+          && (!('imageUrl' in data.keys()) || isValidString(data.imageUrl, 1000))
+          && (!('sections' in data.keys()) || data.sections is list);
+      }
+      
+      allow create, update: if isValidPageContent(incoming());
+      allow delete: if true;
     }
   }
 }

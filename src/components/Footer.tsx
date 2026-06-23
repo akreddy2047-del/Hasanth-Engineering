@@ -82,9 +82,9 @@ export default function Footer({ onOpenConsultation, onPageChange }: FooterProps
               {/* Column 2 */}
               <div className="flex flex-col gap-3">
                 {[
-                  { id: 'jobs', label: 'Careers' },
-                  { id: 'privacy', label: 'Privacy Policy' },
-                  { id: 'terms', label: 'T&C' },
+                  { id: 'industries', label: 'Industries' },
+                  { id: 'careers', label: 'Careers' },
+                  { id: 'blog', label: 'Blog' },
                   { id: 'contact', label: 'Contact' },
                 ].map((item) => (
                   <button

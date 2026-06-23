@@ -3,11 +3,7 @@ import { motion } from 'motion/react';
 import { Factory, Cpu, Compass } from 'lucide-react';
 import EngineeringLabImg from '../assets/images/engineering_lab_high_tech_1782203074469.jpg';
 
-import { usePageContent } from '../lib/usePageContent';
-
 export default function WhoWeAre() {
-  const { data: pageData } = usePageContent('home');
-  const missionSection = pageData?.sections?.find(s => s.id === 'mission');
 
   return (
     <section id="about" className="relative py-24 bg-slate-50 font-sans scroll-mt-20 border-b border-slate-100 overflow-hidden">
@@ -28,7 +24,7 @@ export default function WhoWeAre() {
             <div className="relative rounded-2xl overflow-hidden border border-slate-200/60 shadow-xl group">
               <div className="absolute inset-0 bg-slate-950/20 group-hover:bg-slate-950/10 transition-colors duration-500 z-10" />
               <img 
-                src={pageData?.imageUrl || EngineeringLabImg} 
+                src={EngineeringLabImg} 
                 loading="lazy"
                 alt="Hasanth Prototyping Laboratory" 
                 className="w-full h-[380px] md:h-[480px] object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
@@ -61,22 +57,13 @@ export default function WhoWeAre() {
                 ENGINEERING STANDARDS
               </span>
               <h2 className="text-3xl sm:text-4xl font-sans font-semibold text-slate-900 uppercase tracking-tight leading-none">
-                {missionSection?.heading ? (
-                  <>
-                    {missionSection.heading.split(' ').slice(0, 2).join(' ')} <br />
-                    <span className="text-[#0056b3]">{missionSection.heading.split(' ').slice(2).join(' ')}</span>
-                  </>
-                ) : (
-                  <>
-                    End-To-End Development <br />
-                    <span className="text-[#0056b3]">With Absolute Rigor</span>
-                  </>
-                )}
+                End-To-End Development <br />
+                <span className="text-[#0056b3]">With Absolute Rigor</span>
               </h2>
             </motion.div>
 
             <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-sans font-medium">
-              {missionSection?.body || "We translate abstract blueprint criteria into ready physical components. By bridging raw electronic CAD models with active CNC shop floor tooling, we minimize sub-contractor coordination errors on-site."}
+              We translate abstract blueprint criteria into ready physical components. By bridging raw electronic CAD models with active CNC shop floor tooling, we minimize sub-contractor coordination errors on-site.
             </p>
 
             {/* Structured Value Points */}

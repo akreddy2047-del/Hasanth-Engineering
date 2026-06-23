@@ -7,11 +7,7 @@ import SEO from './SEO';
 import { InteractiveCard } from './InteractiveCard';
 import { ScrollEntrance, StaggerContainer, StaggerItem } from './ScrollEntrance';
 
-import { usePageContent } from '../lib/usePageContent';
-import { DynamicContent } from './DynamicContent';
-
 export default function ProjectsPage() {
-  const { data: pageData } = usePageContent('projects');
   const [activeCategory, setActiveCategory] = useState('All');
   const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -69,8 +65,7 @@ export default function ProjectsPage() {
         schema={projectsSchema}
       />
       
-      {/* Dynamic Content from CMS */}
-      <DynamicContent sections={pageData?.sections} content={pageData?.content} />
+
 
       {/* Main Container */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 space-y-12">

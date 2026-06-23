@@ -76,11 +76,7 @@ By optimizing the model using multi-axis pocket milling instead of generic brack
   }
 ];
 
-import { usePageContent } from '../lib/usePageContent';
-import { DynamicContent } from './DynamicContent';
-
 export default function BlogPage() {
-  const { data: pageData } = usePageContent('blog');
   const [posts, setPosts] = useState<any[]>([]);
   const [selectedPost, setSelectedPost] = useState<number | null>(null);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
@@ -128,9 +124,6 @@ export default function BlogPage() {
         });
         setPosts(sorted);
       }
-    }, (error) => {
-      console.error("Error fetching blogs: ", error);
-      setPosts(INITIAL_POSTS);
     });
 
     return () => unsubscribe();
@@ -256,9 +249,6 @@ export default function BlogPage() {
       />
       
 
-
-      {/* Dynamic Content from CMS */}
-      <DynamicContent sections={pageData?.sections} content={pageData?.content} />
 
       {/* Blog Contents Block */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-16">

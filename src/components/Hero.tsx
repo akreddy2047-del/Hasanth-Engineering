@@ -10,10 +10,7 @@ interface HeroProps {
   onPageChange?: (pageId: string) => void;
 }
 
-import { usePageContent } from '../lib/usePageContent';
-
 export default function Hero({ onOpenConsultation, onPageChange }: HeroProps) {
-  const { data: pageData } = usePageContent('home');
   const [imageLoaded, setImageLoaded] = useState(false);
   
   const handleExploreClick = (e: React.MouseEvent) => {
@@ -72,26 +69,17 @@ export default function Hero({ onOpenConsultation, onPageChange }: HeroProps) {
             </div>
 
             <h1 className="text-3xl sm:text-5xl md:text-6xl font-sans tracking-tight text-white leading-[1.12] uppercase font-black">
-              {pageData?.title ? (
-                <>
-                  {pageData.title.split(' & ')[0]} <br />
-                  <span className="text-white font-sans">{pageData.title.split(' & ')[1] || 'ENGINEERING'}</span>
-                </>
-              ) : (
-                <>
-                  HASANTH <br />
-                  <span className="text-white font-sans">ENGINEERING</span>
-                </>
-              )} <br />
+              HASANTH <br />
+              <span className="text-white font-sans">ENGINEERING</span> <br />
               <span className="text-xs sm:text-sm md:text-base font-sans font-medium tracking-tight text-blue-300 block normal-case mt-3.5 leading-relaxed">
-                {pageData?.subtitle || "\"Designing Tomorrow's Engineering Solutions Today.\""}
+                "Designing Tomorrow's Engineering Solutions Today."
               </span>
             </h1>
 
             <div className="space-y-4">
               <div className="flex flex-col gap-1.5 pt-1 text-slate-200 font-sans">
                 <div className="text-sm sm:text-base font-medium tracking-wide text-white">
-                  {pageData?.content?.split('. ')[0] || "One Team. Multiple Technologies. Infinite Possibilities."}
+                  One Team. Multiple Technologies. Infinite Possibilities.
                 </div>
                 <div className="text-xs sm:text-sm font-semibold text-blue-300 tracking-wide flex items-center gap-1.5 flex-wrap">
                   <span>Mechanical</span>
@@ -105,7 +93,7 @@ export default function Hero({ onOpenConsultation, onPageChange }: HeroProps) {
               </div>
               
               <p className="text-xs sm:text-sm text-white/90 font-sans leading-relaxed max-w-xl">
-                {pageData?.content || "Innovative multidisciplinary engineering providing advanced solutions in Mechanical Design, Electronics development, Aerospace systems, UAVs, and intelligent smart Automation."}
+                Innovative multidisciplinary engineering providing advanced solutions in Mechanical Design, Electronics development, Aerospace systems, UAVs, and intelligent smart Automation.
               </p>
             </div>
 

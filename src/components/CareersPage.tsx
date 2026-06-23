@@ -11,11 +11,7 @@ import { useToast } from '../hooks/useToast';
 import { db } from '../lib/firebase';
 import { collection, onSnapshot, addDoc, serverTimestamp, query, orderBy } from 'firebase/firestore';
 
-import { usePageContent } from '../lib/usePageContent';
-import { DynamicContent } from './DynamicContent';
-
 export default function CareersPage() {
-  const { data: pageData } = usePageContent('careers');
   const [copied, setCopied] = useState(false);
   const { showToast } = useToast();
   const [jobs, setJobs] = useState<any[]>([]);
@@ -51,7 +47,6 @@ export default function CareersPage() {
       },
       (error) => {
         console.error("Error fetching careers: ", error);
-        // Fail gracefully, maybe set empty or keep old state
       }
     );
     return () => unsub();
@@ -138,9 +133,6 @@ export default function CareersPage() {
         keywords="Hasanth Careers, firmware developer jobs Hyderabad, mechanical engineering jobs Balanagar, UAV internship"
         schema={careersSchema}
       />
-
-      {/* Dynamic Content from CMS */}
-      <DynamicContent sections={pageData?.sections} content={pageData?.content} />
 
       {/* Main Jobs Listings Core */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">

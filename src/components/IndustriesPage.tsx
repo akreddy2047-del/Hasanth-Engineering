@@ -9,11 +9,7 @@ import { InteractiveCard } from './InteractiveCard';
 import { ScrollEntrance, StaggerContainer, StaggerItem } from './ScrollEntrance';
 import EnergyImg from '../assets/images/energy_grid_telemetry_1782203163686.jpg';
 
-import { usePageContent } from '../lib/usePageContent';
-import { DynamicContent } from './DynamicContent';
-
 export default function IndustriesPage() {
-  const { data: pageData, loading } = usePageContent('industries');
   const industries = [
     {
       title: 'Manufacturing',
@@ -111,9 +107,6 @@ export default function IndustriesPage() {
       />
       
 
-
-      {/* Dynamic Content from CMS */}
-      <DynamicContent sections={pageData?.sections} content={pageData?.content} />
 
       {/* Section Header: Side-by-Side Architectural Layout */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-20 mb-16">
