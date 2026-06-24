@@ -612,28 +612,6 @@ export default function AdminPanel() {
     }
   };
 
-  const initializeMetrics = async () => {
-    if (!window.confirm('Seed trust metrics with default values?')) return;
-    setIsLoading(true);
-    try {
-      const defaultMetrics = [
-        { value: '15+', label: 'Years Experience', desc: 'Reliable engineering execution since 2023', order: 0 },
-        { value: '10+', label: 'Projects Supported', desc: 'From custom controllers to complex test rigs', order: 1 },
-        { value: '10+', label: 'Manufacturing Partners', desc: 'Robust vendors and supply networks established', order: 2 },
-        { value: '100%', label: 'Quality Standards', desc: 'Rigorous compliance checking processes', order: 3 },
-      ];
-
-      for (const m of defaultMetrics) {
-        await addDoc(collection(db, 'trust_metrics'), { ...m, timestamp: serverTimestamp() });
-      }
-      showToast('Metrics Initialized', 'Calibration data successfully populated.', 'success');
-    } catch (err) {
-      showToast('Seeding Failed', 'Database could not be populated.', 'warning');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   // Preset Template loader
   const handleLoadTemplate = (template: typeof JOB_TEMPLATES[0]) => {
     setNewJob({
@@ -1600,14 +1578,6 @@ export default function AdminPanel() {
                 <p className="text-[10px] text-slate-400 font-medium">Balanagar Facility Performance Indicators</p>
               </div>
               <div className="flex gap-4">
-                {trustMetrics.length === 0 && (
-                  <button 
-                    onClick={initializeMetrics}
-                    className="flex items-center gap-2 bg-slate-100 text-slate-600 px-4 py-2 rounded-xl text-xs font-bold hover:bg-slate-200 transition-all border border-slate-200"
-                  >
-                    <RefreshCw size={16} /> Seed Default Metrics
-                  </button>
-                )}
                 <button 
                   onClick={() => {
                     setIsAddingMetric(!isAddingMetric);
@@ -1617,7 +1587,7 @@ export default function AdminPanel() {
                   className="flex items-center gap-2 bg-[#002b5c] text-white px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-blue-900 transition-all shadow-xl shadow-blue-900/10"
                 >
                   {isAddingMetric ? <ArrowLeft size={16} /> : <Plus size={16} />}
-                  {isAddingMetric ? 'Back to Ledger' : 'Calibrate New Metric'}
+                  {isAddingMetric ? 'Back to Ledger' : 'Add New Metric'}
                 </button>
               </div>
             </header>
@@ -1675,7 +1645,7 @@ export default function AdminPanel() {
                     className="bg-[#002b5c] text-white px-10 py-3.5 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-blue-900 transition-all shadow-xl shadow-blue-900/10 flex items-center gap-2"
                   >
                     {isLoading ? <RefreshCw size={14} className="animate-spin" /> : <Check size={14} />}
-                    {editingMetricId ? 'Update Metric Node' : 'Initialize Trust Metric'}
+                    {editingMetricId ? 'Update Metric' : 'Save Metric'}
                   </button>
                 </div>
               </form>

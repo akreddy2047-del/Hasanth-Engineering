@@ -4,12 +4,7 @@ import { db, handleFirestoreError, OperationType } from '../lib/firebase';
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 
 export default function TrustMetrics() {
-  const [metrics, setMetrics] = useState([
-    { value: '15+', label: 'Years Experience', desc: 'Reliable engineering execution since 2023' },
-    { value: '10+', label: 'Projects Supported', desc: 'From custom controllers to complex test rigs' },
-    { value: '10+', label: 'Manufacturing Partners', desc: 'Robust vendors and supply networks established' },
-    { value: '100%', label: 'Quality Standards', desc: 'Rigorous compliance checking processes' },
-  ]);
+  const [metrics, setMetrics] = useState<any[]>([]);
 
   useEffect(() => {
     const q = query(collection(db, 'trust_metrics'), orderBy('order', 'asc'));

@@ -48,12 +48,12 @@ export default function Footer({ onOpenConsultation, onPageChange }: FooterProps
                   HASANTH ENGINEERING
                 </span>
                 <span className="text-white/85 font-sans text-[9px] uppercase tracking-wider mt-1.5 font-semibold">
-                  (OPC) PVT LTD • ESTD 2016
+                  (OPC) PVT LTD • ESTD 2023
                 </span>
               </div>
             </div>
             <p className="text-xs text-white/80 max-w-sm leading-relaxed font-sans font-semibold">
-              Complete high-precision design, electronic physical layouts, and mechanical engineering solutions from conceptual designs to integrated mass fabrication. R&D headquarters and laboratory at Balanagar, Hyderabad since 2016.
+              Complete high-precision design, electronic physical layouts, and mechanical engineering solutions from conceptual designs to integrated mass fabrication. R&D headquarters and laboratory at Balanagar, Hyderabad since 2023.
             </p>
           </div>
 
