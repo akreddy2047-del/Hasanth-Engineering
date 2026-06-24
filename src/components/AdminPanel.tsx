@@ -4,7 +4,8 @@ import { collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, onSnapshot
 import { 
   Lock, CheckCircle, Trash2, Plus, Briefcase, FileText, Mail, 
   MapPin, Clock, Calendar, Shield, LogOut, ChevronRight, RefreshCw, AlertCircle, Download, Zap, PenTool, ArrowLeft,
-  Share2, Link, Check, Twitter, Linkedin, Radio, CheckCircle2, ExternalLink, Activity, Search, Globe, User
+  Share2, Link, Check, Twitter, Linkedin, Radio, CheckCircle2, ExternalLink, Activity, Search, Globe, User,
+  BarChart, Settings, MessageCircle, Save
 } from 'lucide-react';
 import { useToast } from '../hooks/useToast';
 import { pingGoogleSearchConsole } from '../utils/searchConsolePing';
@@ -70,8 +71,13 @@ export default function AdminPanel() {
   const [projects, setProjects] = useState<any[]>([]);
   const [pageContent, setPageContent] = useState<any[]>([]);
   const [trustMetrics, setTrustMetrics] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'jobs' | 'applications' | 'enquiries' | 'blogs' | 'projects' | 'content' | 'metrics'>('jobs');
+  const [activeTab, setActiveTab] = useState<'jobs' | 'applications' | 'enquiries' | 'blogs' | 'projects' | 'content' | 'metrics' | 'settings'>('jobs');
   
+  // Site Configuration State
+  const [siteConfig, setSiteConfig] = useState<any>({
+    whatsappNumber: '8187044238',
+    whatsappMessage: 'Hello, I am looking to schedule an industrial engineering consultation with HASANTH ENGINEERING. Please connect me with a designer.'
+  });
   // Content Management State
   const [editingPageId, setEditingPageId] = useState<string | null>(null);
   const [editingPageData, setEditingPageData] = useState<any>(null);
@@ -175,6 +181,11 @@ export default function AdminPanel() {
       const unsubMetrics = onSnapshot(query(collection(db, 'trust_metrics'), orderBy('order', 'asc')), (snapshot) => {
         setTrustMetrics(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
       }, (error) => handleFirestoreError(error, OperationType.LIST, 'trust_metrics'));
+      const unsubConfig = onSnapshot(doc(db, 'site_config', 'global'), (snapshot) => {
+        if (snapshot.exists()) {
+          setSiteConfig(snapshot.data());
+        }
+      });
       return () => {
         unsubEnquiries();
         unsubJobs();
@@ -183,6 +194,7 @@ export default function AdminPanel() {
         unsubProjects();
         unsubPageContent();
         unsubMetrics();
+        unsubConfig();
       };
     }
   }, [isAuthenticated]);
@@ -462,45 +474,6 @@ export default function AdminPanel() {
     }
   };
 
-  const initializeProjects = async () => {
-    if (!window.confirm('Seed projects database with default portfolio?')) return;
-    setIsLoading(true);
-    try {
-      const defaultProjects = [
-        {
-          title: 'Structural Aerospace Wing Brackets',
-          category: 'Aerospace Systems',
-          imageUrl: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80',
-          description: 'Generative lightweight bracket layout designed using high-strength structural constraints for commercial aviation.',
-          specs: ['Ti-6Al-4V Titanium', 'Safety limit: >2.8', 'AS9100 Certified']
-        },
-        {
-          title: 'Surveillance Gimbal Payload Housing',
-          category: 'Defense Tech',
-          imageUrl: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=600&q=80',
-          description: 'Sealed dual-axis electro-mechanical camera assembly enclosure designed to resist moisture, high dust, and intensive vibration environments.',
-          specs: ['IP67 Waterproof', 'MIL-STD rugged', 'Al6061-T6 Frame']
-        },
-        {
-          title: 'Multilayer Controlled-Impedance Controller',
-          category: 'Embedded PCBs',
-          imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80',
-          description: '8-layer high-frequency PCB stack designed to process redundant locomotive engine diagnostics without signal loss.',
-          specs: ['8-Layer stack', 'ENIG gold coat', 'Impedance: 90Ω']
-        }
-      ];
-
-      for (const p of defaultProjects) {
-        await addDoc(collection(db, 'projects'), { ...p, timestamp: serverTimestamp() });
-      }
-      showToast('Portfolio Initialized', 'Calibration data successfully populated.', 'success');
-    } catch (err) {
-      showToast('Seeding Failed', 'Database could not be populated.', 'warning');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   // Content Management Handlers
   const handleSavePageContent = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -516,55 +489,6 @@ export default function AdminPanel() {
       showToast('Page Updated', 'Content successfully synchronized with public servers.', 'success');
     } catch (err) {
       showToast('Update Failed', 'Firestore write rejected.', 'warning');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleInitAllPages = async () => {
-    if (!window.confirm('Bootstrap entire website content nodes? This sets baseline data for all pages.')) return;
-    setIsLoading(true);
-    try {
-      const { setDoc } = await import('firebase/firestore');
-      const pages = [
-        { 
-          id: 'home', 
-          pageId: 'home', 
-          title: 'Precision Engineering & Prototyping Hub', 
-          subtitle: 'From sub-micron tolerances to full-scale aerospace assemblies, we bridge the gap between design and physical realization.',
-          content: 'Hasanth Engineering (OPC) Private Limited is a specialized firm dedicated to high-precision manufacturing, electronic prototyping, and mechanical design. Located in the industrial heart of Hyderabad, we serve clients across Aerospace, Defence, and Industrial sectors.',
-          sections: [
-            { id: 'mission', heading: 'Our Industrial Mission', body: 'To provide sovereign engineering capabilities through rigorous design standards and localized manufacturing excellence.' }
-          ]
-        },
-        { 
-          id: 'about', 
-          pageId: 'about', 
-          title: 'Industrial Legacy & Modern Capability', 
-          subtitle: 'Synthesizing decades of regional industrial expertise with cutting-edge parametric design tools.',
-          content: 'Our journey began with a focus on high-tolerance mechanical parts and evolved into a multi-disciplinary engineering powerhouse.',
-          sections: [
-            { id: 'leadership', heading: 'Technical Stewardship', body: 'Led by industry veterans with deep roots in aerospace manufacturing and electronic systems integration.' }
-          ]
-        },
-        {
-          id: 'services',
-          pageId: 'services',
-          title: 'Integrated Engineering Solutions',
-          subtitle: 'Modular service protocols designed for rapid prototyping and scale production.',
-          content: 'We offer a turnkey approach to product development, from initial CAD drafting to final assembly testing.',
-          sections: [
-            { id: 'mechanical', heading: 'Precision Machining', body: '5-axis CNC capabilities and precision turning for complex aerospace alloys.' }
-          ]
-        }
-      ];
-
-      for (const p of pages) {
-        await setDoc(doc(db, 'page_content', p.id), { ...p, lastUpdated: serverTimestamp() });
-      }
-      showToast('Core Reset Complete', 'Website nodes successfully initialized.', 'success');
-    } catch (err) {
-      showToast('Reset Failed', 'Error communicating with database infrastructure.', 'warning');
     } finally {
       setIsLoading(false);
     }
@@ -609,6 +533,24 @@ export default function AdminPanel() {
       showToast('Metric Purged', 'Trust metric removed from database.', 'info');
     } catch (err) {
       showToast('Deletion Failed', 'Node could not be removed.', 'warning');
+    }
+  };
+
+  // Save site config
+  const handleSaveSiteConfig = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    try {
+      const { setDoc } = await import('firebase/firestore');
+      await setDoc(doc(db, 'site_config', 'global'), {
+        ...siteConfig,
+        lastUpdated: serverTimestamp()
+      });
+      showToast('Settings Updated', 'Global configuration nodes have been recalibrated.', 'success');
+    } catch (err) {
+      showToast('Sync Failed', 'Could not transmit configuration to database.', 'warning');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -785,6 +727,16 @@ export default function AdminPanel() {
             }`}
           >
             Trust Metrics ({trustMetrics.length})
+          </button>
+          <button 
+            onClick={() => setActiveTab('settings')}
+            className={`pb-3 text-xs font-bold uppercase tracking-widest transition-all relative ${
+              activeTab === 'settings' 
+              ? 'text-[#002b5c] border-b-2 border-[#002b5c]' 
+              : 'text-slate-400 hover:text-slate-600'
+            }`}
+          >
+            Site Settings
           </button>
         </nav>
 
@@ -1244,14 +1196,6 @@ export default function AdminPanel() {
                 <p className="text-[10px] text-slate-400 font-medium">Balanagar Facility Digital Core</p>
               </div>
               <div className="flex gap-4">
-                {pageContent.length === 0 && (
-                  <button 
-                    onClick={handleInitAllPages}
-                    className="flex items-center gap-2 bg-slate-100 text-slate-600 px-4 py-2 rounded-xl text-xs font-bold hover:bg-slate-200 transition-all border border-slate-200"
-                  >
-                    <RefreshCw size={16} /> Bootstrap Global Nodes
-                  </button>
-                )}
               </div>
             </header>
 
@@ -1395,12 +1339,6 @@ export default function AdminPanel() {
             ) : (
                <div className="p-20 bg-white border border-slate-200 rounded-3xl shadow-sm text-center">
                 <p className="text-sm text-slate-400 font-medium mb-6">No data mapping found for the "{editingPageId}" node.</p>
-                <button 
-                  onClick={handleInitAllPages}
-                  className="px-8 py-3 bg-[#002b5c] text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-blue-900 transition-all shadow-lg"
-                >
-                  Bootstrap Content Infrastructure
-                </button>
               </div>
             )}
           </div>
@@ -1415,14 +1353,6 @@ export default function AdminPanel() {
                 <p className="text-[10px] text-slate-400 font-medium">Balanagar Engineering Design Core</p>
               </div>
               <div className="flex gap-4">
-                {projects.length === 0 && (
-                  <button 
-                    onClick={initializeProjects}
-                    className="flex items-center gap-2 bg-slate-100 text-slate-600 px-4 py-2 rounded-xl text-xs font-bold hover:bg-slate-200 transition-all border border-slate-200"
-                  >
-                    <RefreshCw size={16} /> Seed Default Projects
-                  </button>
-                )}
                 <button 
                   onClick={() => {
                     setIsAddingProject(!isAddingProject);
@@ -1690,6 +1620,67 @@ export default function AdminPanel() {
                 ))}
               </div>
             )}
+          </div>
+        )}
+
+        {/* TAB 10: SITE SETTINGS */}
+        {activeTab === 'settings' && (
+          <div className="space-y-10 animate-in fade-in duration-500">
+            <header className="mb-8">
+              <h2 className="text-xs font-bold uppercase tracking-widest text-[#002b5c]">Global System Configuration</h2>
+              <p className="text-[10px] text-slate-400 font-medium">Calibrate operational parameters and support nodes</p>
+            </header>
+
+            <div className="max-w-3xl">
+              <form onSubmit={handleSaveSiteConfig} className="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm space-y-8">
+                <div className="space-y-6">
+                  <div className="flex items-center gap-4 mb-2">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 border border-emerald-100">
+                      <MessageCircle size={20} />
+                    </div>
+                    <div>
+                      <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest">WhatsApp Support Channel</h3>
+                      <p className="text-[10px] text-slate-500 font-medium">Configure the active support line and pre-filled message</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">WhatsApp Phone Number</label>
+                      <input 
+                        type="text"
+                        className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-3.5 text-xs font-bold text-slate-800 outline-none focus:border-[#002b5c] focus:bg-white transition-all"
+                        value={siteConfig.whatsappNumber}
+                        onChange={e => setSiteConfig({...siteConfig, whatsappNumber: e.target.value})}
+                        placeholder="e.g. 918328903031"
+                      />
+                      <p className="text-[9px] text-slate-400 px-1">Include country code without '+' or spaces (e.g. 91 for India)</p>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Active Message Preset</label>
+                      <textarea 
+                        rows={4}
+                        className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-3.5 text-xs font-bold text-slate-800 outline-none focus:border-[#002b5c] focus:bg-white transition-all resize-none"
+                        value={siteConfig.whatsappMessage}
+                        onChange={e => setSiteConfig({...siteConfig, whatsappMessage: e.target.value})}
+                        placeholder="Default greeting message..."
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-6 border-t border-slate-100 flex justify-end">
+                  <button 
+                    type="submit"
+                    disabled={isLoading}
+                    className="bg-[#002b5c] text-white px-10 py-3.5 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-blue-900 transition-all shadow-xl shadow-blue-900/10 flex items-center gap-2"
+                  >
+                    {isLoading ? <RefreshCw size={14} className="animate-spin" /> : <Save size={14} />}
+                    Update Global Config
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         )}
         </main>

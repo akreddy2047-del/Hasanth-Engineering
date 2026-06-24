@@ -173,5 +173,17 @@ service cloud.firestore {
       allow create, update: if isValidMetric(incoming());
       allow delete: if true;
     }
+
+    match /site_config/{configId} {
+      allow read: if true;
+      
+      function isValidConfig(data) {
+        return (!('whatsappNumber' in data.keys()) || isValidString(data.whatsappNumber, 50))
+          && (!('whatsappMessage' in data.keys()) || isValidString(data.whatsappMessage, 1000));
+      }
+      
+      allow create, update: if isValidConfig(incoming());
+      allow delete: if true;
+    }
   }
 }

@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Send, CheckCircle, Cpu, Shield, Zap, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useToast } from '../hooks/useToast';
 import { db, handleFirestoreError, OperationType } from '../lib/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, doc, onSnapshot } from 'firebase/firestore';
 
 interface ConsultationModalProps {
   isOpen: boolean;
@@ -236,16 +236,30 @@ export function ConsultationModal({ isOpen, onClose }: ConsultationModalProps) {
 }
 
 export function StickyWhatsApp() {
+  const [config, setConfig] = useState({
+    whatsappNumber: '8187044238',
+    whatsappMessage: 'Hello, I am looking to schedule an industrial engineering consultation with HASANTH ENGINEERING. Please connect me with a designer.'
+  });
+
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, 'site_config', 'global'), (snapshot) => {
+      if (snapshot.exists()) {
+        setConfig(snapshot.data() as any);
+      }
+    });
+    return () => unsub();
+  }, []);
+
   const openWhatsApp = () => {
-    const textMsg = encodeURIComponent("Hello, I am looking to schedule an industrial engineering consultation with HASANTH ENGINEERING. Please connect me with a designer.");
-    window.open(`https://wa.me/918328903031?text=${textMsg}`, '_blank');
+    const textMsg = encodeURIComponent(config.whatsappMessage);
+    window.open(`https://wa.me/${config.whatsappNumber}?text=${textMsg}`, '_blank');
   };
 
   return (
     <div className="fixed bottom-6 right-6 z-40">
       <button
         onClick={openWhatsApp}
-        className="w-12 h-12 rounded-full bg-[#0056b3] text-white flex items-center justify-center shadow-lg cursor-pointer"
+        className="w-12 h-12 rounded-full bg-[#0056b3] text-white flex items-center justify-center shadow-lg cursor-pointer hover:scale-110 transition-transform duration-300"
         title="WhatsApp Support"
         id="widget-whatsapp"
       >
