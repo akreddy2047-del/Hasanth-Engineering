@@ -144,6 +144,19 @@
         "lastUpdated": { "type": "string", "format": "date-time" }
       },
       "required": ["pageId", "lastUpdated"]
+    },
+    "TrustMetric": {
+      "title": "Trust Metric",
+      "description": "Key performance indicators or trust metrics shown on the home page.",
+      "type": "object",
+      "properties": {
+        "value": { "type": "string" },
+        "label": { "type": "string" },
+        "desc": { "type": "string" },
+        "order": { "type": "number" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["value", "label", "desc", "timestamp"]
     }
   },
   "firestore": {
@@ -178,6 +191,10 @@
     "/page_content/{pageId}": {
       "schema": "PageContent",
       "description": "Website page content management"
+    },
+    "/trust_metrics/{metricId}": {
+      "schema": "TrustMetric",
+      "description": "Home page trust metrics"
     }
   }
 }

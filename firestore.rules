@@ -158,5 +158,20 @@ service cloud.firestore {
       allow create, update: if isValidPageContent(incoming());
       allow delete: if true;
     }
+
+    match /trust_metrics/{metricId} {
+      allow read: if true;
+      
+      function isValidMetric(data) {
+        return data.keys().hasAll(['value', 'label', 'desc', 'timestamp'])
+          && isValidString(data.value, 100)
+          && isValidString(data.label, 200)
+          && isValidString(data.desc, 500)
+          && (!('order' in data.keys()) || data.order is number);
+      }
+      
+      allow create, update: if isValidMetric(incoming());
+      allow delete: if true;
+    }
   }
 }

@@ -69,7 +69,8 @@ export default function AdminPanel() {
   const [legalPages, setLegalPages] = useState<any[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
   const [pageContent, setPageContent] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'jobs' | 'applications' | 'enquiries' | 'blogs' | 'projects' | 'content'>('jobs');
+  const [trustMetrics, setTrustMetrics] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState<'jobs' | 'applications' | 'enquiries' | 'blogs' | 'projects' | 'content' | 'metrics'>('jobs');
   
   // Content Management State
   const [editingPageId, setEditingPageId] = useState<string | null>(null);
@@ -84,6 +85,16 @@ export default function AdminPanel() {
     imageUrl: '',
     description: '',
     specs: ['', '', '']
+  });
+
+  // Trust Metrics Management State
+  const [isAddingMetric, setIsAddingMetric] = useState(false);
+  const [editingMetricId, setEditingMetricId] = useState<string | null>(null);
+  const [newMetric, setNewMetric] = useState({
+    value: '',
+    label: '',
+    desc: '',
+    order: 0
   });
   
   // Legal Management State
@@ -123,7 +134,7 @@ export default function AdminPanel() {
       const unsubEnquiries = onSnapshot(query(collection(db, 'enquiries'), orderBy('timestamp', 'desc')), (snapshot) => {
         setEnquiries(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
         setIsLoading(false);
-      });
+      }, (error) => handleFirestoreError(error, OperationType.LIST, 'enquiries'));
       const unsubJobs = onSnapshot(collection(db, 'jobs'), (snapshot) => {
         const fetchedJobs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         const uniqueJobs: any[] = [];
@@ -140,27 +151,30 @@ export default function AdminPanel() {
         });
         setJobs(uniqueJobs);
         setIsLoading(false);
-      });
+      }, (error) => handleFirestoreError(error, OperationType.LIST, 'jobs'));
       const unsubApps = onSnapshot(query(collection(db, 'applications'), orderBy('timestamp', 'desc')), (snapshot) => {
         setApplications(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
         setIsLoading(false);
-      });
+      }, (error) => handleFirestoreError(error, OperationType.LIST, 'applications'));
       const unsubBlogs = onSnapshot(query(collection(db, 'blogs'), orderBy('timestamp', 'desc')), (snapshot) => {
         setBlogs(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
         setIsLoading(false);
-      });
+      }, (error) => handleFirestoreError(error, OperationType.LIST, 'blogs'));
       const unsubCategories = onSnapshot(query(collection(db, 'blog_categories'), orderBy('timestamp', 'desc')), (snapshot) => {
         setCategories(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-      });
+      }, (error) => handleFirestoreError(error, OperationType.LIST, 'blog_categories'));
       const unsubLegal = onSnapshot(collection(db, 'legal'), (snapshot) => {
         setLegalPages(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-      });
+      }, (error) => handleFirestoreError(error, OperationType.LIST, 'legal'));
       const unsubProjects = onSnapshot(query(collection(db, 'projects'), orderBy('timestamp', 'desc')), (snapshot) => {
         setProjects(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-      });
+      }, (error) => handleFirestoreError(error, OperationType.LIST, 'projects'));
       const unsubPageContent = onSnapshot(collection(db, 'page_content'), (snapshot) => {
         setPageContent(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-      });
+      }, (error) => handleFirestoreError(error, OperationType.LIST, 'page_content'));
+      const unsubMetrics = onSnapshot(query(collection(db, 'trust_metrics'), orderBy('order', 'asc')), (snapshot) => {
+        setTrustMetrics(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      }, (error) => handleFirestoreError(error, OperationType.LIST, 'trust_metrics'));
       return () => {
         unsubEnquiries();
         unsubJobs();
@@ -168,6 +182,7 @@ export default function AdminPanel() {
         unsubBlogs();
         unsubProjects();
         unsubPageContent();
+        unsubMetrics();
       };
     }
   }, [isAuthenticated]);
@@ -555,6 +570,70 @@ export default function AdminPanel() {
     }
   };
 
+  const handleSaveMetric = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newMetric.value || !newMetric.label || !newMetric.desc) {
+      showToast('Form incomplete', 'Required fields missing for metric.', 'warning');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const metricData = {
+        ...newMetric,
+        timestamp: serverTimestamp()
+      };
+
+      if (editingMetricId) {
+        const { updateDoc } = await import('firebase/firestore');
+        await updateDoc(doc(db, 'trust_metrics', editingMetricId), metricData);
+        showToast('Metric Updated', 'Trust metric successfully calibrated.', 'success');
+      } else {
+        await addDoc(collection(db, 'trust_metrics'), metricData);
+        showToast('Metric Added', 'New trust metric node established.', 'success');
+      }
+      setIsAddingMetric(false);
+      setEditingMetricId(null);
+      setNewMetric({ value: '', label: '', desc: '', order: trustMetrics.length });
+    } catch (err) {
+      showToast('Operation Failed', 'Database write aborted.', 'warning');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteMetric = async (id: string) => {
+    if (!window.confirm('Permanently delete this trust metric?')) return;
+    try {
+      await deleteDoc(doc(db, 'trust_metrics', id));
+      showToast('Metric Purged', 'Trust metric removed from database.', 'info');
+    } catch (err) {
+      showToast('Deletion Failed', 'Node could not be removed.', 'warning');
+    }
+  };
+
+  const initializeMetrics = async () => {
+    if (!window.confirm('Seed trust metrics with default values?')) return;
+    setIsLoading(true);
+    try {
+      const defaultMetrics = [
+        { value: '15+', label: 'Years Experience', desc: 'Reliable engineering execution since 2023', order: 0 },
+        { value: '10+', label: 'Projects Supported', desc: 'From custom controllers to complex test rigs', order: 1 },
+        { value: '10+', label: 'Manufacturing Partners', desc: 'Robust vendors and supply networks established', order: 2 },
+        { value: '100%', label: 'Quality Standards', desc: 'Rigorous compliance checking processes', order: 3 },
+      ];
+
+      for (const m of defaultMetrics) {
+        await addDoc(collection(db, 'trust_metrics'), { ...m, timestamp: serverTimestamp() });
+      }
+      showToast('Metrics Initialized', 'Calibration data successfully populated.', 'success');
+    } catch (err) {
+      showToast('Seeding Failed', 'Database could not be populated.', 'warning');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Preset Template loader
   const handleLoadTemplate = (template: typeof JOB_TEMPLATES[0]) => {
     setNewJob({
@@ -718,6 +797,16 @@ export default function AdminPanel() {
             }`}
           >
             Page Content ({pageContent.length})
+          </button>
+          <button 
+            onClick={() => setActiveTab('metrics')}
+            className={`pb-3 text-xs font-bold uppercase tracking-widest transition-all relative ${
+              activeTab === 'metrics' 
+              ? 'text-[#002b5c] border-b-2 border-[#002b5c]' 
+              : 'text-slate-400 hover:text-slate-600'
+            }`}
+          >
+            Trust Metrics ({trustMetrics.length})
           </button>
         </nav>
 
@@ -1494,6 +1583,138 @@ export default function AdminPanel() {
                           <span key={i} className="text-[8px] font-bold bg-slate-50 text-slate-400 px-2 py-0.5 rounded border border-slate-100">{s}</span>
                         ))}
                       </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* TAB 9: TRUST METRICS */}
+        {activeTab === 'metrics' && (
+          <div className="space-y-10 animate-in fade-in duration-500">
+            <header className="flex items-center justify-between mb-8">
+              <div>
+                <h2 className="text-xs font-bold uppercase tracking-widest text-[#002b5c]">Corporate Trust Metrics</h2>
+                <p className="text-[10px] text-slate-400 font-medium">Balanagar Facility Performance Indicators</p>
+              </div>
+              <div className="flex gap-4">
+                {trustMetrics.length === 0 && (
+                  <button 
+                    onClick={initializeMetrics}
+                    className="flex items-center gap-2 bg-slate-100 text-slate-600 px-4 py-2 rounded-xl text-xs font-bold hover:bg-slate-200 transition-all border border-slate-200"
+                  >
+                    <RefreshCw size={16} /> Seed Default Metrics
+                  </button>
+                )}
+                <button 
+                  onClick={() => {
+                    setIsAddingMetric(!isAddingMetric);
+                    setEditingMetricId(null);
+                    setNewMetric({ value: '', label: '', desc: '', order: trustMetrics.length });
+                  }}
+                  className="flex items-center gap-2 bg-[#002b5c] text-white px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-blue-900 transition-all shadow-xl shadow-blue-900/10"
+                >
+                  {isAddingMetric ? <ArrowLeft size={16} /> : <Plus size={16} />}
+                  {isAddingMetric ? 'Back to Ledger' : 'Calibrate New Metric'}
+                </button>
+              </div>
+            </header>
+
+            {isAddingMetric ? (
+              <form onSubmit={handleSaveMetric} className="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Metric Value (e.g. 10+)</label>
+                    <input 
+                      type="text"
+                      className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-3.5 text-xs font-bold text-slate-800 outline-none focus:border-[#002b5c] focus:bg-white transition-all"
+                      value={newMetric.value}
+                      onChange={e => setNewMetric({...newMetric, value: e.target.value})}
+                      placeholder="e.g. 15+"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Display Label</label>
+                    <input 
+                      type="text"
+                      className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-3.5 text-xs font-bold text-slate-800 outline-none focus:border-[#002b5c] focus:bg-white transition-all"
+                      value={newMetric.label}
+                      onChange={e => setNewMetric({...newMetric, label: e.target.value})}
+                      placeholder="e.g. Years Experience"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Technical Description</label>
+                  <textarea 
+                    rows={3}
+                    className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-3.5 text-xs font-bold text-slate-800 outline-none focus:border-[#002b5c] focus:bg-white transition-all resize-none"
+                    value={newMetric.desc}
+                    onChange={e => setNewMetric({...newMetric, desc: e.target.value})}
+                    placeholder="Provide brief context for this metric..."
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Display Order (0 is first)</label>
+                  <input 
+                    type="number"
+                    className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-3.5 text-xs font-bold text-slate-800 outline-none focus:border-[#002b5c] focus:bg-white transition-all"
+                    value={newMetric.order}
+                    onChange={e => setNewMetric({...newMetric, order: parseInt(e.target.value)})}
+                  />
+                </div>
+
+                <div className="pt-6 border-t border-slate-100 flex justify-end gap-4">
+                  <button 
+                    type="submit"
+                    disabled={isLoading}
+                    className="bg-[#002b5c] text-white px-10 py-3.5 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-blue-900 transition-all shadow-xl shadow-blue-900/10 flex items-center gap-2"
+                  >
+                    {isLoading ? <RefreshCw size={14} className="animate-spin" /> : <Check size={14} />}
+                    {editingMetricId ? 'Update Metric Node' : 'Initialize Trust Metric'}
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {trustMetrics.map((m) => (
+                  <div key={m.id} className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm hover:shadow-xl transition-all group flex items-start justify-between">
+                    <div>
+                      <div className="flex items-center gap-3 mb-2">
+                        <span className="text-2xl font-black text-[#002b5c]">{m.value}</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-[#38bdf8] bg-blue-50 px-2 py-0.5 rounded border border-blue-100">{m.label}</span>
+                      </div>
+                      <p className="text-[10px] text-slate-500 font-medium leading-relaxed">{m.desc}</p>
+                      <div className="mt-4 flex items-center gap-4">
+                        <button 
+                          onClick={() => {
+                            setIsAddingMetric(true);
+                            setEditingMetricId(m.id);
+                            setNewMetric({
+                              value: m.value,
+                              label: m.label,
+                              desc: m.desc,
+                              order: m.order || 0
+                            });
+                          }}
+                          className="text-[10px] font-black uppercase tracking-widest text-[#002b5c] hover:underline flex items-center gap-1"
+                        >
+                          <PenTool size={12} /> Edit Details
+                        </button>
+                        <button 
+                          onClick={() => handleDeleteMetric(m.id)}
+                          className="text-[10px] font-black uppercase tracking-widest text-red-500 hover:underline flex items-center gap-1"
+                        >
+                          <Trash2 size={12} /> Delete Node
+                        </button>
+                      </div>
+                    </div>
+                    <div className="text-[10px] font-mono text-slate-300 font-bold">
+                      #{m.order}
                     </div>
                   </div>
                 ))}

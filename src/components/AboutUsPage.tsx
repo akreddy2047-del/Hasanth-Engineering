@@ -221,7 +221,7 @@ export default function AboutUsPage() {
                 <div className="pt-4 grid grid-cols-2 gap-4 text-xs font-mono">
                   <div className="border-l-2 border-white pl-3">
                     <p className="text-slate-400 font-bold uppercase tracking-wider">ESTABLISHED</p>
-                    <p className="font-sans font-black text-xl text-white">2016</p>
+                    <p className="font-sans font-black text-xl text-white">2023</p>
                   </div>
                   <div className="border-l-2 border-white pl-3">
                     <p className="text-slate-400 font-bold uppercase tracking-wider">OPERATIONS CENTER</p>

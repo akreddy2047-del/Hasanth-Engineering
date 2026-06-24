@@ -56,7 +56,7 @@ export default function Navbar({ onOpenConsultation, currentPage, onPageChange }
                 HASANTH ENGINEERING
               </span>
               <span className="text-slate-500 font-sans text-[8.5px] uppercase tracking-wider mt-1 font-semibold">
-                (OPC) PVT LTD • EST. 2016
+                (OPC) PVT LTD • EST. 2023
               </span>
             </div>
           </a>

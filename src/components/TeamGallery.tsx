@@ -85,7 +85,7 @@ export const teamMembers: TeamMember[] = [
   {
     id: 4,
     name: "Mr. Prakash",
-    title: "Senior Aerospace Design Consultant",
+    title: "Chief Designer",
     credentials: "B.Tech Mechanical Engineering | 17+ Years Experience",
     icon: Blocks,
     summary: "17+ years in Aerospace OEM, structure engineering, Catia V5 design, and aircraft cabin installations.",
@@ -103,7 +103,7 @@ export const teamMembers: TeamMember[] = [
   {
     id: 5,
     name: "Ms. Swathi Kakulla",
-    title: "CAD/CAM Developer & Project Coordinator",
+    title: "Chief Technical Administration",
     credentials: "M.Tech in CAD/CAM",
     icon: Settings,
     summary: "Directs vendor interactions, CAD/CAM educational programs, and project milestones mapping.",
@@ -121,7 +121,7 @@ export const teamMembers: TeamMember[] = [
   {
     id: 6,
     name: "Dr. S. Uday Bhaskar",
-    title: "Senior Systems & Instrumentation Engineer",
+    title: "General Manager (Technical)",
     credentials: "P.hD - Mechanical Engineering",
     icon: Microscope,
     summary: "Oversees high-resolution sensor interfaces, telemetry signals validation, and data logging calibration setups.",
@@ -139,7 +139,7 @@ export const teamMembers: TeamMember[] = [
   {
     id: 7,
     name: "Mr. Chary",
-    title: "Senior Precision Machining Consultant",
+    title: "Chief Manager (Shop Floor)",
     credentials: "Specialist in Tooling & CNC Operations",
     icon: Hammer,
     summary: "Aviation-grade fixture construction, dynamic toolpath optimization, and metallurgic auditing leader.",

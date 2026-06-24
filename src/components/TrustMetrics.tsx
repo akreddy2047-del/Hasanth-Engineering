@@ -1,13 +1,36 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
+import { db, handleFirestoreError, OperationType } from '../lib/firebase';
+import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 
 export default function TrustMetrics() {
-  const metrics = [
-    { value: '10+', label: 'Years Experience', desc: 'Reliable engineering execution since 2016' },
-    { value: '100+', label: 'Projects Supported', desc: 'From custom controllers to complex test rigs' },
-    { value: '50+', label: 'Manufacturing Partners', desc: 'Robust vendors and supply networks established' },
+  const [metrics, setMetrics] = useState([
+    { value: '15+', label: 'Years Experience', desc: 'Reliable engineering execution since 2023' },
+    { value: '10+', label: 'Projects Supported', desc: 'From custom controllers to complex test rigs' },
+    { value: '10+', label: 'Manufacturing Partners', desc: 'Robust vendors and supply networks established' },
     { value: '100%', label: 'Quality Standards', desc: 'Rigorous compliance checking processes' },
-  ];
+  ]);
+
+  useEffect(() => {
+    const q = query(collection(db, 'trust_metrics'), orderBy('order', 'asc'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      if (!snapshot.empty) {
+        const fetchedMetrics = snapshot.docs.map(doc => {
+          const data = doc.data();
+          return {
+            value: data.value,
+            label: data.label,
+            desc: data.desc
+          };
+        });
+        setMetrics(fetchedMetrics);
+      }
+    }, (error) => {
+      handleFirestoreError(error, OperationType.LIST, 'trust_metrics');
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   return (
     <section className="relative py-12 bg-slate-950 border-b border-slate-900 font-sans overflow-hidden">

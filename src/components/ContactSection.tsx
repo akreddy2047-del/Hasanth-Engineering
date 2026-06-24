@@ -83,8 +83,8 @@ export default function ContactSection() {
               <span className="text-[9px] font-sans text-slate-400 uppercase tracking-widest block font-bold">
                 Contact Us
               </span>
-              <a href="tel:8328903031" className="text-xl font-black text-[#002b5c] hover:text-[#002b5c]/85 block transition-colors leading-tight">
-                8328903031
+              <a href="tel:8187044238" className="text-xl font-black text-[#002b5c] hover:text-[#002b5c]/85 block transition-colors leading-tight">
+                8187044238
               </a>
               <p className="text-[11px] text-slate-500 leading-relaxed pt-1 font-semibold">
                 Speak directly with our Hyderabad operations desk.
