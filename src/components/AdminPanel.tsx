@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { db, handleFirestoreError, OperationType } from '../lib/firebase';
 import { collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, onSnapshot, serverTimestamp } from 'firebase/firestore';
+import { motion, AnimatePresence } from 'motion/react';
 import { 
   Lock, CheckCircle, Trash2, Plus, Briefcase, FileText, Mail, Phone,
   MapPin, Clock, Calendar, Shield, LogOut, ChevronRight, RefreshCw, AlertCircle, Download, Zap, PenTool, ArrowLeft,
@@ -71,7 +72,7 @@ export default function AdminPanel() {
   const [projects, setProjects] = useState<any[]>([]);
   const [pageContent, setPageContent] = useState<any[]>([]);
   const [trustMetrics, setTrustMetrics] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'jobs' | 'applications' | 'enquiries' | 'blogs' | 'projects' | 'content' | 'metrics' | 'settings'>('jobs');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'jobs' | 'applications' | 'enquiries' | 'blogs' | 'projects' | 'content' | 'metrics' | 'settings'>('dashboard');
   
   // Site Configuration State
   const [siteConfig, setSiteConfig] = useState<any>({
@@ -640,128 +641,182 @@ export default function AdminPanel() {
 
   // Authenticated Admin Dashboard
   return (
-    <div className="min-h-screen bg-[#fafafa] pt-24 pb-20 px-6 font-sans text-slate-900 relative z-40">
-      <div className="max-w-5xl mx-auto">
-        
-        {/* Simplified Header */}
-        <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10 pb-6 border-b border-slate-200">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <Shield size={18} className="text-slate-400" />
-              <h1 className="text-lg font-bold text-slate-900 tracking-tight">Management Portal</h1>
+    <div className="flex h-screen bg-[#f8fafc] font-sans text-slate-900 overflow-hidden">
+      {/* Simple Sidebar */}
+      <aside className="w-64 bg-white text-slate-600 flex flex-col flex-shrink-0 border-r border-slate-200 z-50">
+        <div className="p-8">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-[#002b5c] flex items-center justify-center text-white">
+              <Shield size={18} />
             </div>
-            <p className="text-xs text-slate-500 font-medium">Hasanth Engineering (OPC) Private Limited Control Center</p>
+            <h2 className="text-sm font-black text-slate-900 uppercase tracking-tight">Admin</h2>
           </div>
-          <button 
-            onClick={handleLogout}
-            className="flex items-center gap-2 px-4 py-2 hover:bg-slate-100 text-slate-600 rounded-lg text-xs font-semibold transition-all border border-slate-200 w-fit"
-          >
-            <LogOut size={14} /> Sign Out
-          </button>
-        </header>
+        </div>
 
-        {/* Clean Navigation Tabs */}
-        <nav className="flex gap-8 mb-8 border-b border-slate-200">
+        <nav className="flex-1 px-4 space-y-1">
           <button 
-            onClick={() => setActiveTab('jobs')}
-            className={`pb-3 text-xs font-bold uppercase tracking-widest transition-all relative ${
-              activeTab === 'jobs' 
-              ? 'text-[#002b5c] border-b-2 border-[#002b5c]' 
-              : 'text-slate-400 hover:text-slate-600'
+            onClick={() => setActiveTab('dashboard')}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+              activeTab === 'dashboard' 
+              ? 'bg-slate-100 text-[#002b5c] font-bold' 
+              : 'hover:bg-slate-50'
             }`}
           >
-            Vacancies ({jobs.length})
+            <Activity size={18} />
+            <span className="text-xs">Overview</span>
+          </button>
+
+          <div className="pt-4 pb-2">
+            <p className="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Inbox</p>
+          </div>
+          <button 
+            onClick={() => setActiveTab('enquiries')}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+              activeTab === 'enquiries' ? 'bg-slate-100 text-[#002b5c] font-bold' : 'hover:bg-slate-50'
+            }`}
+          >
+            <Mail size={18} />
+            <span className="text-xs">Messages</span>
           </button>
           <button 
             onClick={() => setActiveTab('applications')}
-            className={`pb-3 text-xs font-bold uppercase tracking-widest transition-all relative ${
-              activeTab === 'applications' 
-              ? 'text-[#002b5c] border-b-2 border-[#002b5c]' 
-              : 'text-slate-400 hover:text-slate-600'
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+              activeTab === 'applications' ? 'bg-slate-100 text-[#002b5c] font-bold' : 'hover:bg-slate-50'
             }`}
           >
-            Resumes ({applications.length})
+            <FileText size={18} />
+            <span className="text-xs">Resumes</span>
           </button>
+
+          <div className="pt-4 pb-2">
+            <p className="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Manage Site</p>
+          </div>
           <button 
-            onClick={() => setActiveTab('enquiries')}
-            className={`pb-3 text-xs font-bold uppercase tracking-widest transition-all relative ${
-              activeTab === 'enquiries' 
-              ? 'text-[#002b5c] border-b-2 border-[#002b5c]' 
-              : 'text-slate-400 hover:text-slate-600'
+            onClick={() => setActiveTab('content')}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+              activeTab === 'content' ? 'bg-slate-100 text-[#002b5c] font-bold' : 'hover:bg-slate-50'
             }`}
           >
-            Inquiries ({enquiries.length})
+            <Globe size={18} />
+            <span className="text-xs">Page Text</span>
           </button>
           <button 
             onClick={() => setActiveTab('blogs')}
-            className={`pb-3 text-xs font-bold uppercase tracking-widest transition-all relative ${
-              activeTab === 'blogs' 
-              ? 'text-[#002b5c] border-b-2 border-[#002b5c]' 
-              : 'text-slate-400 hover:text-slate-600'
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+              activeTab === 'blogs' ? 'bg-slate-100 text-[#002b5c] font-bold' : 'hover:bg-slate-50'
             }`}
           >
-            Blogs ({blogs.length})
+            <PenTool size={18} />
+            <span className="text-xs">Blog Posts</span>
           </button>
           <button 
-            onClick={() => setActiveTab('projects')}
-            className={`pb-3 text-xs font-bold uppercase tracking-widest transition-all relative ${
-              activeTab === 'projects' 
-              ? 'text-[#002b5c] border-b-2 border-[#002b5c]' 
-              : 'text-slate-400 hover:text-slate-600'
+            onClick={() => setActiveTab('jobs')}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+              activeTab === 'jobs' ? 'bg-slate-100 text-[#002b5c] font-bold' : 'hover:bg-slate-50'
             }`}
           >
-            Projects ({projects.length})
+            <Briefcase size={18} />
+            <span className="text-xs">Job Openings</span>
           </button>
-          <button 
-            onClick={() => setActiveTab('content')}
-            className={`pb-3 text-xs font-bold uppercase tracking-widest transition-all relative ${
-              activeTab === 'content' 
-              ? 'text-[#002b5c] border-b-2 border-[#002b5c]' 
-              : 'text-slate-400 hover:text-slate-600'
-            }`}
-          >
-            Page Content ({pageContent.length})
-          </button>
-          <button 
-            onClick={() => setActiveTab('metrics')}
-            className={`pb-3 text-xs font-bold uppercase tracking-widest transition-all relative ${
-              activeTab === 'metrics' 
-              ? 'text-[#002b5c] border-b-2 border-[#002b5c]' 
-              : 'text-slate-400 hover:text-slate-600'
-            }`}
-          >
-            Trust Metrics ({trustMetrics.length})
-          </button>
+
+          <div className="pt-4 pb-2">
+            <p className="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Settings</p>
+          </div>
           <button 
             onClick={() => setActiveTab('settings')}
-            className={`pb-3 text-xs font-bold uppercase tracking-widest transition-all relative ${
-              activeTab === 'settings' 
-              ? 'text-[#002b5c] border-b-2 border-[#002b5c]' 
-              : 'text-slate-400 hover:text-slate-600'
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+              activeTab === 'settings' ? 'bg-slate-100 text-[#002b5c] font-bold' : 'hover:bg-slate-50'
             }`}
           >
-            Site Settings
+            <Settings size={18} />
+            <span className="text-xs">Contact Info</span>
           </button>
         </nav>
 
-        {/* Structured Content Area */}
-        <main className="space-y-12">
+        <div className="p-4 border-t border-slate-100">
+          <button 
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-red-500 transition-all text-xs"
+          >
+            <LogOut size={16} /> Logout
+          </button>
+        </div>
+      </aside>
+
+      <main className="flex-1 flex flex-col overflow-hidden bg-white">
+        <header className="h-16 border-b border-slate-100 flex items-center justify-between px-8 bg-white/80 backdrop-blur-md z-10">
+          <h1 className="text-sm font-bold text-slate-900">
+            {activeTab === 'dashboard' && 'Dashboard'}
+            {activeTab === 'jobs' && 'Job Openings'}
+            {activeTab === 'applications' && 'Resumes'}
+            {activeTab === 'enquiries' && 'Messages'}
+            {activeTab === 'blogs' && 'Blog'}
+            {activeTab === 'projects' && 'Projects'}
+            {activeTab === 'content' && 'Page Text'}
+            {activeTab === 'metrics' && 'Metrics'}
+            {activeTab === 'settings' && 'Contact Settings'}
+          </h1>
+          <button 
+            onClick={() => window.open('/', '_blank')}
+            className="text-[10px] font-bold text-slate-400 uppercase tracking-widest hover:text-[#002b5c]"
+          >
+            View Live Site
+          </button>
+        </header>
+
+        <div className="flex-1 overflow-y-auto p-8 bg-slate-50/30">
+          <div className="max-w-5xl mx-auto">
+            {activeTab === 'dashboard' && (
+              <div className="space-y-8 animate-in fade-in duration-500">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="bg-white p-6 rounded-xl border border-slate-200/60 shadow-sm">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Messages</p>
+                    <h3 className="text-2xl font-black text-slate-900">{enquiries.length}</h3>
+                  </div>
+                  <div className="bg-white p-6 rounded-xl border border-slate-200/60 shadow-sm">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Resumes</p>
+                    <h3 className="text-2xl font-black text-slate-900">{applications.length}</h3>
+                  </div>
+                  <div className="bg-white p-6 rounded-xl border border-slate-200/60 shadow-sm">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Jobs</p>
+                    <h3 className="text-2xl font-black text-slate-900">{jobs.length}</h3>
+                  </div>
+                  <div className="bg-white p-6 rounded-xl border border-slate-200/60 shadow-sm">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Blogs</p>
+                    <h3 className="text-2xl font-black text-slate-900">{blogs.length}</h3>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-xl border border-slate-200/60 p-8">
+                  <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest mb-4">Site Status</h3>
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                      <p className="text-xs text-slate-600 font-medium">Site is live</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                      <p className="text-xs text-slate-600 font-medium">All data is saved</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           
-          {/* TAB 1: VACANCIES */}
-          {activeTab === 'jobs' && (
+            {/* TAB 1: VACANCIES */}
+            {activeTab === 'jobs' && (
             <div className="space-y-10 animate-in fade-in duration-500">
               
               {/* Position Creator Document */}
               <section className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
                 <div className="bg-slate-50 px-6 py-4 border-b border-slate-200 flex items-center justify-between">
-                  <h2 className="text-xs font-bold uppercase tracking-widest text-[#002b5c]">Deploy New Vacancy</h2>
-                  <span className="text-[10px] text-slate-400 font-mono">Form Serial: H-ENG-{new Date().getFullYear()}</span>
+                  <h2 className="text-xs font-bold uppercase tracking-widest text-[#002b5c]">Add New Job</h2>
                 </div>
 
                 <div className="p-6 space-y-6">
                   {/* Template Quick Select */}
                   <div className="space-y-3">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Blueprint Templates</p>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Pick a Template</p>
                     <div className="flex flex-wrap gap-2">
                       {JOB_TEMPLATES.map((tmpl) => (
                         <button
@@ -781,25 +836,25 @@ export default function AdminPanel() {
                   <form onSubmit={handleAddJob} className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
-                        <label className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Position Title</label>
+                        <label className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Job Title</label>
                         <input type="text" required value={newJob.title} onChange={e => setNewJob({...newJob, title: e.target.value})}
-                          placeholder="e.g. Senior Aerospace Engineer"
+                          placeholder="e.g. Mechanical Designer"
                           className="w-full bg-slate-50 border border-slate-200 focus:border-[#002b5c] focus:bg-white focus:outline-none rounded-lg px-4 py-2.5 text-sm text-slate-800 font-medium transition-all" />
                       </div>
                       <div className="space-y-2">
                         <label className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Job Type</label>
                         <input type="text" required value={newJob.type} onChange={e => setNewJob({...newJob, type: e.target.value})}
-                          placeholder="e.g. Full-Time / Internship"
+                          placeholder="e.g. Full-Time"
                           className="w-full bg-slate-50 border border-slate-200 focus:border-[#002b5c] focus:bg-white focus:outline-none rounded-lg px-4 py-2.5 text-sm text-slate-800 font-medium transition-all" />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Office Location</label>
+                        <label className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Location</label>
                         <input type="text" required value={newJob.location} onChange={e => setNewJob({...newJob, location: e.target.value})}
-                          placeholder="Balanagar, Hyderabad"
+                          placeholder="Hyderabad"
                           className="w-full bg-slate-50 border border-slate-200 focus:border-[#002b5c] focus:bg-white focus:outline-none rounded-lg px-4 py-2.5 text-sm text-slate-800 font-medium transition-all" />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Experience Requirement</label>
+                        <label className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Experience</label>
                         <input type="text" value={newJob.exp} onChange={e => setNewJob({...newJob, exp: e.target.value})}
                           className="w-full bg-slate-50 border border-slate-200 focus:border-[#002b5c] focus:bg-white focus:outline-none rounded-lg px-4 py-2.5 text-sm text-slate-800 font-medium transition-all" />
                       </div>
@@ -934,14 +989,14 @@ export default function AdminPanel() {
           {activeTab === 'enquiries' && (
             <div className="space-y-6 animate-in fade-in duration-500">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xs font-bold uppercase tracking-widest text-[#002b5c]">Inquiry Records</h2>
-                <div className="text-[10px] text-slate-400 font-medium">Logged Correspondence: {enquiries.length}</div>
+                <h2 className="text-xs font-bold uppercase tracking-widest text-[#002b5c]">Messages</h2>
+                <div className="text-[10px] text-slate-400 font-medium">Total: {enquiries.length}</div>
               </div>
               
               <div className="grid grid-cols-1 gap-4">
                 {enquiries.length === 0 ? (
                   <div className="p-20 border border-dashed border-slate-200 rounded-2xl text-center">
-                    <p className="text-sm text-slate-400 font-medium italic">No active system inquiries in the queue.</p>
+                    <p className="text-sm text-slate-400 font-medium italic">No messages yet.</p>
                   </div>
                 ) : (
                   enquiries.map((enq) => (
@@ -952,13 +1007,13 @@ export default function AdminPanel() {
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center justify-between mb-2 border-b border-slate-50 pb-2">
                           <div className="flex items-center gap-2">
-                            <h3 className="text-sm font-bold text-slate-900">{enq.applicantName || 'Anonymous External'}</h3>
+                            <h3 className="text-sm font-bold text-slate-900">{enq.applicantName || 'Anonymous'}</h3>
                             {enq.type === 'consultation' && (
                               <span className="px-1.5 py-0.5 bg-blue-50 text-[#002b5c] text-[8px] font-bold uppercase rounded border border-blue-100">Consultation</span>
                             )}
                           </div>
                           <span className="text-[10px] text-slate-400 font-mono italic">
-                            {enq.timestamp?.toDate ? enq.timestamp.toDate().toLocaleString() : 'Recent Correspondence'}
+                            {enq.timestamp?.toDate ? enq.timestamp.toDate().toLocaleString() : 'Date'}
                           </span>
                         </div>
                         
@@ -974,7 +1029,7 @@ export default function AdminPanel() {
                         <div className="bg-slate-50 p-4 rounded-lg border-l-4 border-[#002b5c] group-hover:bg-white transition-colors duration-300">
                           <p className="text-[10px] text-[#002b5c] font-mono uppercase mb-2 font-black tracking-tighter opacity-70 flex items-center gap-2">
                             <Zap size={10} />
-                            {enq.subject || 'Message Payload'}
+                            {enq.subject || 'Subject'}
                           </p>
                           <p className="text-[13px] text-slate-800 leading-relaxed font-semibold">"{enq.message}"</p>
                         </div>
@@ -994,40 +1049,40 @@ export default function AdminPanel() {
             <div className="space-y-6 animate-in fade-in duration-500">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h2 className="text-xs font-bold uppercase tracking-widest text-[#002b5c]">Technical Publications Manager</h2>
-                  <p className="text-[10px] text-slate-400 font-medium">Published Papers: {blogs.length}</p>
+                  <h2 className="text-xs font-bold uppercase tracking-widest text-[#002b5c]">Blog Posts</h2>
+                  <p className="text-[10px] text-slate-400 font-medium">Posts: {blogs.length}</p>
                 </div>
                 <button 
                   onClick={() => setIsAddingBlog(!isAddingBlog)}
                   className="flex items-center gap-2 bg-[#002b5c] text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-blue-900 transition-all shadow-lg shadow-blue-900/10"
                 >
                   {isAddingBlog ? <ArrowLeft size={16} /> : <Plus size={16} />}
-                  {isAddingBlog ? 'Cancel Publishing' : 'New Publication'}
+                  {isAddingBlog ? 'Cancel' : 'New Post'}
                 </button>
               </div>
               {isAddingBlog ? (
                 <form onSubmit={handleSaveBlog} className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl p-6 space-y-4 animate-in slide-in-from-top-4 duration-500">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1">
-                      <label className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Publication Title *</label>
+                      <label className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Post Title *</label>
                       <input
                         type="text"
                         required
                         value={newBlog.title}
                         onChange={(e) => setNewBlog({...newBlog, title: e.target.value})}
                         className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-800 font-semibold focus:border-[#002b5c] outline-none"
-                        placeholder="e.g. Design of High-Speed Telemetry Systems"
+                        placeholder="My New Post"
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Author / Division *</label>
+                      <label className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Author *</label>
                       <input
                         type="text"
                         required
                         value={newBlog.author}
                         onChange={(e) => setNewBlog({...newBlog, author: e.target.value})}
                         className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-800 font-semibold focus:border-[#002b5c] outline-none"
-                        placeholder="e.g. Systems Engineering Division"
+                        placeholder="Admin"
                       />
                     </div>
                   </div>
@@ -1245,7 +1300,17 @@ export default function AdminPanel() {
                 </div>
 
                 <div className="space-y-4">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block px-1">Main Narrative / Content</label>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block px-1">Page Title</label>
+                  <input 
+                    type="text"
+                    className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-3 text-xs font-bold text-slate-800 outline-none focus:border-[#002b5c] focus:bg-white transition-all"
+                    value={editingPageData.title}
+                    onChange={e => setEditingPageData({...editingPageData, title: e.target.value})}
+                  />
+                </div>
+
+                <div className="space-y-4">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block px-1">Text Content</label>
                   <textarea 
                     rows={6}
                     className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-4 text-xs font-medium text-slate-700 leading-relaxed outline-none focus:border-[#002b5c] focus:bg-white transition-all resize-none"
@@ -1255,7 +1320,7 @@ export default function AdminPanel() {
                 </div>
 
                 <div className="space-y-4">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block px-1">Background Image URL</label>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block px-1">Background Image</label>
                    <input 
                     type="text"
                     className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-3 text-xs font-bold text-slate-800 outline-none focus:border-[#002b5c] focus:bg-white transition-all"
@@ -1266,13 +1331,13 @@ export default function AdminPanel() {
 
                 <div className="space-y-6 pt-6 border-t border-slate-50">
                    <div className="flex items-center justify-between">
-                    <h3 className="text-xs font-black uppercase tracking-widest text-slate-900">Custom Page Sections</h3>
+                    <h3 className="text-xs font-black uppercase tracking-widest text-slate-900">Page Sections</h3>
                     <button 
                       type="button"
                       onClick={() => setEditingPageData({...editingPageData, sections: [...(editingPageData.sections || []), { id: Math.random().toString(36).substr(2, 9), heading: '', body: '', imageUrl: '' }]})}
                       className="text-[10px] font-bold text-blue-600 uppercase hover:underline"
                     >
-                      + Add Section Node
+                      + Add New Section
                     </button>
                    </div>
 
@@ -1510,8 +1575,8 @@ export default function AdminPanel() {
           <div className="space-y-10 animate-in fade-in duration-500">
             <header className="flex items-center justify-between mb-8">
               <div>
-                <h2 className="text-xs font-bold uppercase tracking-widest text-[#002b5c]">Corporate Trust Metrics</h2>
-                <p className="text-[10px] text-slate-400 font-medium">Balanagar Facility Performance Indicators</p>
+                <h2 className="text-xs font-bold uppercase tracking-widest text-[#002b5c]">Site Numbers</h2>
+                <p className="text-[10px] text-slate-400 font-medium">Show your stats like years of experience</p>
               </div>
               <div className="flex gap-4">
                 <button 
@@ -1523,7 +1588,7 @@ export default function AdminPanel() {
                   className="flex items-center gap-2 bg-[#002b5c] text-white px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-blue-900 transition-all shadow-xl shadow-blue-900/10"
                 >
                   {isAddingMetric ? <ArrowLeft size={16} /> : <Plus size={16} />}
-                  {isAddingMetric ? 'Back to Ledger' : 'Add New Metric'}
+                  {isAddingMetric ? 'Back' : 'Add New'}
                 </button>
               </div>
             </header>
@@ -1532,7 +1597,7 @@ export default function AdminPanel() {
               <form onSubmit={handleSaveMetric} className="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Metric Value (e.g. 10+)</label>
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Number (e.g. 10+)</label>
                     <input 
                       type="text"
                       className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-3.5 text-xs font-bold text-slate-800 outline-none focus:border-[#002b5c] focus:bg-white transition-all"
@@ -1542,7 +1607,7 @@ export default function AdminPanel() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Display Label</label>
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Label</label>
                     <input 
                       type="text"
                       className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-3.5 text-xs font-bold text-slate-800 outline-none focus:border-[#002b5c] focus:bg-white transition-all"
@@ -1554,18 +1619,18 @@ export default function AdminPanel() {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Technical Description</label>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Description</label>
                   <textarea 
                     rows={3}
                     className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-3.5 text-xs font-bold text-slate-800 outline-none focus:border-[#002b5c] focus:bg-white transition-all resize-none"
                     value={newMetric.desc}
                     onChange={e => setNewMetric({...newMetric, desc: e.target.value})}
-                    placeholder="Provide brief context for this metric..."
+                    placeholder="Briefly explain this number..."
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Display Order (0 is first)</label>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Order (0 is first)</label>
                   <input 
                     type="number"
                     className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-3.5 text-xs font-bold text-slate-800 outline-none focus:border-[#002b5c] focus:bg-white transition-all"
@@ -1581,7 +1646,7 @@ export default function AdminPanel() {
                     className="bg-[#002b5c] text-white px-10 py-3.5 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-blue-900 transition-all shadow-xl shadow-blue-900/10 flex items-center gap-2"
                   >
                     {isLoading ? <RefreshCw size={14} className="animate-spin" /> : <Check size={14} />}
-                    {editingMetricId ? 'Update Metric' : 'Save Metric'}
+                    {editingMetricId ? 'Update' : 'Save'}
                   </button>
                 </div>
               </form>
@@ -1633,26 +1698,26 @@ export default function AdminPanel() {
         {activeTab === 'settings' && (
           <div className="space-y-10 animate-in fade-in duration-500">
             <header className="mb-8">
-              <h2 className="text-xs font-bold uppercase tracking-widest text-[#002b5c]">Global System Configuration</h2>
-              <p className="text-[10px] text-slate-400 font-medium">Calibrate operational parameters and support nodes</p>
+              <h2 className="text-xs font-bold uppercase tracking-widest text-[#002b5c]">Settings</h2>
+              <p className="text-[10px] text-slate-400 font-medium">Update your phone number and address</p>
             </header>
 
             <div className="max-w-3xl">
               <form onSubmit={handleSaveSiteConfig} className="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm space-y-8">
                 <div className="space-y-6">
-                  <div className="flex items-center gap-4 mb-2">
+                  <div className="flex items-center gap-4 mb-6">
                     <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 border border-emerald-100">
                       <MessageCircle size={20} />
                     </div>
                     <div>
-                      <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest">WhatsApp Support Channel</h3>
-                      <p className="text-[10px] text-slate-500 font-medium">Configure the active support line and pre-filled message</p>
+                      <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest">WhatsApp Settings</h3>
+                      <p className="text-[10px] text-slate-500 font-medium">Change your WhatsApp number and auto-message</p>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">WhatsApp Phone Number</label>
+                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">WhatsApp Number</label>
                       <input 
                         type="text"
                         className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-3.5 text-xs font-bold text-slate-800 outline-none focus:border-[#002b5c] focus:bg-white transition-all"
@@ -1660,16 +1725,16 @@ export default function AdminPanel() {
                         onChange={e => setSiteConfig({...siteConfig, whatsappNumber: e.target.value})}
                         placeholder="e.g. 918328903031"
                       />
-                      <p className="text-[9px] text-slate-400 px-1">Include country code without '+' or spaces (e.g. 91 for India)</p>
+                      <p className="text-[9px] text-slate-400 px-1">Include country code (e.g. 91 for India)</p>
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Active Message Preset</label>
+                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Default Message</label>
                       <textarea 
                         rows={4}
                         className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-3.5 text-xs font-bold text-slate-800 outline-none focus:border-[#002b5c] focus:bg-white transition-all resize-none"
                         value={siteConfig.whatsappMessage}
                         onChange={e => setSiteConfig({...siteConfig, whatsappMessage: e.target.value})}
-                        placeholder="Default greeting message..."
+                        placeholder="Message that customers will see..."
                       />
                     </div>
                   </div>
@@ -1680,14 +1745,14 @@ export default function AdminPanel() {
                         <Phone size={20} />
                       </div>
                       <div>
-                        <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest">Public Contact Nodes</h3>
-                        <p className="text-[10px] text-slate-500 font-medium">Update phone, email and physical address displayed site-wide</p>
+                        <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest">Contact Details</h3>
+                        <p className="text-[10px] text-slate-500 font-medium">Change your phone, email, and address on the site</p>
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Contact Phone</label>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Public Phone</label>
                         <input 
                           type="text"
                           className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-3.5 text-xs font-bold text-slate-800 outline-none focus:border-[#002b5c] focus:bg-white transition-all"
@@ -1697,7 +1762,7 @@ export default function AdminPanel() {
                         />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Contact Email</label>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Public Email</label>
                         <input 
                           type="email"
                           className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-3.5 text-xs font-bold text-slate-800 outline-none focus:border-[#002b5c] focus:bg-white transition-all"
@@ -1707,23 +1772,23 @@ export default function AdminPanel() {
                         />
                       </div>
                       <div className="space-y-2 md:col-span-2">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Full Physical Address</label>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Full Address</label>
                         <textarea 
                           rows={2}
                           className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-3.5 text-xs font-bold text-slate-800 outline-none focus:border-[#002b5c] focus:bg-white transition-all resize-none"
                           value={siteConfig.contactAddress}
                           onChange={e => setSiteConfig({...siteConfig, contactAddress: e.target.value})}
-                          placeholder="Enter full registered address..."
+                          placeholder="Enter your business address..."
                         />
                       </div>
                       <div className="space-y-2 md:col-span-2">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Short Address (City/Area)</label>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Area (City)</label>
                         <input 
                           type="text"
                           className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-3.5 text-xs font-bold text-slate-800 outline-none focus:border-[#002b5c] focus:bg-white transition-all"
                           value={siteConfig.contactAddressShort}
                           onChange={e => setSiteConfig({...siteConfig, contactAddressShort: e.target.value})}
-                          placeholder="e.g. Kukatpally, Hyderabad"
+                          placeholder="e.g. Hyderabad"
                         />
                       </div>
                     </div>
@@ -1737,15 +1802,16 @@ export default function AdminPanel() {
                     className="bg-[#002b5c] text-white px-10 py-3.5 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-blue-900 transition-all shadow-xl shadow-blue-900/10 flex items-center gap-2"
                   >
                     {isLoading ? <RefreshCw size={14} className="animate-spin" /> : <Save size={14} />}
-                    Update Global Config
+                    Save All Settings
                   </button>
                 </div>
               </form>
             </div>
           </div>
-        )}
-        </main>
-      </div>
+            )}
+          </div>
+        </div>
+      </main>
     </div>
   );
 }

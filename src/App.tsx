@@ -474,13 +474,15 @@ export default function App() {
         aria-hidden="true"
       />
       
-      <Navbar 
-        onOpenConsultation={handleOpenConsultation} 
-        currentPage={currentPage}
-        onPageChange={handlePageChange}
-      />
+      {currentPage !== 'admin' && (
+        <Navbar 
+          onOpenConsultation={handleOpenConsultation} 
+          currentPage={currentPage}
+          onPageChange={handlePageChange}
+        />
+      )}
 
-      <main className="relative z-10 pt-16">
+      <main className={`relative z-10 ${currentPage === 'admin' ? 'pt-0' : 'pt-16'}`}>
         
         <PageTransition activePage={currentPage}>
           {currentPage === 'home' && (
@@ -630,9 +632,7 @@ export default function App() {
           )}
 
           {currentPage === 'admin' && (
-            <div className="animate-fade-in pt-8">
-              <AdminPanel />
-            </div>
+            <AdminPanel />
           )}
           {currentPage === 'careers' && (
             <div className="animate-fade-in pt-8">
@@ -696,8 +696,13 @@ export default function App() {
         </PageTransition>
       </main>
 
-      <Footer onOpenConsultation={handleOpenConsultation} onPageChange={handlePageChange} />
-      <BackToTop />
+      {currentPage !== 'admin' && (
+        <>
+          <Footer onOpenConsultation={handleOpenConsultation} onPageChange={handlePageChange} />
+          <BackToTop />
+          <StickyWhatsApp />
+        </>
+      )}
       <ConsultationModal isOpen={isConsultationOpen} onClose={handleCloseConsultation} />
       {selectedArenaIdx !== null && (
         <BlueprintModal 
@@ -706,7 +711,6 @@ export default function App() {
           onClose={() => setSelectedArenaIdx(null)} 
         />
       )}
-      <StickyWhatsApp />
     </div>
     </GlossaryProvider>
   );
