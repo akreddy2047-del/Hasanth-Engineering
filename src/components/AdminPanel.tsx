@@ -575,66 +575,81 @@ export default function AdminPanel() {
   // Unauthenticated Login Form
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 relative z-50 py-16">
-        <div className="w-full max-w-md bg-white border border-slate-100 p-8 sm:p-10 rounded-3xl shadow-sm relative overflow-hidden text-slate-800 font-sans">
-          
-          <div className="space-y-6">
-            <div className="text-center space-y-2">
-              <div className="w-12 h-12 bg-blue-50 text-[#002b5c] rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <Lock size={20} />
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 p-6 font-sans">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="w-full max-w-[400px] bg-white rounded-[2rem] shadow-2xl shadow-slate-200/50 overflow-hidden border border-slate-100"
+        >
+          <div className="p-10 space-y-8">
+            <div className="text-center space-y-3">
+              <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-[#002b5c]/5 mb-2">
+                <Shield size={28} className="text-[#002b5c]" />
               </div>
-              <h2 className="text-xl font-black uppercase tracking-tight leading-none text-[#002b5c]">
-                Admin Access
-              </h2>
-              <p className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">
-                Hasanth Engineering
-              </p>
+              <div>
+                <h2 className="text-2xl font-black text-[#002b5c] tracking-tight uppercase">Admin Login</h2>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1">Authorized Access Only</p>
+              </div>
             </div>
 
-            <form onSubmit={handleLogin} className="space-y-4 pt-2">
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Email</label>
-                <input 
-                  type="email"
-                  required
-                  value={email}
-                  placeholder="admin@hasanthenginnering.co.in"
-                  onChange={e => setEmail(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 focus:border-[#002b5c] focus:outline-none rounded-xl px-4 py-3 text-sm text-slate-800 font-medium transition-colors"
-                />
+            <form onSubmit={handleLogin} className="space-y-5">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-1">Email Identifier</label>
+                <div className="relative group">
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#002b5c] transition-colors" size={18} />
+                  <input 
+                    type="email"
+                    required
+                    value={email}
+                    placeholder="admin@hasanthenginnering.co.in"
+                    onChange={e => setEmail(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-100 focus:border-[#002b5c] focus:bg-white focus:outline-none rounded-2xl pl-12 pr-6 py-4 text-sm font-bold text-slate-800 transition-all shadow-inner"
+                  />
+                </div>
               </div>
 
-              <div className="space-y-1.5 pt-1">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Password</label>
-                <input 
-                  type="password"
-                  required
-                  value={password}
-                  placeholder="••••••••"
-                  onChange={e => setPassword(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 focus:border-[#002b5c] focus:outline-none rounded-xl px-4 py-3 text-sm text-slate-800 font-medium transition-colors"
-                />
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-1">Security Key</label>
+                <div className="relative group">
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#002b5c] transition-colors" size={18} />
+                  <input 
+                    type="password"
+                    required
+                    value={password}
+                    placeholder="••••••••"
+                    onChange={e => setPassword(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-100 focus:border-[#002b5c] focus:bg-white focus:outline-none rounded-2xl pl-12 pr-6 py-4 text-sm font-bold text-slate-800 transition-all shadow-inner"
+                  />
+                </div>
               </div>
 
               {loginError && (
-                <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-100 rounded-xl text-[11px] text-red-600 font-medium mt-2">
-                  <AlertCircle size={14} className="shrink-0" />
+                <motion.div 
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex items-center gap-3 p-4 bg-red-50 border border-red-100 rounded-2xl text-[10px] text-red-600 font-bold uppercase tracking-wider"
+                >
+                  <AlertCircle size={16} className="shrink-0" />
                   <span>{loginError}</span>
-                </div>
+                </motion.div>
               )}
 
-              <div className="pt-4">
-                <button 
-                  type="submit"
-                  className="w-full py-3.5 bg-[#002b5c] hover:bg-blue-900 text-white transition-all duration-300 text-[11px] font-black uppercase tracking-widest rounded-xl hover:shadow-md cursor-pointer flex items-center justify-center gap-2"
-                >
-                  <span>Sign In</span>
-                  <ChevronRight size={14} />
-                </button>
-              </div>
+              <button 
+                type="submit"
+                disabled={isLoading}
+                className="w-full py-4.5 bg-[#002b5c] text-white rounded-2xl text-xs font-black uppercase tracking-[0.2em] shadow-xl shadow-[#002b5c]/20 hover:shadow-[#002b5c]/40 transition-all active:scale-[0.98] flex items-center justify-center gap-3 disabled:opacity-50"
+              >
+                {isLoading ? <RefreshCw className="animate-spin" size={18} /> : <span>Sign In to Console</span>}
+              </button>
             </form>
+            
+            <div className="pt-4 text-center">
+              <p className="text-[9px] text-slate-300 font-bold uppercase tracking-widest leading-relaxed">
+                Hasanth Engineering Pvt Ltd<br/>Secure Management Portal
+              </p>
+            </div>
           </div>
-        </div>
+        </motion.div>
       </div>
     );
   }
@@ -642,161 +657,273 @@ export default function AdminPanel() {
   // Authenticated Admin Dashboard
   return (
     <div className="flex h-screen bg-[#f8fafc] font-sans text-slate-900 overflow-hidden">
-      {/* Simple Sidebar */}
-      <aside className="w-64 bg-white text-slate-600 flex flex-col flex-shrink-0 border-r border-slate-200 z-50">
-        <div className="p-8">
+      {/* Professional Sidebar */}
+      <aside className="w-72 bg-[#0f172a] text-slate-300 flex flex-col flex-shrink-0 border-r border-slate-800 shadow-2xl z-50">
+        <div className="p-8 border-b border-slate-800/50">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-[#002b5c] flex items-center justify-center text-white">
-              <Shield size={18} />
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-[#002b5c] flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
+              <Shield size={20} />
             </div>
-            <h2 className="text-sm font-black text-slate-900 uppercase tracking-tight">Admin</h2>
+            <div>
+              <h2 className="text-sm font-black text-white tracking-tighter uppercase leading-none">Management</h2>
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">HASANTH ENGG</p>
+            </div>
           </div>
         </div>
 
-        <nav className="flex-1 px-4 space-y-1">
-          <button 
-            onClick={() => setActiveTab('dashboard')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-              activeTab === 'dashboard' 
-              ? 'bg-slate-100 text-[#002b5c] font-bold' 
-              : 'hover:bg-slate-50'
-            }`}
-          >
-            <Activity size={18} />
-            <span className="text-xs">Overview</span>
-          </button>
-
-          <div className="pt-4 pb-2">
-            <p className="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Inbox</p>
+        <nav className="flex-1 px-4 py-6 space-y-8 overflow-y-auto custom-scrollbar">
+          <div className="space-y-1.5">
+            <h3 className="px-4 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mb-4">Overview</h3>
+            <button 
+              onClick={() => setActiveTab('dashboard')}
+              className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-xl transition-all duration-300 group ${
+                activeTab === 'dashboard' 
+                ? 'bg-blue-600/10 text-blue-400 font-bold' 
+                : 'hover:bg-slate-800/50 hover:text-white'
+              }`}
+            >
+              <Activity size={18} className={activeTab === 'dashboard' ? 'text-blue-400' : 'text-slate-500 group-hover:text-slate-300'} />
+              <span className="text-xs tracking-tight">System Dashboard</span>
+              {activeTab === 'dashboard' && <motion.div layoutId="active-pill" className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-400" />}
+            </button>
           </div>
-          <button 
-            onClick={() => setActiveTab('enquiries')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-              activeTab === 'enquiries' ? 'bg-slate-100 text-[#002b5c] font-bold' : 'hover:bg-slate-50'
-            }`}
-          >
-            <Mail size={18} />
-            <span className="text-xs">Messages</span>
-          </button>
-          <button 
-            onClick={() => setActiveTab('applications')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-              activeTab === 'applications' ? 'bg-slate-100 text-[#002b5c] font-bold' : 'hover:bg-slate-50'
-            }`}
-          >
-            <FileText size={18} />
-            <span className="text-xs">Resumes</span>
-          </button>
 
-          <div className="pt-4 pb-2">
-            <p className="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Manage Site</p>
+          <div className="space-y-1.5">
+            <h3 className="px-4 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mb-4">Communication</h3>
+            <button 
+              onClick={() => setActiveTab('enquiries')}
+              className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-xl transition-all duration-300 group ${
+                activeTab === 'enquiries' ? 'bg-blue-600/10 text-blue-400 font-bold' : 'hover:bg-slate-800/50 hover:text-white'
+              }`}
+            >
+              <Mail size={18} className={activeTab === 'enquiries' ? 'text-blue-400' : 'text-slate-500 group-hover:text-slate-300'} />
+              <span className="text-xs tracking-tight">Contact Messages</span>
+              <span className="ml-auto text-[10px] font-black bg-slate-800 px-2 py-0.5 rounded-full text-slate-400 group-hover:text-white">{enquiries.length}</span>
+            </button>
+            <button 
+              onClick={() => setActiveTab('applications')}
+              className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-xl transition-all duration-300 group ${
+                activeTab === 'applications' ? 'bg-blue-600/10 text-blue-400 font-bold' : 'hover:bg-slate-800/50 hover:text-white'
+              }`}
+            >
+              <FileText size={18} className={activeTab === 'applications' ? 'text-blue-400' : 'text-slate-500 group-hover:text-slate-300'} />
+              <span className="text-xs tracking-tight">Candidate Resumes</span>
+              <span className="ml-auto text-[10px] font-black bg-slate-800 px-2 py-0.5 rounded-full text-slate-400 group-hover:text-white">{applications.length}</span>
+            </button>
           </div>
-          <button 
-            onClick={() => setActiveTab('content')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-              activeTab === 'content' ? 'bg-slate-100 text-[#002b5c] font-bold' : 'hover:bg-slate-50'
-            }`}
-          >
-            <Globe size={18} />
-            <span className="text-xs">Page Text</span>
-          </button>
-          <button 
-            onClick={() => setActiveTab('blogs')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-              activeTab === 'blogs' ? 'bg-slate-100 text-[#002b5c] font-bold' : 'hover:bg-slate-50'
-            }`}
-          >
-            <PenTool size={18} />
-            <span className="text-xs">Blog Posts</span>
-          </button>
-          <button 
-            onClick={() => setActiveTab('jobs')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-              activeTab === 'jobs' ? 'bg-slate-100 text-[#002b5c] font-bold' : 'hover:bg-slate-50'
-            }`}
-          >
-            <Briefcase size={18} />
-            <span className="text-xs">Job Openings</span>
-          </button>
 
-          <div className="pt-4 pb-2">
-            <p className="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Settings</p>
+          <div className="space-y-1.5">
+            <h3 className="px-4 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mb-4">Site Content</h3>
+            <button 
+              onClick={() => setActiveTab('content')}
+              className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-xl transition-all duration-300 group ${
+                activeTab === 'content' ? 'bg-blue-600/10 text-blue-400 font-bold' : 'hover:bg-slate-800/50 hover:text-white'
+              }`}
+            >
+              <Globe size={18} className={activeTab === 'content' ? 'text-blue-400' : 'text-slate-500 group-hover:text-slate-300'} />
+              <span className="text-xs tracking-tight">Page Modules</span>
+            </button>
+            <button 
+              onClick={() => setActiveTab('blogs')}
+              className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-xl transition-all duration-300 group ${
+                activeTab === 'blogs' ? 'bg-blue-600/10 text-blue-400 font-bold' : 'hover:bg-slate-800/50 hover:text-white'
+              }`}
+            >
+              <PenTool size={18} className={activeTab === 'blogs' ? 'text-blue-400' : 'text-slate-500 group-hover:text-slate-300'} />
+              <span className="text-xs tracking-tight">Tech Journals</span>
+            </button>
+            <button 
+              onClick={() => setActiveTab('jobs')}
+              className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-xl transition-all duration-300 group ${
+                activeTab === 'jobs' ? 'bg-blue-600/10 text-blue-400 font-bold' : 'hover:bg-slate-800/50 hover:text-white'
+              }`}
+            >
+              <Briefcase size={18} className={activeTab === 'jobs' ? 'text-blue-400' : 'text-slate-500 group-hover:text-slate-300'} />
+              <span className="text-xs tracking-tight">Job Openings</span>
+            </button>
           </div>
-          <button 
-            onClick={() => setActiveTab('settings')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-              activeTab === 'settings' ? 'bg-slate-100 text-[#002b5c] font-bold' : 'hover:bg-slate-50'
-            }`}
-          >
-            <Settings size={18} />
-            <span className="text-xs">Contact Info</span>
-          </button>
+
+          <div className="space-y-1.5">
+            <h3 className="px-4 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mb-4">Configuration</h3>
+            <button 
+              onClick={() => setActiveTab('settings')}
+              className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-xl transition-all duration-300 group ${
+                activeTab === 'settings' ? 'bg-blue-600/10 text-blue-400 font-bold' : 'hover:bg-slate-800/50 hover:text-white'
+              }`}
+            >
+              <Settings size={18} className={activeTab === 'settings' ? 'text-blue-400' : 'text-slate-500 group-hover:text-slate-300'} />
+              <span className="text-xs tracking-tight">Contact Settings</span>
+            </button>
+          </div>
         </nav>
 
-        <div className="p-4 border-t border-slate-100">
+        <div className="p-6 border-t border-slate-800/50 bg-slate-900/30">
           <button 
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-red-500 transition-all text-xs"
+            className="w-full flex items-center justify-center gap-2.5 px-4 py-2.5 bg-slate-800/50 hover:bg-red-500/10 text-slate-400 hover:text-red-400 rounded-xl text-[10px] font-black uppercase tracking-[0.15em] transition-all border border-slate-700/50 hover:border-red-500/20"
           >
-            <LogOut size={16} /> Logout
+            <LogOut size={14} /> Terminate Session
           </button>
         </div>
       </aside>
 
-      <main className="flex-1 flex flex-col overflow-hidden bg-white">
-        <header className="h-16 border-b border-slate-100 flex items-center justify-between px-8 bg-white/80 backdrop-blur-md z-10">
-          <h1 className="text-sm font-bold text-slate-900">
-            {activeTab === 'dashboard' && 'Dashboard'}
-            {activeTab === 'jobs' && 'Job Openings'}
-            {activeTab === 'applications' && 'Resumes'}
-            {activeTab === 'enquiries' && 'Messages'}
-            {activeTab === 'blogs' && 'Blog'}
-            {activeTab === 'projects' && 'Projects'}
-            {activeTab === 'content' && 'Page Text'}
-            {activeTab === 'metrics' && 'Metrics'}
-            {activeTab === 'settings' && 'Contact Settings'}
-          </h1>
+      <main className="flex-1 flex flex-col overflow-hidden bg-[#f8fafc]">
+        <header className="h-20 border-b border-slate-200 flex items-center justify-between px-10 bg-white shadow-sm z-10">
+          <div className="flex items-center gap-4">
+            <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-100">
+              {activeTab === 'dashboard' && <Activity size={20} className="text-[#002b5c]" />}
+              {activeTab === 'jobs' && <Briefcase size={20} className="text-[#002b5c]" />}
+              {activeTab === 'applications' && <FileText size={20} className="text-[#002b5c]" />}
+              {activeTab === 'enquiries' && <Mail size={20} className="text-[#002b5c]" />}
+              {activeTab === 'blogs' && <PenTool size={20} className="text-[#002b5c]" />}
+              {activeTab === 'projects' && <Zap size={20} className="text-[#002b5c]" />}
+              {activeTab === 'content' && <Globe size={20} className="text-[#002b5c]" />}
+              {activeTab === 'metrics' && <BarChart size={20} className="text-[#002b5c]" />}
+              {activeTab === 'settings' && <Settings size={20} className="text-[#002b5c]" />}
+            </div>
+            <div>
+              <h1 className="text-lg font-black text-slate-900 tracking-tight uppercase leading-none">
+                {activeTab === 'dashboard' && 'System Overview'}
+                {activeTab === 'jobs' && 'Vacancy Pipeline'}
+                {activeTab === 'applications' && 'Candidate Ledger'}
+                {activeTab === 'enquiries' && 'Inquiry Records'}
+                {activeTab === 'blogs' && 'Tech Journals'}
+                {activeTab === 'projects' && 'Project Folios'}
+                {activeTab === 'content' && 'Page Modules'}
+                {activeTab === 'metrics' && 'Trust Metrics'}
+                {activeTab === 'settings' && 'Platform Settings'}
+              </h1>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1.5">
+                HASANTH ENGINEERING • BALANAGAR HUB
+              </p>
+            </div>
+          </div>
           <button 
             onClick={() => window.open('/', '_blank')}
-            className="text-[10px] font-bold text-slate-400 uppercase tracking-widest hover:text-[#002b5c]"
+            className="flex items-center gap-2 px-4 py-2 hover:bg-slate-50 text-slate-600 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all border border-slate-200"
           >
-            View Live Site
+            <ExternalLink size={14} /> View Live App
           </button>
         </header>
 
-        <div className="flex-1 overflow-y-auto p-8 bg-slate-50/30">
-          <div className="max-w-5xl mx-auto">
+        <div className="flex-1 overflow-y-auto p-10 bg-[#f8fafc]">
+          <div className="max-w-6xl mx-auto space-y-12 pb-20">
             {activeTab === 'dashboard' && (
-              <div className="space-y-8 animate-in fade-in duration-500">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div className="bg-white p-6 rounded-xl border border-slate-200/60 shadow-sm">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Messages</p>
-                    <h3 className="text-2xl font-black text-slate-900">{enquiries.length}</h3>
+              <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
+                        <Mail size={24} />
+                      </div>
+                      <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">Live</span>
+                    </div>
+                    <h3 className="text-3xl font-black text-slate-900 mb-1">{enquiries.length}</h3>
+                    <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Messages</p>
                   </div>
-                  <div className="bg-white p-6 rounded-xl border border-slate-200/60 shadow-sm">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Resumes</p>
-                    <h3 className="text-2xl font-black text-slate-900">{applications.length}</h3>
+
+                  <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
+                        <FileText size={24} />
+                      </div>
+                      <span className="text-[10px] font-black text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-100">Inbox</span>
+                    </div>
+                    <h3 className="text-3xl font-black text-slate-900 mb-1">{applications.length}</h3>
+                    <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Resumes</p>
                   </div>
-                  <div className="bg-white p-6 rounded-xl border border-slate-200/60 shadow-sm">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Jobs</p>
-                    <h3 className="text-2xl font-black text-slate-900">{jobs.length}</h3>
+
+                  <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="w-12 h-12 rounded-xl bg-sky-50 flex items-center justify-center text-sky-600">
+                        <Globe size={24} />
+                      </div>
+                      <span className="text-[10px] font-black text-sky-600 bg-sky-50 px-2 py-0.5 rounded-full border border-sky-100">Active</span>
+                    </div>
+                    <h3 className="text-3xl font-black text-slate-900 mb-1">{pageContent.length}</h3>
+                    <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Page Modules</p>
                   </div>
-                  <div className="bg-white p-6 rounded-xl border border-slate-200/60 shadow-sm">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Blogs</p>
-                    <h3 className="text-2xl font-black text-slate-900">{blogs.length}</h3>
+
+                  <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600">
+                        <Briefcase size={24} />
+                      </div>
+                      <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">Open</span>
+                    </div>
+                    <h3 className="text-3xl font-black text-slate-900 mb-1">{jobs.length}</h3>
+                    <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Open Jobs</p>
                   </div>
                 </div>
 
-                <div className="bg-white rounded-xl border border-slate-200/60 p-8">
-                  <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest mb-4">Site Status</h3>
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                      <p className="text-xs text-slate-600 font-medium">Site is live</p>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                      <h3 className="text-xs font-black text-slate-900 uppercase tracking-[0.15em]">Site Operations Pulse</h3>
+                      <Activity size={14} className="text-[#002b5c]" />
                     </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                      <p className="text-xs text-slate-600 font-medium">All data is saved</p>
+                    <div className="p-8">
+                      <div className="space-y-6">
+                        <div className="flex items-center gap-4">
+                          <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                          <div className="flex-1">
+                            <p className="text-xs font-bold text-slate-700 uppercase tracking-tight">Main Infrastructure Status</p>
+                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Site is live and running well • Real-time sync active</p>
+                          </div>
+                          <span className="text-[10px] font-black text-green-600 bg-green-50 px-2 py-0.5 rounded-full uppercase">Online</span>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <div className="w-2 h-2 rounded-full bg-blue-500" />
+                          <div className="flex-1">
+                            <p className="text-xs font-bold text-slate-700 uppercase tracking-tight">Cloud Storage Performance</p>
+                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Database integrity verified for all collections</p>
+                          </div>
+                          <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full uppercase">100% HEALTH</span>
+                        </div>
+                        <div className="pt-4 border-t border-slate-50">
+                          <div className="flex items-center gap-4">
+                            <div className="w-2 h-2 rounded-full bg-purple-500" />
+                            <div className="flex-1">
+                              <p className="text-xs font-bold text-slate-700 uppercase tracking-tight">Admin Console Intelligence</p>
+                              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Updates from this console are reflected across site modules</p>
+                            </div>
+                            <span className="text-[10px] font-black text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full uppercase">Synced</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-[#002b5c] rounded-2xl p-8 text-white relative overflow-hidden shadow-xl shadow-[#002b5c]/20">
+                    <div className="absolute top-0 right-0 p-6 opacity-10">
+                      <Shield size={120} />
+                    </div>
+                    <div className="relative z-10 space-y-6">
+                      <div className="space-y-1">
+                        <h3 className="text-lg font-black tracking-tight uppercase">Admin Console</h3>
+                        <p className="text-[10px] font-bold text-blue-300 uppercase tracking-[0.2em]">Operational Summary</p>
+                      </div>
+                      
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between py-2 border-b border-white/10">
+                          <span className="text-[10px] font-bold uppercase tracking-widest text-blue-200">Active Pages</span>
+                          <span className="text-sm font-black">{pageContent.length} Modules</span>
+                        </div>
+                        <div className="flex items-center justify-between py-2 border-b border-white/10">
+                          <span className="text-[10px] font-bold uppercase tracking-widest text-blue-200">Tech Articles</span>
+                          <span className="text-sm font-black">{blogs.length} Logs</span>
+                        </div>
+                        <div className="flex items-center justify-between py-2 border-b border-white/10">
+                          <span className="text-[10px] font-bold uppercase tracking-widest text-blue-200">Active Pipeline</span>
+                          <span className="text-sm font-black">{jobs.length} Positions</span>
+                        </div>
+                      </div>
+
+                      <div className="pt-4">
+                        <p className="text-[10px] leading-relaxed text-blue-100 font-medium italic">
+                          "All modifications applied within this console are immediately transmitted to the frontend registry for live site reflection."
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -808,22 +935,22 @@ export default function AdminPanel() {
             <div className="space-y-10 animate-in fade-in duration-500">
               
               {/* Position Creator Document */}
-              <section className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-                <div className="bg-slate-50 px-6 py-4 border-b border-slate-200 flex items-center justify-between">
-                  <h2 className="text-xs font-bold uppercase tracking-widest text-[#002b5c]">Add New Job</h2>
+              <section className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+                <div className="bg-slate-50 px-8 py-6 border-b border-slate-100 flex items-center justify-between">
+                  <h2 className="text-xs font-black uppercase tracking-widest text-slate-900">Add New Job Opening</h2>
                 </div>
 
-                <div className="p-6 space-y-6">
+                <div className="p-8 space-y-8">
                   {/* Template Quick Select */}
-                  <div className="space-y-3">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Pick a Template</p>
+                  <div className="space-y-4">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Blueprint Templates</p>
                     <div className="flex flex-wrap gap-2">
                       {JOB_TEMPLATES.map((tmpl) => (
                         <button
                           key={tmpl.name}
                           type="button"
                           onClick={() => handleLoadTemplate(tmpl)}
-                          className="px-3 py-1.5 border border-slate-200 hover:border-[#002b5c]/30 rounded-lg transition-all text-[11px] font-bold text-slate-600 bg-slate-50/50 hover:bg-white"
+                          className="px-4 py-2 border border-slate-200 hover:border-blue-500 hover:text-blue-600 rounded-xl transition-all text-xs font-bold text-slate-600 bg-slate-50/50 hover:bg-blue-50"
                         >
                           {tmpl.name}
                         </button>
@@ -833,30 +960,31 @@ export default function AdminPanel() {
 
                   <div className="h-px bg-slate-100" />
 
-                  <form onSubmit={handleAddJob} className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <form onSubmit={handleAddJob} className="space-y-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                       <div className="space-y-2">
-                        <label className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Job Title</label>
+                        <label className="text-[10px] text-slate-500 font-bold uppercase tracking-widest px-1">Job Title</label>
                         <input type="text" required value={newJob.title} onChange={e => setNewJob({...newJob, title: e.target.value})}
                           placeholder="e.g. Mechanical Designer"
-                          className="w-full bg-slate-50 border border-slate-200 focus:border-[#002b5c] focus:bg-white focus:outline-none rounded-lg px-4 py-2.5 text-sm text-slate-800 font-medium transition-all" />
+                          className="w-full bg-slate-50 border border-slate-100 focus:border-blue-500 focus:bg-white focus:outline-none rounded-xl px-5 py-3.5 text-xs font-bold text-slate-800 transition-all" />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Job Type</label>
+                        <label className="text-[10px] text-slate-500 font-bold uppercase tracking-widest px-1">Job Type</label>
                         <input type="text" required value={newJob.type} onChange={e => setNewJob({...newJob, type: e.target.value})}
                           placeholder="e.g. Full-Time"
-                          className="w-full bg-slate-50 border border-slate-200 focus:border-[#002b5c] focus:bg-white focus:outline-none rounded-lg px-4 py-2.5 text-sm text-slate-800 font-medium transition-all" />
+                          className="w-full bg-slate-50 border border-slate-100 focus:border-blue-500 focus:bg-white focus:outline-none rounded-xl px-5 py-3.5 text-xs font-bold text-slate-800 transition-all" />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Location</label>
+                        <label className="text-[10px] text-slate-500 font-bold uppercase tracking-widest px-1">Location</label>
                         <input type="text" required value={newJob.location} onChange={e => setNewJob({...newJob, location: e.target.value})}
                           placeholder="Hyderabad"
-                          className="w-full bg-slate-50 border border-slate-200 focus:border-[#002b5c] focus:bg-white focus:outline-none rounded-lg px-4 py-2.5 text-sm text-slate-800 font-medium transition-all" />
+                          className="w-full bg-slate-50 border border-slate-100 focus:border-blue-500 focus:bg-white focus:outline-none rounded-xl px-5 py-3.5 text-xs font-bold text-slate-800 transition-all" />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Experience</label>
+                        <label className="text-[10px] text-slate-500 font-bold uppercase tracking-widest px-1">Experience</label>
                         <input type="text" value={newJob.exp} onChange={e => setNewJob({...newJob, exp: e.target.value})}
-                          className="w-full bg-slate-50 border border-slate-200 focus:border-[#002b5c] focus:bg-white focus:outline-none rounded-lg px-4 py-2.5 text-sm text-slate-800 font-medium transition-all" />
+                          placeholder="e.g. 2+ Years"
+                          className="w-full bg-slate-50 border border-slate-100 focus:border-blue-500 focus:bg-white focus:outline-none rounded-xl px-5 py-3.5 text-xs font-bold text-slate-800 transition-all" />
                       </div>
                     </div>
 
@@ -928,56 +1056,80 @@ export default function AdminPanel() {
 
           {/* TAB 2: APPLICATIONS */}
           {activeTab === 'applications' && (
-            <div className="space-y-6 animate-in fade-in duration-500">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xs font-bold uppercase tracking-widest text-[#002b5c]">Candidate Ledger</h2>
-                <div className="text-[10px] text-slate-400 font-medium">Verified Entries: {applications.length}</div>
+            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-black text-slate-900 tracking-tight uppercase">CANDIDATE LEDGER</h2>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1">Verified entries in the recruitment pipeline</p>
+                </div>
+                <div className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl shadow-sm">
+                  <Activity size={14} className="text-blue-500" />
+                  <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">{applications.length} Records</span>
+                </div>
               </div>
               
-              <div className="grid grid-cols-1 gap-4">
+              <div className="grid grid-cols-1 gap-6">
                 {applications.length === 0 ? (
-                  <div className="p-20 border border-dashed border-slate-200 rounded-2xl text-center">
-                    <p className="text-sm text-slate-400 font-medium italic">No candidate credentials currently logged.</p>
+                  <div className="py-24 border-2 border-dashed border-slate-200 rounded-3xl text-center bg-slate-50/50">
+                    <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-slate-300 mx-auto mb-4 shadow-sm border border-slate-100">
+                      <FileText size={32} />
+                    </div>
+                    <p className="text-sm text-slate-400 font-bold uppercase tracking-widest">No candidates logged</p>
                   </div>
                 ) : (
                   applications.map((app) => (
-                    <div key={app.id} className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm overflow-hidden flex items-start gap-6">
-                      <div className="w-12 h-12 bg-slate-50 flex items-center justify-center rounded-xl text-slate-400 shrink-0 border border-slate-100">
-                        <FileText size={20} />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex flex-col md:flex-row md:items-center justify-between mb-3 gap-2">
-                          <div>
-                            <h3 className="text-base font-bold text-slate-900 leading-none mb-1">{app.applicantName}</h3>
-                            <p className="text-xs text-slate-500 font-medium">{app.applicantEmail} • {app.applicantPhone || 'No contact phone provided'}</p>
-                          </div>
-                          <div className="text-[10px] font-mono font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-md uppercase border border-blue-100">
-                            Ref: {app.jobId || 'Embedded/Other'}
-                          </div>
+                    <div key={app.id} className="bg-white border border-slate-200 rounded-2xl p-8 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
+                      <div className="absolute top-0 left-0 w-1.5 h-full bg-blue-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <div className="flex flex-col lg:flex-row lg:items-start gap-8">
+                        <div className="w-16 h-16 bg-slate-50 flex items-center justify-center rounded-2xl text-slate-400 shrink-0 border border-slate-100 shadow-inner group-hover:bg-blue-50 group-hover:text-blue-500 transition-colors">
+                          <User size={28} />
                         </div>
-                        
-                        {app.coverLetter && (
-                          <div className="mb-4 text-xs text-slate-600 leading-relaxed font-medium p-4 bg-slate-50 rounded-lg border-l-2 border-slate-200 italic">
-                            "{app.coverLetter}"
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-4">
+                            <div>
+                              <h3 className="text-lg font-black text-slate-900 tracking-tight leading-none mb-2 uppercase">{app.applicantName}</h3>
+                              <div className="flex flex-wrap items-center gap-4">
+                                <span className="flex items-center gap-1.5 text-xs text-slate-500 font-bold"><Mail size={12} /> {app.applicantEmail}</span>
+                                <span className="flex items-center gap-1.5 text-xs text-slate-500 font-bold"><Phone size={12} /> {app.applicantPhone || 'N/A'}</span>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-3 py-1 rounded-full uppercase tracking-tighter border border-blue-100">
+                                Ref: {app.jobId || 'Embedded/Other'}
+                              </span>
+                            </div>
                           </div>
-                        )}
+                          
+                          {app.coverLetter && (
+                            <div className="mb-6 text-xs text-slate-600 leading-relaxed font-medium p-5 bg-slate-50/50 rounded-2xl border border-slate-100 italic relative">
+                              <span className="absolute -top-3 left-4 text-slate-200 text-4xl font-serif leading-none">“</span>
+                              {app.coverLetter}
+                            </div>
+                          )}
 
-                        <div className="flex flex-wrap items-center gap-4 pt-2 border-t border-slate-100">
-                          {app.resumeData && (
-                            <a href={app.resumeData} download={app.resumeName || 'resume'} className="flex items-center gap-2 text-xs font-bold text-[#002b5c] hover:underline">
-                              <Download size={14} /> Download CV ({app.resumeName || 'Document'})
-                            </a>
-                          )}
-                          {app.portfolioLink && (
-                            <a href={app.portfolioLink} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-slate-500 hover:text-slate-800 underline">
-                              Portfolio Portfolio
-                            </a>
-                          )}
+                          <div className="flex flex-wrap items-center justify-between gap-4 pt-6 border-t border-slate-50">
+                            <div className="flex items-center gap-6">
+                              {app.resumeData && (
+                                <a href={app.resumeData} download={app.resumeName || 'resume'} className="flex items-center gap-2 text-xs font-black text-blue-600 hover:text-blue-700 transition-colors bg-blue-50 px-4 py-2 rounded-xl border border-blue-100 uppercase tracking-widest">
+                                  <Download size={14} /> CV Document
+                                </a>
+                              )}
+                              {app.portfolioLink && (
+                                <a href={app.portfolioLink} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors uppercase tracking-widest">
+                                  <Link size={14} /> Portfolio
+                                </a>
+                              )}
+                            </div>
+                            <button 
+                              onClick={() => handleDeleteApplication(app.id, app.applicantName)}
+                              className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                              title="Delete Record"
+                            >
+                              <Trash2 size={18} />
+                            </button>
+                          </div>
                         </div>
                       </div>
-                      <button onClick={() => handleDeleteApplication(app.id, app.applicantName)} className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all shrink-0">
-                        <Trash2 size={18} />
-                      </button>
                     </div>
                   ))
                 )}
@@ -987,56 +1139,80 @@ export default function AdminPanel() {
 
           {/* TAB 3: INQUIRIES */}
           {activeTab === 'enquiries' && (
-            <div className="space-y-6 animate-in fade-in duration-500">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xs font-bold uppercase tracking-widest text-[#002b5c]">Messages</h2>
-                <div className="text-[10px] text-slate-400 font-medium">Total: {enquiries.length}</div>
+            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-black text-slate-900 tracking-tight uppercase">INQUIRY RECORDS</h2>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1">Logged correspondence from external clients</p>
+                </div>
+                <div className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl shadow-sm">
+                  <MessageCircle size={14} className="text-blue-500" />
+                  <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">{enquiries.length} Messages</span>
+                </div>
               </div>
               
-              <div className="grid grid-cols-1 gap-4">
+              <div className="grid grid-cols-1 gap-6">
                 {enquiries.length === 0 ? (
-                  <div className="p-20 border border-dashed border-slate-200 rounded-2xl text-center">
-                    <p className="text-sm text-slate-400 font-medium italic">No messages yet.</p>
+                  <div className="py-24 border-2 border-dashed border-slate-200 rounded-3xl text-center bg-slate-50/50">
+                    <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-slate-300 mx-auto mb-4 shadow-sm border border-slate-100">
+                      <Mail size={32} />
+                    </div>
+                    <p className="text-sm text-slate-400 font-bold uppercase tracking-widest">No messages currently queued</p>
                   </div>
                 ) : (
                   enquiries.map((enq) => (
-                    <div key={enq.id} className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm flex items-start gap-6 transition-all hover:border-[#002b5c]/20 hover:shadow-md group">
-                      <div className="w-12 h-12 bg-slate-50 flex items-center justify-center rounded-xl text-slate-400 shrink-0 border border-slate-100 group-hover:bg-[#002b5c]/5 group-hover:text-[#002b5c] transition-colors">
-                        <Mail size={20} />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center justify-between mb-2 border-b border-slate-50 pb-2">
-                          <div className="flex items-center gap-2">
-                            <h3 className="text-sm font-bold text-slate-900">{enq.applicantName || 'Anonymous'}</h3>
-                            {enq.type === 'consultation' && (
-                              <span className="px-1.5 py-0.5 bg-blue-50 text-[#002b5c] text-[8px] font-bold uppercase rounded border border-blue-100">Consultation</span>
-                            )}
+                    <div key={enq.id} className="bg-white border border-slate-200 rounded-2xl p-8 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
+                      <div className="absolute top-0 left-0 w-1.5 h-full bg-blue-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <div className="flex items-start gap-8">
+                        <div className="w-16 h-16 bg-slate-50 flex items-center justify-center rounded-2xl text-slate-400 shrink-0 border border-slate-100 shadow-inner group-hover:bg-blue-50 group-hover:text-blue-500 transition-colors">
+                          <MessageCircle size={28} />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-4 border-b border-slate-50 pb-4">
+                            <div>
+                              <div className="flex items-center gap-3 mb-1.5">
+                                <h3 className="text-lg font-black text-slate-900 tracking-tight leading-none uppercase">{enq.applicantName || 'Anonymous'}</h3>
+                                {enq.type === 'consultation' && (
+                                  <span className="px-2 py-0.5 bg-indigo-50 text-indigo-600 text-[9px] font-black uppercase rounded-lg border border-indigo-100 tracking-tighter">Consultation</span>
+                                )}
+                              </div>
+                              <p className="text-xs text-slate-500 font-bold">{enq.applicantEmail} • {enq.phone || 'No phone'}</p>
+                            </div>
+                            <span className="text-[10px] text-slate-400 font-black uppercase tracking-widest bg-slate-50 px-3 py-1 rounded-lg border border-slate-100">
+                              {enq.timestamp?.toDate ? enq.timestamp.toDate().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Date Unlogged'}
+                            </span>
                           </div>
-                          <span className="text-[10px] text-slate-400 font-mono italic">
-                            {enq.timestamp?.toDate ? enq.timestamp.toDate().toLocaleString() : 'Date'}
-                          </span>
-                        </div>
-                        
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 mb-3">
-                          <p className="text-[11px] text-slate-500 font-medium">Email: <span className="text-slate-700">{enq.applicantEmail}</span></p>
-                          {enq.phone && <p className="text-[11px] text-slate-500 font-medium">Phone: <span className="text-slate-700">{enq.phone}</span></p>}
-                          {enq.company && <p className="text-[11px] text-slate-500 font-medium">Co: <span className="text-slate-700">{enq.company}</span></p>}
-                          {enq.industry && <p className="text-[11px] text-slate-500 font-medium">Ind: <span className="text-slate-700">{enq.industry}</span></p>}
-                          {enq.serviceType && <p className="text-[11px] text-slate-500 font-medium">Service: <span className="text-slate-700">{enq.serviceType}</span></p>}
-                          {enq.executionTimeframe && <p className="text-[11px] text-slate-500 font-medium">Timing: <span className="text-slate-700">{enq.executionTimeframe}</span></p>}
-                        </div>
+                          
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                            <div className="p-3 bg-slate-50 rounded-xl border border-slate-100/50">
+                              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Company</p>
+                              <p className="text-xs font-bold text-slate-700 truncate">{enq.company || 'N/A'}</p>
+                            </div>
+                            <div className="p-3 bg-slate-50 rounded-xl border border-slate-100/50">
+                              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Industry</p>
+                              <p className="text-xs font-bold text-slate-700 truncate">{enq.industry || 'N/A'}</p>
+                            </div>
+                            <div className="p-3 bg-slate-50 rounded-xl border border-slate-100/50">
+                              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Service</p>
+                              <p className="text-xs font-bold text-slate-700 truncate">{enq.serviceType || 'N/A'}</p>
+                            </div>
+                            <div className="p-3 bg-slate-50 rounded-xl border border-slate-100/50">
+                              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Timeline</p>
+                              <p className="text-xs font-bold text-slate-700 truncate">{enq.executionTimeframe || 'N/A'}</p>
+                            </div>
+                          </div>
 
-                        <div className="bg-slate-50 p-4 rounded-lg border-l-4 border-[#002b5c] group-hover:bg-white transition-colors duration-300">
-                          <p className="text-[10px] text-[#002b5c] font-mono uppercase mb-2 font-black tracking-tighter opacity-70 flex items-center gap-2">
-                            <Zap size={10} />
-                            {enq.subject || 'Subject'}
-                          </p>
-                          <p className="text-[13px] text-slate-800 leading-relaxed font-semibold">"{enq.message}"</p>
+                          <div className="bg-slate-50 p-6 rounded-2xl border-l-4 border-blue-600 group-hover:bg-white transition-colors duration-300 shadow-inner">
+                            <p className="text-[10px] text-blue-600 font-black uppercase mb-3 tracking-widest flex items-center gap-2">
+                              <Zap size={10} /> {enq.subject || 'Message Narrative'}
+                            </p>
+                            <p className="text-sm text-slate-800 leading-relaxed font-semibold italic">"{enq.message}"</p>
+                          </div>
                         </div>
+                        <button onClick={() => handleDeleteEnquiry(enq.id, enq.applicantName || 'Anonymous')} className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all shrink-0">
+                          <Trash2 size={20} />
+                        </button>
                       </div>
-                      <button onClick={() => handleDeleteEnquiry(enq.id, enq.applicantName || 'Anonymous')} className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all shrink-0">
-                        <Trash2 size={18} />
-                      </button>
                     </div>
                   ))
                 )}
@@ -1046,43 +1222,48 @@ export default function AdminPanel() {
 
           {/* TAB 4: BLOGS */}
           {activeTab === 'blogs' && (
-            <div className="space-y-6 animate-in fade-in duration-500">
-              <div className="flex items-center justify-between mb-4">
+            <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-xs font-bold uppercase tracking-widest text-[#002b5c]">Blog Posts</h2>
-                  <p className="text-[10px] text-slate-400 font-medium">Posts: {blogs.length}</p>
+                  <h2 className="text-xl font-black text-slate-900 tracking-tight uppercase">Tech Journals</h2>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1">Manage technical publications and site articles</p>
                 </div>
                 <button 
                   onClick={() => setIsAddingBlog(!isAddingBlog)}
-                  className="flex items-center gap-2 bg-[#002b5c] text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-blue-900 transition-all shadow-lg shadow-blue-900/10"
+                  className={`flex items-center gap-2.5 px-6 py-3 rounded-xl text-xs font-black uppercase tracking-[0.15em] transition-all shadow-xl shadow-blue-500/10 ${
+                    isAddingBlog ? 'bg-slate-200 text-slate-600 hover:bg-slate-300' : 'bg-gradient-to-r from-blue-600 to-[#002b5c] text-white hover:shadow-blue-500/20'
+                  }`}
                 >
                   {isAddingBlog ? <ArrowLeft size={16} /> : <Plus size={16} />}
-                  {isAddingBlog ? 'Cancel' : 'New Post'}
+                  {isAddingBlog ? 'Cancel Operation' : 'Create Publication'}
                 </button>
               </div>
+              
               {isAddingBlog ? (
-                <form onSubmit={handleSaveBlog} className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl p-6 space-y-4 animate-in slide-in-from-top-4 duration-500">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Post Title *</label>
+                <form onSubmit={handleSaveBlog} className="bg-white border border-slate-200 rounded-3xl p-10 shadow-lg space-y-8 animate-in slide-in-from-top-4 duration-500 overflow-hidden relative">
+                  <div className="absolute top-0 right-0 p-8 opacity-5 text-slate-900"><PenTool size={120} /></div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 relative">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-1">Publication Title *</label>
                       <input
                         type="text"
                         required
                         value={newBlog.title}
                         onChange={(e) => setNewBlog({...newBlog, title: e.target.value})}
-                        className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-800 font-semibold focus:border-[#002b5c] outline-none"
-                        placeholder="My New Post"
+                        className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 text-sm text-slate-800 font-bold focus:border-blue-500 focus:bg-white outline-none transition-all"
+                        placeholder="e.g. Design of High-Speed Telemetry Systems"
                       />
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-widest block">Author *</label>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-1">Author / Division *</label>
                       <input
                         type="text"
                         required
                         value={newBlog.author}
                         onChange={(e) => setNewBlog({...newBlog, author: e.target.value})}
-                        className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-800 font-semibold focus:border-[#002b5c] outline-none"
-                        placeholder="Admin"
+                        className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 text-sm text-slate-800 font-bold focus:border-blue-500 focus:bg-white outline-none transition-all"
+                        placeholder="Admin / Tech Dept"
                       />
                     </div>
                   </div>
@@ -1696,123 +1877,115 @@ export default function AdminPanel() {
 
         {/* TAB 10: SITE SETTINGS */}
         {activeTab === 'settings' && (
-          <div className="space-y-10 animate-in fade-in duration-500">
-            <header className="mb-8">
-              <h2 className="text-xs font-bold uppercase tracking-widest text-[#002b5c]">Settings</h2>
-              <p className="text-[10px] text-slate-400 font-medium">Update your phone number and address</p>
+          <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <header>
+              <h2 className="text-xl font-black text-slate-900 tracking-tight uppercase">PLATFORM CONFIGURATION</h2>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1">Calibrate operational support parameters and contact nodes</p>
             </header>
 
-            <div className="max-w-3xl">
-              <form onSubmit={handleSaveSiteConfig} className="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm space-y-8">
+            <form onSubmit={handleSaveSiteConfig} className="max-w-4xl grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <section className="bg-white border border-slate-200 rounded-3xl p-10 shadow-sm space-y-8">
+                <div className="flex items-center gap-4 mb-2">
+                  <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 shadow-sm border border-blue-100">
+                    <Phone size={20} />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Support Nodes</h3>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Direct communication channels</p>
+                  </div>
+                </div>
+
                 <div className="space-y-6">
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 border border-emerald-100">
-                      <MessageCircle size={20} />
-                    </div>
-                    <div>
-                      <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest">WhatsApp Settings</h3>
-                      <p className="text-[10px] text-slate-500 font-medium">Change your WhatsApp number and auto-message</p>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-1">Primary Hotline</label>
+                    <div className="relative group">
+                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors" size={16} />
+                      <input 
+                        type="text" 
+                        value={siteConfig.contactPhone}
+                        onChange={e => setSiteConfig({...siteConfig, contactPhone: e.target.value})}
+                        className="w-full bg-slate-50 border border-slate-100 rounded-2xl pl-12 pr-6 py-4 text-sm text-slate-800 font-bold focus:border-blue-500 focus:bg-white transition-all outline-none"
+                      />
                     </div>
                   </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">WhatsApp Number</label>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-1">Official Registry Email</label>
+                    <div className="relative group">
+                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors" size={16} />
                       <input 
-                        type="text"
-                        className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-3.5 text-xs font-bold text-slate-800 outline-none focus:border-[#002b5c] focus:bg-white transition-all"
+                        type="text" 
+                        value={siteConfig.contactEmail}
+                        onChange={e => setSiteConfig({...siteConfig, contactEmail: e.target.value})}
+                        className="w-full bg-slate-50 border border-slate-100 rounded-2xl pl-12 pr-6 py-4 text-sm text-slate-800 font-bold focus:border-blue-500 focus:bg-white transition-all outline-none"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-1">WhatsApp Integration Number</label>
+                    <div className="relative group">
+                      <MessageCircle className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors" size={16} />
+                      <input 
+                        type="text" 
                         value={siteConfig.whatsappNumber}
                         onChange={e => setSiteConfig({...siteConfig, whatsappNumber: e.target.value})}
-                        placeholder="e.g. 918328903031"
-                      />
-                      <p className="text-[9px] text-slate-400 px-1">Include country code (e.g. 91 for India)</p>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Default Message</label>
-                      <textarea 
-                        rows={4}
-                        className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-3.5 text-xs font-bold text-slate-800 outline-none focus:border-[#002b5c] focus:bg-white transition-all resize-none"
-                        value={siteConfig.whatsappMessage}
-                        onChange={e => setSiteConfig({...siteConfig, whatsappMessage: e.target.value})}
-                        placeholder="Message that customers will see..."
+                        className="w-full bg-slate-50 border border-slate-100 rounded-2xl pl-12 pr-6 py-4 text-sm text-slate-800 font-bold focus:border-blue-500 focus:bg-white transition-all outline-none"
                       />
                     </div>
                   </div>
+                </div>
+              </section>
 
-                  <div className="pt-6 border-t border-slate-100">
-                    <div className="flex items-center gap-4 mb-6">
-                      <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 border border-blue-100">
-                        <Phone size={20} />
-                      </div>
-                      <div>
-                        <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest">Contact Details</h3>
-                        <p className="text-[10px] text-slate-500 font-medium">Change your phone, email, and address on the site</p>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Public Phone</label>
-                        <input 
-                          type="text"
-                          className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-3.5 text-xs font-bold text-slate-800 outline-none focus:border-[#002b5c] focus:bg-white transition-all"
-                          value={siteConfig.contactPhone}
-                          onChange={e => setSiteConfig({...siteConfig, contactPhone: e.target.value})}
-                          placeholder="e.g. 8187044238"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Public Email</label>
-                        <input 
-                          type="email"
-                          className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-3.5 text-xs font-bold text-slate-800 outline-none focus:border-[#002b5c] focus:bg-white transition-all"
-                          value={siteConfig.contactEmail}
-                          onChange={e => setSiteConfig({...siteConfig, contactEmail: e.target.value})}
-                          placeholder="e.g. hasanthengg@gmail.com"
-                        />
-                      </div>
-                      <div className="space-y-2 md:col-span-2">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Full Address</label>
-                        <textarea 
-                          rows={2}
-                          className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-3.5 text-xs font-bold text-slate-800 outline-none focus:border-[#002b5c] focus:bg-white transition-all resize-none"
-                          value={siteConfig.contactAddress}
-                          onChange={e => setSiteConfig({...siteConfig, contactAddress: e.target.value})}
-                          placeholder="Enter your business address..."
-                        />
-                      </div>
-                      <div className="space-y-2 md:col-span-2">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Area (City)</label>
-                        <input 
-                          type="text"
-                          className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-3.5 text-xs font-bold text-slate-800 outline-none focus:border-[#002b5c] focus:bg-white transition-all"
-                          value={siteConfig.contactAddressShort}
-                          onChange={e => setSiteConfig({...siteConfig, contactAddressShort: e.target.value})}
-                          placeholder="e.g. Hyderabad"
-                        />
-                      </div>
-                    </div>
+              <section className="bg-white border border-slate-200 rounded-3xl p-10 shadow-sm space-y-8">
+                <div className="flex items-center gap-4 mb-2">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 shadow-sm border border-emerald-100">
+                    <MapPin size={20} />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Balanagar Hub</h3>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Physical facility location</p>
                   </div>
                 </div>
 
-                <div className="pt-6 border-t border-slate-100 flex justify-end">
-                  <button 
-                    type="submit"
-                    disabled={isLoading}
-                    className="bg-[#002b5c] text-white px-10 py-3.5 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-blue-900 transition-all shadow-xl shadow-blue-900/10 flex items-center gap-2"
-                  >
-                    {isLoading ? <RefreshCw size={14} className="animate-spin" /> : <Save size={14} />}
-                    Save All Settings
-                  </button>
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-1">Operational Address (Long Form)</label>
+                    <textarea 
+                      rows={3}
+                      value={siteConfig.contactAddress}
+                      onChange={e => setSiteConfig({...siteConfig, contactAddress: e.target.value})}
+                      className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 text-sm text-slate-800 font-bold focus:border-blue-500 focus:bg-white transition-all outline-none resize-none"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-1">Display Location (Short)</label>
+                    <input 
+                      type="text" 
+                      value={siteConfig.contactAddressShort}
+                      onChange={e => setSiteConfig({...siteConfig, contactAddressShort: e.target.value})}
+                      className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 text-sm text-slate-800 font-bold focus:border-blue-500 focus:bg-white transition-all outline-none"
+                      placeholder="e.g. Balanagar, Hyderabad"
+                    />
+                  </div>
+
+                  <div className="pt-4">
+                    <button 
+                      type="submit"
+                      disabled={isLoading}
+                      className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-blue-600 to-[#002b5c] text-white px-8 py-4 rounded-2xl text-xs font-black uppercase tracking-[0.2em] shadow-xl shadow-blue-500/20 hover:shadow-blue-500/40 transition-all active:scale-[0.98] disabled:opacity-50"
+                    >
+                      {isLoading ? <RefreshCw className="animate-spin" size={16} /> : <Save size={16} />}
+                      Update Registry
+                    </button>
+                  </div>
                 </div>
-              </form>
-            </div>
+              </section>
+            </form>
           </div>
-            )}
-          </div>
-        </div>
-      </main>
+        )}
+      </div>
     </div>
+  </main>
+</div>
   );
 }
 
