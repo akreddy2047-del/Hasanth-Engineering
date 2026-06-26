@@ -333,7 +333,7 @@ export default function ProductExperience() {
               {/* Footer inside interactive datasheet */}
               <div className="mt-8 pt-4 border-t border-[#e2e8f0] flex flex-col sm:flex-row justify-between items-center gap-4">
                 <span className="text-[10px] font-sans text-slate-500 uppercase tracking-wider font-semibold">
-                  Hasanth Engineering Physical Systems Division • Estd 2016
+                  Hasanth Engineering Physical Systems Division • Estd 2023
                 </span>
                 <button
                   onClick={() => setSelectedProduct(null)}

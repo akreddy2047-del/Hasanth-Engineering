@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Mail, Phone, MapPin, Search, Globe, ChevronRight, BarChart3, TrendingUp, CheckCircle, Send, Radio, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useToast } from '../hooks/useToast';
+import { useSiteConfig } from '../hooks/useSiteConfig';
 import { db, handleFirestoreError, OperationType } from '../lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
@@ -9,6 +10,7 @@ export default function ContactSection() {
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
   const [sent, setSent] = useState(false);
   const { showToast } = useToast();
+  const { config } = useSiteConfig();
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,11 +85,11 @@ export default function ContactSection() {
               <span className="text-[9px] font-sans text-slate-400 uppercase tracking-widest block font-bold">
                 Contact Us
               </span>
-              <a href="tel:8187044238" className="text-xl font-black text-[#002b5c] hover:text-[#002b5c]/85 block transition-colors leading-tight">
-                8187044238
+              <a href={`tel:${config.contactPhone}`} className="text-xl font-black text-[#002b5c] hover:text-[#002b5c]/85 block transition-colors leading-tight">
+                {config.contactPhone}
               </a>
               <p className="text-[11px] text-slate-500 leading-relaxed pt-1 font-semibold">
-                Speak directly with our Hyderabad operations desk.
+                Speak directly with our {config.contactAddressShort.split(',')[1]?.trim() || 'Hyderabad'} operations desk.
               </p>
             </div>
           </div>
@@ -102,8 +104,8 @@ export default function ContactSection() {
               <span className="text-[9px] font-sans text-slate-400 uppercase tracking-widest block font-bold">
                 Inquiries Email
               </span>
-              <a href="mailto:hasanthengg@gmail.com" className="text-base font-black text-[#002b5c] hover:text-[#002b5c]/85 block transition-colors truncate">
-                hasanthengg@gmail.com
+              <a href={`mailto:${config.contactEmail}`} className="text-base font-black text-[#002b5c] hover:text-[#002b5c]/85 block transition-colors truncate">
+                {config.contactEmail}
               </a>
               <p className="text-[11px] text-slate-500 leading-relaxed pt-1 font-semibold">
                 Submit raw drawings or PDF specifications.
@@ -125,7 +127,7 @@ export default function ContactSection() {
                 HASANTH ENGINEERING (OPC) PRIVATE LIMITED
               </span>
               <p className="text-[10px] text-slate-500 leading-relaxed pt-1 font-semibold">
-                H NO 3-3-8/4, KUKATPALLY, Vivekanandanagar Colony, Balanagar, Hyderabad-500072, Telangana.
+                {config.contactAddress}
               </p>
             </div>
           </div>

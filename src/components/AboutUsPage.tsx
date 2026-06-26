@@ -118,7 +118,7 @@ export default function AboutUsPage() {
                     {pageData?.title || "HASANTH ENGINEERING"}
                   </h2>
                   <p className="text-slate-400 font-sans text-[9px] uppercase tracking-[0.3em] font-bold">
-                    {pageData?.subtitle || "(OPC) PVT LTD • ESTD 2016"}
+                    {pageData?.subtitle || "(OPC) PVT LTD • ESTD 2023"}
                   </p>
                 </div>
               </div>

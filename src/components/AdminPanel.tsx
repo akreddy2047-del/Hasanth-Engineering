@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { db, handleFirestoreError, OperationType } from '../lib/firebase';
 import { collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, onSnapshot, serverTimestamp } from 'firebase/firestore';
 import { 
-  Lock, CheckCircle, Trash2, Plus, Briefcase, FileText, Mail, 
+  Lock, CheckCircle, Trash2, Plus, Briefcase, FileText, Mail, Phone,
   MapPin, Clock, Calendar, Shield, LogOut, ChevronRight, RefreshCw, AlertCircle, Download, Zap, PenTool, ArrowLeft,
   Share2, Link, Check, Twitter, Linkedin, Radio, CheckCircle2, ExternalLink, Activity, Search, Globe, User,
   BarChart, Settings, MessageCircle, Save
@@ -76,7 +76,11 @@ export default function AdminPanel() {
   // Site Configuration State
   const [siteConfig, setSiteConfig] = useState<any>({
     whatsappNumber: '8187044238',
-    whatsappMessage: 'Hello, I am looking to schedule an industrial engineering consultation with HASANTH ENGINEERING. Please connect me with a designer.'
+    whatsappMessage: 'Hello, I am looking to schedule an industrial engineering consultation with HASANTH ENGINEERING. Please connect me with a designer.',
+    contactPhone: '8187044238',
+    contactEmail: 'hasanthengg@gmail.com',
+    contactAddress: 'H NO 3-3-8/4, KUKATPALLY, Vivekanandanagar Colony, Balanagar, Hyderabad-500072, Telangana.',
+    contactAddressShort: 'Kukatpally, Hyderabad'
   });
   // Content Management State
   const [editingPageId, setEditingPageId] = useState<string | null>(null);
@@ -1667,6 +1671,61 @@ export default function AdminPanel() {
                         onChange={e => setSiteConfig({...siteConfig, whatsappMessage: e.target.value})}
                         placeholder="Default greeting message..."
                       />
+                    </div>
+                  </div>
+
+                  <div className="pt-6 border-t border-slate-100">
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 border border-blue-100">
+                        <Phone size={20} />
+                      </div>
+                      <div>
+                        <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest">Public Contact Nodes</h3>
+                        <p className="text-[10px] text-slate-500 font-medium">Update phone, email and physical address displayed site-wide</p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Contact Phone</label>
+                        <input 
+                          type="text"
+                          className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-3.5 text-xs font-bold text-slate-800 outline-none focus:border-[#002b5c] focus:bg-white transition-all"
+                          value={siteConfig.contactPhone}
+                          onChange={e => setSiteConfig({...siteConfig, contactPhone: e.target.value})}
+                          placeholder="e.g. 8187044238"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Contact Email</label>
+                        <input 
+                          type="email"
+                          className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-3.5 text-xs font-bold text-slate-800 outline-none focus:border-[#002b5c] focus:bg-white transition-all"
+                          value={siteConfig.contactEmail}
+                          onChange={e => setSiteConfig({...siteConfig, contactEmail: e.target.value})}
+                          placeholder="e.g. hasanthengg@gmail.com"
+                        />
+                      </div>
+                      <div className="space-y-2 md:col-span-2">
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Full Physical Address</label>
+                        <textarea 
+                          rows={2}
+                          className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-3.5 text-xs font-bold text-slate-800 outline-none focus:border-[#002b5c] focus:bg-white transition-all resize-none"
+                          value={siteConfig.contactAddress}
+                          onChange={e => setSiteConfig({...siteConfig, contactAddress: e.target.value})}
+                          placeholder="Enter full registered address..."
+                        />
+                      </div>
+                      <div className="space-y-2 md:col-span-2">
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Short Address (City/Area)</label>
+                        <input 
+                          type="text"
+                          className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-3.5 text-xs font-bold text-slate-800 outline-none focus:border-[#002b5c] focus:bg-white transition-all"
+                          value={siteConfig.contactAddressShort}
+                          onChange={e => setSiteConfig({...siteConfig, contactAddressShort: e.target.value})}
+                          placeholder="e.g. Kukatpally, Hyderabad"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>

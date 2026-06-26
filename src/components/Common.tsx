@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Send, CheckCircle, Cpu, Shield, Zap, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useToast } from '../hooks/useToast';
+import { useSiteConfig } from '../hooks/useSiteConfig';
 import { db, handleFirestoreError, OperationType } from '../lib/firebase';
 import { collection, addDoc, serverTimestamp, doc, onSnapshot } from 'firebase/firestore';
 
@@ -237,21 +238,7 @@ export function ConsultationModal({ isOpen, onClose }: ConsultationModalProps) {
 }
 
 export function StickyWhatsApp() {
-  const [config, setConfig] = useState({
-    whatsappNumber: '8187044238',
-    whatsappMessage: 'Hello, I am looking to schedule an industrial engineering consultation with HASANTH ENGINEERING. Please connect me with a designer.'
-  });
-
-  useEffect(() => {
-    const unsub = onSnapshot(doc(db, 'site_config', 'global'), (snapshot) => {
-      if (snapshot.exists()) {
-        setConfig(snapshot.data() as any);
-      }
-    }, (error) => {
-      console.error("WhatsApp config fetch failed: ", error);
-    });
-    return () => unsub();
-  }, []);
+  const { config } = useSiteConfig();
 
   const openWhatsApp = () => {
     const textMsg = encodeURIComponent(config.whatsappMessage);

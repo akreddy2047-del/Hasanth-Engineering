@@ -449,7 +449,7 @@ export default function ServicesPage() {
                           {divisions[activeDivision].badge}
                         </span>
                         <span className="text-[10px] text-slate-400 font-mono uppercase tracking-widest">
-                          EST. 2016 • Hyderabad CORE
+                          EST. 2023 • Hyderabad CORE
                         </span>
                       </div>
                       

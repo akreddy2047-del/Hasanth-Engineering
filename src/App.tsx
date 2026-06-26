@@ -575,7 +575,7 @@ export default function App() {
                 category="Corporate Identity"
                 title="About Us"
                 description="Hasanth Engineering (OPC) Private Limited is a pioneering multidisciplinary engineering company based in Balanagar, Hyderabad."
-                badge="Established 2016"
+                badge="Established 2023"
               />
               <AboutUsPage />
             </div>

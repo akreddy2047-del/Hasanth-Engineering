@@ -8,12 +8,14 @@ import SEO from './SEO';
 import { InteractiveCard } from './InteractiveCard';
 import { ScrollEntrance, StaggerContainer, StaggerItem } from './ScrollEntrance';
 import { useToast } from '../hooks/useToast';
+import { useSiteConfig } from '../hooks/useSiteConfig';
 import { db } from '../lib/firebase';
 import { collection, onSnapshot, addDoc, serverTimestamp, query, orderBy } from 'firebase/firestore';
 
 export default function CareersPage() {
   const [copied, setCopied] = useState(false);
   const { showToast } = useToast();
+  const { config } = useSiteConfig();
   const [jobs, setJobs] = useState<any[]>([]);
   const [applyingJob, setApplyingJob] = useState<any | null>(null);
 
@@ -53,7 +55,7 @@ export default function CareersPage() {
   }, []);
 
   const handleCopyEmail = () => {
-    navigator.clipboard.writeText('hasanthengg@gmail.com');
+    navigator.clipboard.writeText(config.contactEmail);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -244,7 +246,7 @@ export default function CareersPage() {
                 <div className="p-4 bg-white/5 rounded-xl border border-white/10 shadow-inner">
                   <p className="text-[9px] font-sans text-slate-400 uppercase tracking-widest block mb-2 font-bold">SEND EMAIL TO:</p>
                   <div className="flex items-center justify-between gap-2.5">
-                    <span className="text-xs font-sans font-semibold text-white truncate text-ellipsis">hasanthengg@gmail.com</span>
+                    <span className="text-xs font-sans font-semibold text-white truncate text-ellipsis">{config.contactEmail}</span>
                     <button
                       onClick={handleCopyEmail}
                       className="p-1 px-3 bg-white hover:bg-sky-400 hover:text-[#002b5c] text-[#002b5c] font-sans text-[9px] uppercase font-black rounded cursor-pointer transition-colors"

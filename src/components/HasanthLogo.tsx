@@ -110,7 +110,7 @@ export default function HasanthLogo({ size = 44, showText = false, className, ..
             HASANTH ENGINEERING
           </span>
           <span className="text-slate-400 font-sans text-[8px] uppercase tracking-widest mt-1.5 font-bold">
-            (OPC) PVT LTD • EST. 2016
+            (OPC) PVT LTD • EST. 2023
           </span>
         </div>
       )}

@@ -162,7 +162,7 @@ export default function Footer({ onOpenConsultation, onPageChange }: FooterProps
               &copy; {currentYear} HASANTH ENGINEERING (OPC) PRIVATE LIMITED.
             </span>
             <span className="hidden md:inline text-white/50">|</span>
-            <span className="text-white/80 font-medium">Est. 2023 • CIN: U74999KA2016OPC093023</span>
+            <span className="text-white/80 font-medium">Est. 2023 • CIN: U74999KA2023OPC093023</span>
           </div>
 
           <div className="flex gap-4 items-center">
