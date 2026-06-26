@@ -39,6 +39,7 @@ export function ConsultationModal({ isOpen, onClose }: ConsultationModalProps) {
         phone: formData.phone,
         industry: formData.industry,
         serviceType: formData.serviceType,
+        executionTimeframe: formData.executionTimeframe,
         message: formData.projectScope,
         subject: `Consultation: ${formData.serviceType}`,
         type: 'consultation',
@@ -246,6 +247,8 @@ export function StickyWhatsApp() {
       if (snapshot.exists()) {
         setConfig(snapshot.data() as any);
       }
+    }, (error) => {
+      console.error("WhatsApp config fetch failed: ", error);
     });
     return () => unsub();
   }, []);

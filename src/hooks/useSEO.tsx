@@ -3,8 +3,8 @@ import { Helmet } from 'react-helmet-async';
 
 export const seoDataMap: Record<string, { title: string; description: string; keywords: string }> = {
   home: {
-    title: "Hasanth Engineering (OPC) Private Limited | Mechanical, Electronics & Aerospace Innovation",
-    description: "Multidisciplinary systems engineering providing advanced designs in 3D CAD, high-density multilayer PCBs, drone autopilots, and SCADA automation.",
+    title: "Hasanth Engineering | CAD, PCB Design & UAV Systems, Hyderabad",
+    description: "Multidisciplinary engineering company in Hyderabad offering 3D CAD, PCB design, SCADA panels, and UAV systems.",
     keywords: "Hasanth Engineering, Hasanth Engineering (OPC) Private Limited, Mechanical Engineering, Electronics PCB Design, Aerospace, UAV Autopilots, Industrial Automation, Hyderabad Balanagar, India"
   },
   about: {
@@ -65,45 +65,19 @@ export function JSONLD({ currentPage = 'home' }: { currentPage?: string }) {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
     "name": "Hasanth Engineering (OPC) Private Limited",
-    "alternateName": "Hasanth Engineering",
-    "image": "https://www.hasanthengineering.co.in/logo.png",
-    "@id": "https://www.hasanthengineering.co.in/#organization",
     "url": "https://www.hasanthengineering.co.in",
     "logo": "https://www.hasanthengineering.co.in/logo.png",
-    "telephone": "+91-8328903031",
-    "priceRange": "$$",
+    "description": "Multidisciplinary engineering company in Hyderabad offering 3D CAD, PCB design, SCADA panels, and UAV systems.",
     "address": {
       "@type": "PostalAddress",
-      "streetAddress": "H NO 3-3-8/4, KUKATPALLY, Vivekanandanagar Colony, Balanagar",
-      "addressLocality": "Hyderabad",
+      "addressLocality": "Kukatpally",
       "addressRegion": "Telangana",
-      "postalCode": "500072",
       "addressCountry": "IN"
     },
-    "geo": {
-      "@type": "GeoCoordinates",
-      "latitude": 17.4644,
-      "longitude": 78.4542
-    },
-    "description": "Multi-disciplinary engineering company in India providing advanced solutions in Mechanical Design, Electronics development, Aerospace systems, UAVs, and SCADA Automation.",
+    "areaServed": "India",
     "sameAs": [
       "https://www.tofler.com.to/hasanth-engineering-opc-private-limited",
       "https://www.indiamart.com/hasanth-engineering"
-    ],
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": "4.9",
-      "reviewCount": "34",
-      "bestRating": "5",
-      "worstRating": "1"
-    },
-    "knowsAbout": [
-      "Mechanical CAD Design",
-      "Multilayer Printed Circuit Boards",
-      "UAV Drone Autonomous Telemetry",
-      "AS9100 Aerospace Aviation Design",
-      "CNC Machining Tolerances",
-      "AromaCode MEMS Scent Technology"
     ]
   };
 

@@ -28,6 +28,9 @@ export function usePageContent(pageId: string) {
         setData(docSnap.data() as PageData);
       }
       setLoading(false);
+    }, (error) => {
+      console.error(`Page content fetch failed for ${pageId}: `, error);
+      setLoading(false);
     });
     return () => unsub();
   }, [pageId]);

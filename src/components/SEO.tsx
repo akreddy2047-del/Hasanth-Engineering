@@ -12,7 +12,7 @@ interface SEOProps {
 }
 
 export default function SEO({ title, description, keywords, canonical, schema, ogImage, ogType = 'website' }: SEOProps) {
-  const fullTitle = `${title} | Hasanth Engineering`;
+  const fullTitle = title.includes('Hasanth Engineering') ? title : `${title} | Hasanth Engineering`;
   const imageToUse = ogImage || 'https://www.hasanthengineering.co.in/logo.png';
   const siteUrl = 'https://www.hasanthengineering.co.in';
   const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';

@@ -185,7 +185,7 @@ export default function AdminPanel() {
         if (snapshot.exists()) {
           setSiteConfig(snapshot.data());
         }
-      });
+      }, (error) => handleFirestoreError(error, OperationType.GET, 'site_config/global'));
       return () => {
         unsubEnquiries();
         unsubJobs();
@@ -963,6 +963,8 @@ export default function AdminPanel() {
                           {enq.phone && <p className="text-[11px] text-slate-500 font-medium">Phone: <span className="text-slate-700">{enq.phone}</span></p>}
                           {enq.company && <p className="text-[11px] text-slate-500 font-medium">Co: <span className="text-slate-700">{enq.company}</span></p>}
                           {enq.industry && <p className="text-[11px] text-slate-500 font-medium">Ind: <span className="text-slate-700">{enq.industry}</span></p>}
+                          {enq.serviceType && <p className="text-[11px] text-slate-500 font-medium">Service: <span className="text-slate-700">{enq.serviceType}</span></p>}
+                          {enq.executionTimeframe && <p className="text-[11px] text-slate-500 font-medium">Timing: <span className="text-slate-700">{enq.executionTimeframe}</span></p>}
                         </div>
 
                         <div className="bg-slate-50 p-4 rounded-lg border-l-4 border-[#002b5c] group-hover:bg-white transition-colors duration-300">

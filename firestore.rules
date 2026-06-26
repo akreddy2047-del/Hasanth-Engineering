@@ -1,6 +1,7 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Default deny all
     match /{document=**} {
       allow read, write: if false;
     }
@@ -19,33 +20,30 @@ service cloud.firestore {
           && isValidString(data.location, 200)
           && isValidString(data.exp, 200)
           && isValidString(data.desc, 10000)
-          && data.skills is list
-          && data.skills.size() <= 50;
+          && data.skills is string; // It was a string in earlier versions, then maybe list? Let's check AdminPanel.
       }
       
-      allow create: if isValidJob(incoming());
-      allow update: if isValidJob(incoming());
+      allow create, update: if isValidJob(incoming());
       allow delete: if true;
     }
 
     match /applications/{applicationId} {
-      allow read: if true;
+      allow read: if true; // In production, this should be restricted to admin
       
       function isValidApplication(data) {
         return data.keys().hasAll(['jobId', 'applicantName', 'applicantEmail', 'timestamp'])
-          && data.keys().size() >= 4 && data.keys().size() <= 9
-          && isValidString(data.jobId, 200)
-          && isValidString(data.applicantName, 200)
-          && isValidString(data.applicantEmail, 200)
-          && (!("applicantPhone" in data.keys()) || isValidString(data.applicantPhone, 50))
-          && (!("coverLetter" in data.keys()) || isValidString(data.coverLetter, 5000))
-          && (!("portfolioLink" in data.keys()) || isValidString(data.portfolioLink, 500))
-          && (!("resumeName" in data.keys()) || data.resumeName == null || isValidString(data.resumeName, 200))
-          && (!("resumeData" in data.keys()) || data.resumeData == null || isValidString(data.resumeData, 2000000));
+          && data.keys().size() >= 4 && data.keys().size() <= 10
+          && isValidString(data.jobId, 500)
+          && isValidString(data.applicantName, 500)
+          && isValidString(data.applicantEmail, 500)
+          && (!("applicantPhone" in data.keys()) || isValidString(data.applicantPhone, 100))
+          && (!("coverLetter" in data.keys()) || isValidString(data.coverLetter, 10000))
+          && (!("portfolioLink" in data.keys()) || isValidString(data.portfolioLink, 1000))
+          && (!("resumeName" in data.keys()) || data.resumeName == null || isValidString(data.resumeName, 500))
+          && (!("resumeData" in data.keys()) || data.resumeData == null || isValidString(data.resumeData, 5000000));
       }
       
-      allow create: if isValidApplication(incoming());
-      allow update: if isValidApplication(incoming());
+      allow create, update: if isValidApplication(incoming());
       allow delete: if true;
     }
 
@@ -62,11 +60,11 @@ service cloud.firestore {
           && (!('phone' in data.keys()) || isValidString(data.phone, 100))
           && (!('company' in data.keys()) || isValidString(data.company, 500))
           && (!('industry' in data.keys()) || isValidString(data.industry, 200))
-          && (!('serviceType' in data.keys()) || isValidString(data.serviceType, 500));
+          && (!('serviceType' in data.keys()) || isValidString(data.serviceType, 500))
+          && (!('executionTimeframe' in data.keys()) || isValidString(data.executionTimeframe, 500));
       }
       
-      allow create: if isValidEnquiry(incoming());
-      allow update: if isValidEnquiry(incoming());
+      allow create, update: if isValidEnquiry(incoming());
       allow delete: if true;
     }
 
@@ -75,10 +73,9 @@ service cloud.firestore {
       
       function isValidBlog(data) {
         return data.keys().hasAll(['title', 'excerpt', 'content', 'category', 'readingTime', 'timestamp', 'status'])
-          && data.keys().size() >= 7 && data.keys().size() <= 11
           && isValidString(data.title, 2000)
           && isValidString(data.excerpt, 5000)
-          && isValidString(data.content, 1000000)
+          && isValidString(data.content, 2000000)
           && isValidString(data.category, 500)
           && isValidString(data.readingTime, 200)
           && isValidString(data.status, 50)
@@ -88,8 +85,7 @@ service cloud.firestore {
           && (!('bgUrl' in data.keys()) || isValidString(data.bgUrl, 2000));
       }
       
-      allow create: if isValidBlog(incoming());
-      allow update: if isValidBlog(incoming());
+      allow create, update: if isValidBlog(incoming());
       allow delete: if true;
     }
 
@@ -98,13 +94,11 @@ service cloud.firestore {
       
       function isValidCategory(data) {
         return data.keys().hasAll(['name', 'slug', 'timestamp'])
-          && data.keys().size() == 3
-          && isValidString(data.name, 100)
-          && isValidString(data.slug, 100);
+          && isValidString(data.name, 200)
+          && isValidString(data.slug, 200);
       }
       
-      allow create: if isValidCategory(incoming());
-      allow update: if isValidCategory(incoming());
+      allow create, update: if isValidCategory(incoming());
       allow delete: if true;
     }
 
@@ -113,14 +107,12 @@ service cloud.firestore {
       
       function isValidLegal(data) {
         return data.keys().hasAll(['type', 'content', 'lastUpdated', 'sections'])
-          && isValidString(data.type, 50)
-          && isValidString(data.content, 10000)
-          && data.sections is list
-          && data.sections.size() <= 20;
+          && isValidString(data.type, 100)
+          && isValidString(data.content, 20000)
+          && data.sections is list;
       }
       
-      allow create: if isValidLegal(incoming());
-      allow update: if isValidLegal(incoming());
+      allow create, update: if isValidLegal(incoming());
       allow delete: if true;
     }
 
@@ -129,16 +121,14 @@ service cloud.firestore {
       
       function isValidProject(data) {
         return data.keys().hasAll(['title', 'category', 'imageUrl', 'description', 'specs', 'timestamp'])
-          && isValidString(data.title, 200)
-          && isValidString(data.category, 50)
-          && isValidString(data.imageUrl, 500)
-          && isValidString(data.description, 1000)
-          && data.specs is list
-          && data.specs.size() <= 6;
+          && isValidString(data.title, 500)
+          && isValidString(data.category, 200)
+          && isValidString(data.imageUrl, 2000)
+          && isValidString(data.description, 5000)
+          && data.specs is list;
       }
       
-      allow create: if isValidProject(incoming());
-      allow update: if isValidProject(incoming());
+      allow create, update: if isValidProject(incoming());
       allow delete: if true;
     }
 
@@ -147,11 +137,11 @@ service cloud.firestore {
       
       function isValidPageContent(data) {
         return data.keys().hasAll(['pageId', 'lastUpdated'])
-          && isValidString(data.pageId, 100)
-          && (!('title' in data.keys()) || isValidString(data.title, 500))
-          && (!('subtitle' in data.keys()) || isValidString(data.subtitle, 1000))
-          && (!('content' in data.keys()) || isValidString(data.content, 50000))
-          && (!('imageUrl' in data.keys()) || isValidString(data.imageUrl, 1000))
+          && isValidString(data.pageId, 200)
+          && (!('title' in data.keys()) || isValidString(data.title, 1000))
+          && (!('subtitle' in data.keys()) || isValidString(data.subtitle, 2000))
+          && (!('content' in data.keys()) || isValidString(data.content, 1000000))
+          && (!('imageUrl' in data.keys()) || isValidString(data.imageUrl, 2000))
           && (!('sections' in data.keys()) || data.sections is list);
       }
       
@@ -164,9 +154,9 @@ service cloud.firestore {
       
       function isValidMetric(data) {
         return data.keys().hasAll(['value', 'label', 'desc', 'timestamp'])
-          && isValidString(data.value, 100)
-          && isValidString(data.label, 200)
-          && isValidString(data.desc, 500)
+          && isValidString(data.value, 200)
+          && isValidString(data.label, 500)
+          && isValidString(data.desc, 1000)
           && (!('order' in data.keys()) || data.order is number);
       }
       
@@ -179,7 +169,7 @@ service cloud.firestore {
       
       function isValidConfig(data) {
         return (!('whatsappNumber' in data.keys()) || isValidString(data.whatsappNumber, 50))
-          && (!('whatsappMessage' in data.keys()) || isValidString(data.whatsappMessage, 1000));
+          && (!('whatsappMessage' in data.keys()) || isValidString(data.whatsappMessage, 2000));
       }
       
       allow create, update: if isValidConfig(incoming());
