@@ -20,7 +20,7 @@ service cloud.firestore {
           && isValidString(data.location, 200)
           && isValidString(data.exp, 200)
           && isValidString(data.desc, 10000)
-          && data.skills is string; // It was a string in earlier versions, then maybe list? Let's check AdminPanel.
+          && data.skills is list && data.skills.size() <= 50;
       }
       
       allow create, update: if isValidJob(incoming());
@@ -169,10 +169,49 @@ service cloud.firestore {
       
       function isValidConfig(data) {
         return (!('whatsappNumber' in data.keys()) || isValidString(data.whatsappNumber, 50))
-          && (!('whatsappMessage' in data.keys()) || isValidString(data.whatsappMessage, 2000));
+          && (!('whatsappMessage' in data.keys()) || isValidString(data.whatsappMessage, 2000))
+          && (!('contactPhone' in data.keys()) || isValidString(data.contactPhone, 50))
+          && (!('contactEmail' in data.keys()) || isValidString(data.contactEmail, 200))
+          && (!('contactAddress' in data.keys()) || isValidString(data.contactAddress, 1000))
+          && (!('contactAddressShort' in data.keys()) || isValidString(data.contactAddressShort, 200));
       }
       
       allow create, update: if isValidConfig(incoming());
+      allow delete: if true;
+    }
+
+    match /divisions/{divisionId} {
+      allow read: if true;
+      
+      function isValidDivision(data) {
+        return data.keys().hasAll(['title', 'desc', 'icon', 'badge', 'color'])
+          && isValidString(data.title, 200)
+          && isValidString(data.desc, 2000)
+          && isValidString(data.icon, 100)
+          && isValidString(data.badge, 200)
+          && isValidString(data.color, 100)
+          && (!('order' in data.keys()) || data.order is number)
+          && (!('bulletPoints' in data.keys()) || data.bulletPoints is list)
+          && (!('machines' in data.keys()) || data.machines is list);
+      }
+      
+      allow create, update: if isValidDivision(incoming());
+      allow delete: if true;
+    }
+
+    match /research/{researchId} {
+      allow read: if true;
+      
+      function isValidResearch(data) {
+        return data.keys().hasAll(['title', 'desc', 'imageUrl', 'iconName', 'timestamp'])
+          && data.keys().size() == 5
+          && isValidString(data.title, 200)
+          && isValidString(data.desc, 5000)
+          && isValidString(data.imageUrl, 2000)
+          && isValidString(data.iconName, 100);
+      }
+      
+      allow create, update: if isValidResearch(incoming());
       allow delete: if true;
     }
   }

@@ -1,50 +1,63 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { 
-  Cpu, Compass, Shield, Radio, Activity, Sparkles, 
-  Layers, HardDrive, Network, FlaskConical, ArrowUpRight 
-} from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
+import * as LucideIcons from 'lucide-react';
 import SEO from './SEO';
+import { db } from '../lib/firebase';
+import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 
 export default function ResearchPage() {
-  const focusAreas = [
+  const [researchCards, setResearchCards] = useState<any[]>([]);
+
+  useEffect(() => {
+    const unsub = onSnapshot(query(collection(db, 'research'), orderBy('timestamp', 'desc')), (snapshot) => {
+      setResearchCards(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    }, (error) => {
+      console.error('Failed to load research cards from Firestore', error);
+    });
+    return () => unsub();
+  }, []);
+
+  const staticCards = [
     {
       title: 'AI Integrated Engineering Systems',
       desc: 'Applying machine learning algorithms to structural stress analysis and thermal models, reducing numerical compute convergence times by up to 60%.',
-      icon: Cpu,
-      image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=800'
+      iconName: 'Cpu',
+      imageUrl: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=800'
     },
     {
       title: 'Autonomous UAV Technologies',
       desc: 'Highly customized aerodynamic drones featuring fail-safe path finding under conditions with restricted GPS signals.',
-      icon: Compass,
-      image: 'https://images.unsplash.com/photo-1507582020474-9a35b7d455d9?auto=format&fit=crop&q=80&w=800'
+      iconName: 'Compass',
+      imageUrl: 'https://images.unsplash.com/photo-1507582020474-9a35b7d455d9?auto=format&fit=crop&q=80&w=800'
     },
     {
       title: 'Smart Sensor Networks',
       desc: 'Highly rugged sensor nodes linked in industrial mesh arrays to observe power grids and high-temperature machinery locations.',
-      icon: Network,
-      image: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=800'
+      iconName: 'Network',
+      imageUrl: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=800'
     },
     {
       title: 'Defense Electronics',
       desc: 'Mil-spec multi-layer hardware architectures capable of operating under high electro-static discharge (ESD) and high thermal vibration parameters.',
-      icon: Shield,
-      image: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&q=80&w=800'
+      iconName: 'Shield',
+      imageUrl: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&q=80&w=800'
     },
     {
       title: 'Industrial IoT Solutions',
       desc: 'Low-latency telemetry and DIN-rail SCADA configurations streaming diagnostic logs in real-time.',
-      icon: HardDrive,
-      image: 'https://images.unsplash.com/photo-1558494949-ef010bb031cc?auto=format&fit=crop&q=80&w=800'
+      iconName: 'HardDrive',
+      imageUrl: 'https://images.unsplash.com/photo-1558494949-ef010bb031cc?auto=format&fit=crop&q=80&w=800'
     },
     {
       title: 'Aerospace Manufacturing Support',
       desc: 'Researching multi-axis additive laser paths to minimize manufacturing waste of titanium alloy aircraft brackets.',
-      icon: Layers,
-      image: 'https://images.unsplash.com/photo-1502473775464-9694c96572e9?auto=format&fit=crop&q=80&w=800'
+      iconName: 'Layers',
+      imageUrl: 'https://images.unsplash.com/photo-1502473775464-9694c96572e9?auto=format&fit=crop&q=80&w=800'
     }
   ];
+
+  const displayCards = researchCards.length > 0 ? researchCards : staticCards;
 
   const researchSchema = {
     "@context": "https://schema.org",
@@ -87,11 +100,11 @@ export default function ResearchPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {focusAreas.map((area, idx) => {
-            const Icon = area.icon;
+          {displayCards.map((area, idx) => {
+            const IconComponent = (LucideIcons as any)[area.iconName || 'Cpu'] || LucideIcons.Cpu;
             return (
               <motion.div
-                key={idx}
+                key={area.id || idx}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
@@ -99,12 +112,12 @@ export default function ResearchPage() {
                 whileHover={{ y: -8 }}
                 className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-500 hover:border-[#002b5c]/20 flex flex-col justify-between group relative overflow-hidden"
               >
-                <img src={area.image} alt={area.title} className="absolute inset-0 z-0 h-full w-full object-cover opacity-20" />
+                <img src={area.imageUrl} alt={area.title} className="absolute inset-0 z-0 h-full w-full object-cover opacity-20" />
                 <div className="absolute inset-0 z-0 bg-white/95" />
 
                 <div className="space-y-6 relative z-10">
                   <div className="w-14 h-14 rounded-2xl bg-[#002b5c] text-white flex items-center justify-center transition-transform group-hover:scale-110 duration-300">
-                    <Icon size={24} />
+                    <IconComponent size={24} />
                   </div>
                   
                   <h4 className="text-xl font-sans font-black text-[#002b5c] uppercase tracking-tight leading-snug">

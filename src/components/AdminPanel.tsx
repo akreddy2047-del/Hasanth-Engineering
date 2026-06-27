@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { db, handleFirestoreError, OperationType } from '../lib/firebase';
-import { collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, onSnapshot, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, onSnapshot, serverTimestamp, updateDoc } from 'firebase/firestore';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Lock, CheckCircle, Trash2, Plus, Briefcase, FileText, Mail, Phone,
   MapPin, Clock, Calendar, Shield, LogOut, ChevronRight, RefreshCw, AlertCircle, Download, Zap, PenTool, ArrowLeft,
   Share2, Link, Check, Twitter, Linkedin, Radio, CheckCircle2, ExternalLink, Activity, Search, Globe, User,
-  BarChart, Settings, MessageCircle, Save
+  BarChart, Settings, MessageCircle, Save, Layers, Cpu, Bot, Compass, ShieldAlert, Hammer, FlaskConical, Network
 } from 'lucide-react';
 import { useToast } from '../hooks/useToast';
 import { pingGoogleSearchConsole } from '../utils/searchConsolePing';
+import HasanthLogo from './HasanthLogo';
 
 // Predefined high-quality templates for immediate loading
 const JOB_TEMPLATES = [
@@ -72,7 +73,22 @@ export default function AdminPanel() {
   const [projects, setProjects] = useState<any[]>([]);
   const [pageContent, setPageContent] = useState<any[]>([]);
   const [trustMetrics, setTrustMetrics] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'jobs' | 'applications' | 'enquiries' | 'blogs' | 'projects' | 'content' | 'metrics' | 'settings'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'divisions' | 'jobs' | 'applications' | 'enquiries' | 'blogs' | 'projects' | 'content' | 'metrics' | 'settings' | 'research'>('dashboard');
+  
+  // Divisions & Machines Management State
+  const [divisions, setDivisions] = useState<any[]>([]);
+  const [isAddingDivision, setIsAddingDivision] = useState(false);
+  const [editingDivisionId, setEditingDivisionId] = useState<string | null>(null);
+  const [newDivision, setNewDivision] = useState<any>({
+    title: '',
+    desc: '',
+    icon: 'Settings',
+    badge: 'ISO-9001 COMPLIANT',
+    color: 'from-blue-600 to-indigo-600',
+    order: 1,
+    bulletPoints: [], // array of { label: '', desc: '' }
+    machines: [] // array of { name: '', desc: '', imageUrl: '' }
+  });
   
   // Site Configuration State
   const [siteConfig, setSiteConfig] = useState<any>({
@@ -128,8 +144,20 @@ export default function AdminPanel() {
   // Category Management State
   const [newCategory, setNewCategory] = useState({ name: '', slug: '' });
 
+  // Research Management State
+  const [researchCards, setResearchCards] = useState<any[]>([]);
+  const [isAddingResearch, setIsAddingResearch] = useState(false);
+  const [editingResearchId, setEditingResearchId] = useState<string | null>(null);
+  const [newResearch, setNewResearch] = useState({
+    title: '',
+    desc: '',
+    imageUrl: '',
+    iconName: 'Cpu'
+  });
+
   // Loading & Action States
   const [isLoading, setIsLoading] = useState(false);
+  const [editingJobId, setEditingJobId] = useState<string | null>(null);
   const [newJob, setNewJob] = useState({ 
     title: '', 
     type: '', 
@@ -191,6 +219,17 @@ export default function AdminPanel() {
           setSiteConfig(snapshot.data());
         }
       }, (error) => handleFirestoreError(error, OperationType.GET, 'site_config/global'));
+      
+      const unsubDivisions = onSnapshot(query(collection(db, 'divisions'), orderBy('order', 'asc')), (snapshot) => {
+        setDivisions(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+        setIsLoading(false);
+      }, (error) => handleFirestoreError(error, OperationType.LIST, 'divisions'));
+
+      const unsubResearch = onSnapshot(query(collection(db, 'research'), orderBy('timestamp', 'desc')), (snapshot) => {
+        setResearchCards(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+        setIsLoading(false);
+      }, (error) => handleFirestoreError(error, OperationType.LIST, 'research'));
+
       return () => {
         unsubEnquiries();
         unsubJobs();
@@ -200,16 +239,19 @@ export default function AdminPanel() {
         unsubPageContent();
         unsubMetrics();
         unsubConfig();
+        unsubDivisions();
+        unsubResearch();
       };
     }
   }, [isAuthenticated]);
 
   useEffect(() => {
-    if (activeTab === 'content' && pageContent.length > 0) {
+    if (activeTab === 'content') {
+      const currentId = editingPageId || 'home';
       if (!editingPageId) {
         setEditingPageId('home');
       }
-      const page = pageContent.find(p => p.id === (editingPageId || 'home'));
+      const page = pageContent.find(p => p.id === currentId);
       if (page) {
         setEditingPageData({
           title: page.title || '',
@@ -217,6 +259,14 @@ export default function AdminPanel() {
           content: page.content || '',
           imageUrl: page.imageUrl || '',
           sections: page.sections || []
+        });
+      } else {
+        setEditingPageData({
+          title: '',
+          subtitle: '',
+          content: '',
+          imageUrl: '',
+          sections: []
         });
       }
     }
@@ -246,7 +296,7 @@ export default function AdminPanel() {
     showToast('Logged Out', 'Secure session terminated successfully.', 'info');
   };
 
-  // Add job
+  // Add or Update job
   const handleAddJob = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newJob.title || !newJob.type || !newJob.location || !newJob.desc) {
@@ -255,21 +305,63 @@ export default function AdminPanel() {
     }
 
     try {
-      await addDoc(collection(db, 'jobs'), {
-        title: newJob.title,
-        type: newJob.type,
-        location: newJob.location,
-        exp: newJob.exp,
-        desc: newJob.desc,
-        skills: newJob.skills ? newJob.skills.split(',').map((s: string) => s.trim()).filter(Boolean) : [],
-        timestamp: serverTimestamp()
-      });
-      showToast('Position Loaded', `"${newJob.title}" added to active vacancy nodes.`, 'success');
+      const skillsArray = typeof newJob.skills === 'string'
+        ? newJob.skills.split(',').map((s: string) => s.trim()).filter(Boolean)
+        : Array.isArray(newJob.skills) ? newJob.skills : [];
+
+      if (editingJobId) {
+        await updateDoc(doc(db, 'jobs', editingJobId), {
+          title: newJob.title,
+          type: newJob.type,
+          location: newJob.location,
+          exp: newJob.exp,
+          desc: newJob.desc,
+          skills: skillsArray,
+          lastUpdated: serverTimestamp()
+        });
+        showToast('Position Updated', `"${newJob.title}" has been updated in vacancy nodes.`, 'success');
+        setEditingJobId(null);
+      } else {
+        await addDoc(collection(db, 'jobs'), {
+          title: newJob.title,
+          type: newJob.type,
+          location: newJob.location,
+          exp: newJob.exp,
+          desc: newJob.desc,
+          skills: skillsArray,
+          timestamp: serverTimestamp()
+        });
+        showToast('Position Loaded', `"${newJob.title}" added to active vacancy nodes.`, 'success');
+      }
       setNewJob({ title: '', type: '', location: '', exp: '', desc: '', skills: '' });
     } catch (error) {
       console.error(error);
-      showToast('Failed to add job', 'Firestore write rejected', 'warning');
+      showToast('Action Failed', 'Firestore write rejected', 'warning');
     }
+  };
+
+  // Start Edit vacancy
+  const handleStartEditJob = (job: any) => {
+    setEditingJobId(job.id);
+    setNewJob({
+      title: job.title || '',
+      type: job.type || '',
+      location: job.location || '',
+      exp: job.exp || '',
+      desc: job.desc || '',
+      skills: Array.isArray(job.skills) ? job.skills.join(', ') : (job.skills || '')
+    });
+    const formElement = document.getElementById('job-form-section');
+    if (formElement) {
+      formElement.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  // Cancel Edit vacancy
+  const handleCancelEditJob = () => {
+    setEditingJobId(null);
+    setNewJob({ title: '', type: '', location: '', exp: '', desc: '', skills: '' });
+    showToast('Edit Cancelled', 'Vacancy modification aborted.', 'info');
   };
 
   // Delete vacancy (Jobs CRUD)
@@ -278,6 +370,10 @@ export default function AdminPanel() {
     try {
       await deleteDoc(doc(db, 'jobs', jobId));
       showToast('Vacancy Purged', 'Position removed from recruitment pipeline.', 'success');
+      if (editingJobId === jobId) {
+        setEditingJobId(null);
+        setNewJob({ title: '', type: '', location: '', exp: '', desc: '', skills: '' });
+      }
     } catch (e) {
       showToast('Error purging job', 'Firestore deletion failed.', 'warning');
     }
@@ -479,6 +575,314 @@ export default function AdminPanel() {
     }
   };
 
+  const handleSaveDivision = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newDivision.title || !newDivision.desc) {
+      showToast('Form incomplete', 'Required fields missing for engineering division.', 'warning');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const divisionData = {
+        title: newDivision.title,
+        desc: newDivision.desc,
+        icon: newDivision.icon || 'Settings',
+        badge: newDivision.badge || 'ISO-9001 COMPLIANT',
+        color: newDivision.color || 'from-blue-600 to-indigo-600',
+        order: Number(newDivision.order || 1),
+        bulletPoints: newDivision.bulletPoints || [],
+        machines: newDivision.machines || []
+      };
+
+      if (editingDivisionId) {
+        const { updateDoc } = await import('firebase/firestore');
+        await updateDoc(doc(db, 'divisions', editingDivisionId), divisionData);
+        showToast('Division Updated', 'Engineering division successfully re-calibrated.', 'success');
+      } else {
+        await addDoc(collection(db, 'divisions'), divisionData);
+        showToast('Division Added', 'New division node established in infrastructure.', 'success');
+      }
+      setIsAddingDivision(false);
+      setEditingDivisionId(null);
+      setNewDivision({
+        title: '',
+        desc: '',
+        icon: 'Settings',
+        badge: 'ISO-9001 COMPLIANT',
+        color: 'from-blue-600 to-indigo-600',
+        order: divisions.length + 1,
+        bulletPoints: [],
+        machines: []
+      });
+    } catch (err) {
+      console.error(err);
+      showToast('Operation Failed', 'Database write aborted.', 'warning');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteDivision = async (divId: string) => {
+    if (!window.confirm('Are you sure you want to delete this division? This action is irreversible.')) return;
+    setIsLoading(true);
+    try {
+      await deleteDoc(doc(db, 'divisions', divId));
+      showToast('Division Deleted', 'Engineering division node successfully removed.', 'success');
+    } catch (err) {
+      showToast('Operation Failed', 'Database write aborted.', 'warning');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSeedDivisions = async () => {
+    if (divisions.length > 0) {
+      showToast('Already populated', 'Divisions collection already exists.', 'info');
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const defaultDivs = [
+        {
+          title: 'Mechanical Engineering',
+          desc: 'Formulation of high-fidelity parametric 3D models with physical-stress finite-element analyses (FEA) geared for custom sheet-metal and machine-tooled parts.',
+          icon: 'Settings',
+          badge: 'ISO-9001 COMPLIANT',
+          color: 'from-blue-600 to-indigo-600',
+          order: 1,
+          bulletPoints: [
+            { label: '3D CAD Modeling', desc: 'Symmetrical SolidWorks solid parts & multi-sheet components assemblies.', imageUrl: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80' },
+            { label: 'Product Design', desc: 'Comprehensive concept blueprints turned into physically tight assemblies.', imageUrl: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80' },
+            { label: 'Reverse Engineering', desc: 'Scan metric mappings transformed into physical production tolerances.', imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80' },
+            { label: 'Structural Design', desc: 'High strength, low stress structural design frame layouts.', imageUrl: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=600&q=80' },
+            { label: 'Sheet Metal Design', desc: 'Bending schedules, laser layout optimization, and high tolerance folds.', imageUrl: 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&w=600&q=80' },
+            { label: 'Tool & Fixture Design', desc: 'Specialized physical jigs, inspection guides, and progression sets.', imageUrl: 'https://images.unsplash.com/photo-1563770660941-20978e870e26?auto=format&fit=crop&w=600&q=80' },
+            { label: 'Manufacturing Support', desc: 'Complete fabrication pathways with on-location CNC setup guidelines.', imageUrl: 'https://images.unsplash.com/photo-1616401784845-180882ba9ba8?auto=format&fit=crop&w=600&q=80' }
+          ],
+          machines: [
+            { name: 'Precision 5-Axis CNC Milling Machine', desc: 'Aviation-grade Titanium & Aluminum 7075 milling with micron-perfect calibration.', imageUrl: 'https://images.unsplash.com/photo-1616401784845-180882ba9ba8?auto=format&fit=crop&w=600&q=80' },
+            { name: 'High-Speed Fiber Laser Cutter', desc: 'Dynamic laser profiling with automated sheet metal feeding and high-tolerance folds.', imageUrl: 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&w=600&q=80' }
+          ]
+        },
+        {
+          title: 'Electronics Engineering',
+          desc: 'Creation of industrial electronic PCB systems, microprocessor layouts, high-fidelity analog interfaces, and internet-connected devices.',
+          icon: 'Cpu',
+          badge: 'IPC-A-610 CERTIFIED',
+          color: 'from-blue-700 to-cyan-600',
+          order: 2,
+          bulletPoints: [
+            { label: 'PCB Design', desc: 'Controlled impedance, multi-layer RF, and high-frequency digital traces.', imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80' },
+            { label: 'Embedded Systems Development', desc: 'Bare-metal, low power C/C++ firmware nodes on ARM, STM32, ESP32.', imageUrl: 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?auto=format&fit=crop&w=600&q=80' },
+            { label: 'IoT Product Design', desc: 'Low-power end devices integrated with reliable cloud dashboards.', imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80' },
+            { label: 'Sensor Integration', desc: 'Low noise analog filters, dynamic SPI/I2C buses, and high-grain amplifications.', imageUrl: 'https://images.unsplash.com/photo-1555664424-778a1e5e1b48?auto=format&fit=crop&w=600&q=80' },
+            { label: 'Power Electronics', desc: 'High-efficiency buck converters, motor controllers, and smart fuse paths.', imageUrl: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=600&q=80' },
+            { label: 'Industrial Control Systems', desc: 'Opto-isolated interface signals, DIN rail enclosures, and MODBUS nodes.', imageUrl: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=600&q=80' },
+            { label: 'Electronics Prototyping', desc: 'Rapid PCB layout routing, component SMD soldering, and bench check metrics.', imageUrl: 'https://images.unsplash.com/photo-1563770660941-20978e870e26?auto=format&fit=crop&w=600&q=80' }
+          ],
+          machines: [
+            { name: 'Automated SMT Pick & Place Machine', desc: 'Controlled impedance layouts with sub-millimeter component pitch solder optimization.', imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80' },
+            { name: 'Multilayer PCB Reflow Oven', desc: 'Multi-zone convection thermal profiling to prevent thermal bridge shorts.', imageUrl: 'https://images.unsplash.com/photo-1563770660941-20978e870e26?auto=format&fit=crop&w=600&q=80' }
+          ]
+        },
+        {
+          title: 'Automation & Robotics',
+          desc: 'Automated assembly integration, smart robotics nodes, PLC controls, and camera-guided sorting systems to optimize factory layouts.',
+          icon: 'Bot',
+          badge: 'SCADA CAPABLE',
+          color: 'from-indigo-600 to-blue-800',
+          order: 3,
+          bulletPoints: [
+            { label: 'Industrial Automation', desc: 'Centralized plant layout controls and modular automation setups.', imageUrl: 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&w=600&q=80' },
+            { label: 'PLC Programming', desc: 'Ladder logic development on Siemens, Allen Bradley, and Delta modules.', imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80' },
+            { label: 'Robotic Systems', desc: 'Pre-program axis coordinate pathways for multi-joint pickerarms.', imageUrl: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80' },
+            { label: 'Machine Vision Systems', desc: 'In-line defect checking cameras using smart AI contrast detection.', imageUrl: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80' },
+            { label: 'Smart Factory Solutions', desc: 'Integrated Industrial Internet of Things (IIoT) monitoring setups.', imageUrl: 'https://images.unsplash.com/photo-1616401784845-180882ba9ba8?auto=format&fit=crop&w=600&q=80' }
+          ],
+          machines: [
+            { name: '6-Axis Robotic Arm Assembly', desc: 'Coordinate pathway programming for high-speed pick and place operations.', imageUrl: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80' },
+            { name: 'Siemens PLC Training Rig', desc: 'Ladder logic testing systems and human machine interface (HMI) nodes.', imageUrl: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80' }
+          ]
+        },
+        {
+          title: 'UAV & Drone Technologies',
+          desc: 'Advanced autonomous aerial structures, drone setups, payload integrations, and surveillance system components built to strict design standards.',
+          icon: 'Compass',
+          badge: 'DGCA COMPLIANT ASSURANCE',
+          color: 'from-blue-600 to-sky-600',
+          order: 4,
+          bulletPoints: [
+            { label: 'Drone Design', desc: 'High structural integrity carbon fiber frames with optimized aeromechanics.', imageUrl: 'https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=600&q=80' },
+            { label: 'Flight Control Integration', desc: 'ArduPilot, PX4 payload tuning with fail-safe telemetry routing.', imageUrl: 'https://images.unsplash.com/photo-1527977966376-1c8408f9f108?auto=format&fit=crop&w=600&q=80' },
+            { label: 'Payload Development', desc: 'Gimbal assemblies, custom multispectral sensors, and releases.', imageUrl: 'https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=600&q=80' },
+            { label: 'Surveillance Systems', desc: 'Live long-range visual telemetry feedback with military-grade encryption.', imageUrl: 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&w=600&q=80' },
+            { label: 'Agricultural Drone Solutions', desc: 'Liquid spray drone setups, multi-hectare flight optimization curves.', imageUrl: 'https://images.unsplash.com/photo-1473968512647-3e447244af8f?auto=format&fit=crop&w=600&q=80' }
+          ],
+          machines: [
+            { name: 'Carbon Fiber CNC Cutter', desc: 'Specialized diamond routing of ultra-rigid carbon fiber aerospace frames.', imageUrl: 'https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=600&q=80' },
+            { name: '915MHz RF Signal Analyzers', desc: 'Frequency Hopping (FHSS) telemetry analysis and signal tracking.', imageUrl: 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&w=600&q=80' }
+          ]
+        },
+        {
+          title: 'Aerospace Engineering',
+          desc: 'Highly calibrated structural analyses, airframe component configurations, and maintenance support for commercial and private aviation parts.',
+          icon: 'Layers',
+          badge: 'AS9100 STANDARDS',
+          color: 'from-blue-900 to-blue-750',
+          order: 5,
+          bulletPoints: [
+            { label: 'Aircraft Component Design', desc: 'Aviation brackets, ducts, flaps, and structural component modeling.', imageUrl: 'https://images.unsplash.com/photo-1517976487492-5750f3195933?auto=format&fit=crop&w=600&q=80' },
+            { label: 'CAD & CAE Analysis', desc: 'Linear structural stresses, vibration sweeps, and fatigue lifetime margins.', imageUrl: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&w=600&q=80' },
+            { label: 'Aerospace Manufacturing Support', desc: 'Strategic assembly material planning and inspection templates.', imageUrl: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=600&q=80' },
+            { label: 'Maintenance Engineering Support', desc: 'Repair coordinate drawings and system overhaul diagnostic reviews.', imageUrl: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80' },
+            { label: 'Structural Analysis', desc: 'High-strength shear margins, buckle margins, and lightweight optimizations.', imageUrl: 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&w=600&q=80' }
+          ],
+          machines: [
+            { name: 'Fatigue & Tensile Tester', desc: 'High-precision mechanical load fatigue checkers to AS9100 standard.', imageUrl: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&w=600&q=80' },
+            { name: 'High-Altitude Thermal Vacuum Chamber', desc: 'Simulated atmospheric and pressure changes for structural calibrations.', imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80' }
+          ]
+        },
+        {
+          title: 'Defense Technologies',
+          desc: 'Rigorous engineering solutions for high-spec defense requirements, focusing on rugged electronics, electro-mechanical devices, and rapid physical prototypes.',
+          icon: 'ShieldAlert',
+          badge: 'MIL-STD COMPLIANT',
+          color: 'from-blue-950 to-indigo-900',
+          order: 6,
+          bulletPoints: [
+            { label: 'Surveillance Systems', desc: 'Ultra-low latency night vision, radio frequency scanners, and track solutions.', imageUrl: 'https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=600&q=80' },
+            { label: 'Sensor Fusion Solutions', desc: 'Coordinated GPS, IMUs, laser sensors mapping to a single output.', imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80' },
+            { label: 'UAV Payload Systems', desc: 'Rugged release relays, payload enclosures, and remote controls.', imageUrl: 'https://images.unsplash.com/photo-1527977966376-1c8408f9f108?auto=format&fit=crop&w=600&q=80' },
+            { label: 'Electro-Mechanical Systems', desc: 'Mil-spec actuator packages, drive gear matrices, and isolation cases.', imageUrl: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80' },
+            { label: 'Advanced Engineering Prototypes', desc: 'Solderable mil-connectors, heavy shock housings, and physical test jigs.', imageUrl: 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&w=600&q=80' }
+          ],
+          machines: [
+            { name: 'Military Ruggedness Shake Table', desc: 'Severe shock and vibrations simulation verifying structural rigidity.', imageUrl: 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&w=600&q=80' },
+            { name: 'Low-Latency Electro-Optical Camera Rig', desc: 'Calibrated night-vision thermal camera stabilization sensors.', imageUrl: 'https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=600&q=80' }
+          ]
+        }
+      ];
+
+      for (const div of defaultDivs) {
+        await addDoc(collection(db, 'divisions'), div);
+      }
+      showToast('Seeding Succeeded', 'Default divisions and machine datasets deployed.', 'success');
+    } catch (err) {
+      console.error(err);
+      showToast('Seeding Failed', 'Database could not write divisions default set.', 'warning');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Seed Research Cards Handlers
+  const seedResearchCards = async () => {
+    setIsLoading(true);
+    try {
+      const defaultResearch = [
+        {
+          title: 'AI Integrated Engineering Systems',
+          desc: 'Applying machine learning algorithms to structural stress analysis and thermal models, reducing numerical compute convergence times by up to 60%.',
+          iconName: 'Cpu',
+          imageUrl: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=800'
+        },
+        {
+          title: 'Autonomous UAV Technologies',
+          desc: 'Highly customized aerodynamic drones featuring fail-safe path finding under conditions with restricted GPS signals.',
+          iconName: 'Compass',
+          imageUrl: 'https://images.unsplash.com/photo-1507582020474-9a35b7d455d9?auto=format&fit=crop&q=80&w=800'
+        },
+        {
+          title: 'Smart Sensor Networks',
+          desc: 'Highly rugged sensor nodes linked in industrial mesh arrays to observe power grids and high-temperature machinery locations.',
+          iconName: 'Network',
+          imageUrl: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=800'
+        },
+        {
+          title: 'Defense Electronics',
+          desc: 'Mil-spec multi-layer hardware architectures capable of operating under high electro-static discharge (ESD) and high thermal vibration parameters.',
+          iconName: 'Shield',
+          imageUrl: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&q=80&w=800'
+        },
+        {
+          title: 'Industrial IoT Solutions',
+          desc: 'Low-latency telemetry and DIN-rail SCADA configurations streaming diagnostic logs in real-time.',
+          iconName: 'HardDrive',
+          imageUrl: 'https://images.unsplash.com/photo-1558494949-ef010bb031cc?auto=format&fit=crop&q=80&w=800'
+        },
+        {
+          title: 'Aerospace Manufacturing Support',
+          desc: 'Researching multi-axis additive laser paths to minimize manufacturing waste of titanium alloy aircraft brackets.',
+          iconName: 'Layers',
+          imageUrl: 'https://images.unsplash.com/photo-1502473775464-9694c96572e9?auto=format&fit=crop&q=80&w=800'
+        }
+      ];
+
+      for (const item of defaultResearch) {
+        await addDoc(collection(db, 'research'), {
+          ...item,
+          timestamp: serverTimestamp()
+        });
+      }
+      showToast('Seeding Succeeded', 'Default research innovation cards deployed.', 'success');
+    } catch (err) {
+      console.error(err);
+      showToast('Seeding Failed', 'Database could not write research focus areas.', 'warning');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Save or Update Research Focus Area
+  const handleSaveResearchCard = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newResearch.title || !newResearch.desc || !newResearch.imageUrl) {
+      showToast('Missing Parameters', 'All fields except icon are required.', 'warning');
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const cardData = {
+        title: newResearch.title,
+        desc: newResearch.desc,
+        imageUrl: newResearch.imageUrl,
+        iconName: newResearch.iconName || 'Cpu',
+        timestamp: serverTimestamp()
+      };
+
+      if (editingResearchId) {
+        await updateDoc(doc(db, 'research', editingResearchId), cardData);
+        showToast('Position Updated', `Research card "${newResearch.title}" has been updated.`, 'success');
+        setEditingResearchId(null);
+      } else {
+        await addDoc(collection(db, 'research'), cardData);
+        showToast('Position Loaded', `Research card "${newResearch.title}" has been added.`, 'success');
+      }
+      setNewResearch({ title: '', desc: '', imageUrl: '', iconName: 'Cpu' });
+      setIsAddingResearch(false);
+    } catch (err) {
+      console.error(err);
+      showToast('Action Failed', 'Failed to write research card to Firestore.', 'warning');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Delete Research Focus Area
+  const handleDeleteResearchCard = async (cardId: string, cardTitle: string) => {
+    if (!window.confirm(`Are you sure you want to delete research focus area "${cardTitle}"?`)) {
+      return;
+    }
+    try {
+      await deleteDoc(doc(db, 'research', cardId));
+      showToast('Vacancy Purged', 'Research focus area removed successfully.', 'success');
+    } catch (err) {
+      console.error(err);
+      showToast('Action Failed', 'Failed to delete research card.', 'warning');
+    }
+  };
+
   // Content Management Handlers
   const handleSavePageContent = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -575,61 +979,94 @@ export default function AdminPanel() {
   // Unauthenticated Login Form
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 p-6 font-sans">
+      <div className="min-h-screen flex items-center justify-center bg-[#f8fafc] p-4 sm:p-6 font-sans">
         <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="w-full max-w-[400px] bg-white rounded-[2rem] shadow-2xl shadow-slate-200/50 overflow-hidden border border-slate-100"
+          initial={{ opacity: 0, y: 15, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          className="w-full max-w-[650px] bg-white rounded-3xl shadow-xl shadow-slate-200/50 overflow-hidden border border-slate-100 flex flex-col md:flex-row min-h-[380px]"
         >
-          <div className="p-10 space-y-8">
-            <div className="text-center space-y-3">
-              <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-[#002b5c]/5 mb-2">
-                <Shield size={28} className="text-[#002b5c]" />
+          {/* Left Panel: Company Details */}
+          <div className="md:w-5/12 bg-[#002b5c] p-6 text-white flex flex-col justify-between relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-b from-blue-900/30 to-black/30 pointer-events-none" />
+            
+            <div className="relative z-10 space-y-4 my-auto text-center md:text-left flex flex-col items-center md:items-start">
+              <div className="p-2.5 bg-white/10 rounded-xl backdrop-blur-md inline-block">
+                <HasanthLogo size={40} className="text-white" />
               </div>
-              <div>
-                <h2 className="text-2xl font-black text-[#002b5c] tracking-tight uppercase">Admin Login</h2>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1">Authorized Access Only</p>
+              <div className="space-y-1">
+                <h2 className="text-sm font-black tracking-tight leading-tight uppercase !text-white text-white">
+                  Hasanth Engineering
+                </h2>
+                <p className="text-[9px] font-black tracking-widest text-blue-200/80 uppercase">
+                  Pvt Ltd
+                </p>
+                <p className="text-[10px] text-white/70 leading-relaxed font-semibold max-w-[180px] md:max-w-none">
+                  Corporate administrative portal. Authenticate to establish your session credentials.
+                </p>
               </div>
             </div>
+            
+            <div className="relative z-10 border-t border-white/10 pt-3 hidden md:block">
+              <p className="text-[8px] text-white/40 font-bold uppercase tracking-wider">
+                © {new Date().getFullYear()} Hasanth Engg
+              </p>
+            </div>
+          </div>
 
-            <form onSubmit={handleLogin} className="space-y-5">
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-1">Email Identifier</label>
+          {/* Right Panel: Login Details */}
+          <div className="md:w-7/12 p-6 sm:p-8 flex flex-col justify-center space-y-5">
+            <div className="space-y-1">
+              <h3 className="text-sm font-black text-[#002b5c] uppercase tracking-wider">
+                Admin Sign In
+              </h3>
+              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                Authorized Credentials Only
+              </p>
+            </div>
+
+            <form onSubmit={handleLogin} className="space-y-3.5">
+              <div className="space-y-1">
+                <label className="text-[9px] font-black text-slate-400 uppercase tracking-wider px-0.5">
+                  Email Identifier
+                </label>
                 <div className="relative group">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#002b5c] transition-colors" size={18} />
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#002b5c] transition-colors" size={14} />
                   <input 
                     type="email"
                     required
                     value={email}
                     placeholder="admin@hasanthenginnering.co.in"
                     onChange={e => setEmail(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-100 focus:border-[#002b5c] focus:bg-white focus:outline-none rounded-2xl pl-12 pr-6 py-4 text-sm font-bold text-slate-800 transition-all shadow-inner"
+                    className="w-full bg-slate-50 border border-slate-100 focus:border-[#002b5c] focus:bg-white focus:outline-none rounded-xl pl-9 pr-4 py-2.5 text-xs font-bold text-slate-800 transition-all shadow-inner"
                   />
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-1">Security Key</label>
+              <div className="space-y-1">
+                <label className="text-[9px] font-black text-slate-400 uppercase tracking-wider px-0.5">
+                  Security Key
+                </label>
                 <div className="relative group">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#002b5c] transition-colors" size={18} />
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#002b5c] transition-colors" size={14} />
                   <input 
                     type="password"
                     required
                     value={password}
                     placeholder="••••••••"
                     onChange={e => setPassword(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-100 focus:border-[#002b5c] focus:bg-white focus:outline-none rounded-2xl pl-12 pr-6 py-4 text-sm font-bold text-slate-800 transition-all shadow-inner"
+                    className="w-full bg-slate-50 border border-slate-100 focus:border-[#002b5c] focus:bg-white focus:outline-none rounded-xl pl-9 pr-4 py-2.5 text-xs font-bold text-slate-800 transition-all shadow-inner"
                   />
                 </div>
               </div>
 
               {loginError && (
                 <motion.div 
-                  initial={{ opacity: 0, y: -10 }}
+                  initial={{ opacity: 0, y: -5 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="flex items-center gap-3 p-4 bg-red-50 border border-red-100 rounded-2xl text-[10px] text-red-600 font-bold uppercase tracking-wider"
+                  className="flex items-center gap-2 p-2.5 bg-red-50 border border-red-100 rounded-xl text-[9px] text-red-600 font-bold uppercase tracking-wider"
                 >
-                  <AlertCircle size={16} className="shrink-0" />
+                  <AlertCircle size={12} className="shrink-0" />
                   <span>{loginError}</span>
                 </motion.div>
               )}
@@ -637,17 +1074,11 @@ export default function AdminPanel() {
               <button 
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-4.5 bg-[#002b5c] text-white rounded-2xl text-xs font-black uppercase tracking-[0.2em] shadow-xl shadow-[#002b5c]/20 hover:shadow-[#002b5c]/40 transition-all active:scale-[0.98] flex items-center justify-center gap-3 disabled:opacity-50"
+                className="w-full py-2.5 mt-2 bg-[#002b5c] hover:bg-blue-800 text-white rounded-xl text-[9px] font-black uppercase tracking-widest shadow-md hover:shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
               >
-                {isLoading ? <RefreshCw className="animate-spin" size={18} /> : <span>Sign In to Console</span>}
+                {isLoading ? <RefreshCw className="animate-spin" size={12} /> : <span>Sign In to Console</span>}
               </button>
             </form>
-            
-            <div className="pt-4 text-center">
-              <p className="text-[9px] text-slate-300 font-bold uppercase tracking-widest leading-relaxed">
-                Hasanth Engineering Pvt Ltd<br/>Secure Management Portal
-              </p>
-            </div>
           </div>
         </motion.div>
       </div>
@@ -724,6 +1155,24 @@ export default function AdminPanel() {
               <span className="text-xs tracking-tight">Page Modules</span>
             </button>
             <button 
+              onClick={() => setActiveTab('divisions')}
+              className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-xl transition-all duration-300 group ${
+                activeTab === 'divisions' ? 'bg-blue-600/10 text-blue-400 font-bold' : 'hover:bg-slate-800/50 hover:text-white'
+              }`}
+            >
+              <Layers size={18} className={activeTab === 'divisions' ? 'text-blue-400' : 'text-slate-500 group-hover:text-slate-300'} />
+              <span className="text-xs tracking-tight">Divisions & Machines</span>
+            </button>
+            <button 
+              onClick={() => setActiveTab('research')}
+              className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-xl transition-all duration-300 group ${
+                activeTab === 'research' ? 'bg-blue-600/10 text-blue-400 font-bold' : 'hover:bg-slate-800/50 hover:text-white'
+              }`}
+            >
+              <FlaskConical size={18} className={activeTab === 'research' ? 'text-blue-400' : 'text-slate-500 group-hover:text-slate-300'} />
+              <span className="text-xs tracking-tight">Research & Innovation</span>
+            </button>
+            <button 
               onClick={() => setActiveTab('blogs')}
               className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-xl transition-all duration-300 group ${
                 activeTab === 'blogs' ? 'bg-blue-600/10 text-blue-400 font-bold' : 'hover:bg-slate-800/50 hover:text-white'
@@ -772,6 +1221,8 @@ export default function AdminPanel() {
           <div className="flex items-center gap-4">
             <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-100">
               {activeTab === 'dashboard' && <Activity size={20} className="text-[#002b5c]" />}
+              {activeTab === 'divisions' && <Layers size={20} className="text-[#002b5c]" />}
+              {activeTab === 'research' && <FlaskConical size={20} className="text-[#002b5c]" />}
               {activeTab === 'jobs' && <Briefcase size={20} className="text-[#002b5c]" />}
               {activeTab === 'applications' && <FileText size={20} className="text-[#002b5c]" />}
               {activeTab === 'enquiries' && <Mail size={20} className="text-[#002b5c]" />}
@@ -784,6 +1235,8 @@ export default function AdminPanel() {
             <div>
               <h1 className="text-lg font-black text-slate-900 tracking-tight uppercase leading-none">
                 {activeTab === 'dashboard' && 'System Overview'}
+                {activeTab === 'divisions' && 'Divisions & Machine Assets'}
+                {activeTab === 'research' && 'Research & Innovation'}
                 {activeTab === 'jobs' && 'Vacancy Pipeline'}
                 {activeTab === 'applications' && 'Candidate Ledger'}
                 {activeTab === 'enquiries' && 'Inquiry Records'}
@@ -935,9 +1388,20 @@ export default function AdminPanel() {
             <div className="space-y-10 animate-in fade-in duration-500">
               
               {/* Position Creator Document */}
-              <section className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+              <section id="job-form-section" className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
                 <div className="bg-slate-50 px-8 py-6 border-b border-slate-100 flex items-center justify-between">
-                  <h2 className="text-xs font-black uppercase tracking-widest text-slate-900">Add New Job Opening</h2>
+                  <h2 className="text-xs font-black uppercase tracking-widest text-slate-900">
+                    {editingJobId ? 'Edit Job Opening' : 'Add New Job Opening'}
+                  </h2>
+                  {editingJobId && (
+                    <button 
+                      type="button" 
+                      onClick={handleCancelEditJob}
+                      className="text-[10px] font-black text-red-500 hover:text-red-700 uppercase tracking-widest cursor-pointer"
+                    >
+                      Cancel Edit
+                    </button>
+                  )}
                 </div>
 
                 <div className="p-8 space-y-8">
@@ -1001,12 +1465,23 @@ export default function AdminPanel() {
                           className="w-full bg-slate-50 border border-slate-200 focus:border-[#002b5c] focus:bg-white focus:outline-none rounded-lg px-4 py-2.5 text-sm text-slate-800 font-medium transition-all"
                           placeholder="CAD, RTOS, MATLAB..." />
                       </div>
-                      <button 
-                        type="submit"
-                        className="px-10 bg-[#002b5c] hover:bg-blue-800 text-white font-bold text-xs uppercase tracking-widest py-3 rounded-lg transition-all shadow-lg active:scale-[0.98]"
-                      >
-                        Publish Vacancy
-                      </button>
+                      <div className="flex gap-3">
+                        {editingJobId && (
+                          <button 
+                            type="button"
+                            onClick={handleCancelEditJob}
+                            className="px-6 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs uppercase tracking-widest py-3 rounded-lg transition-all cursor-pointer"
+                          >
+                            Cancel
+                          </button>
+                        )}
+                        <button 
+                          type="submit"
+                          className="px-10 bg-[#002b5c] hover:bg-blue-800 text-white font-bold text-xs uppercase tracking-widest py-3 rounded-lg transition-all shadow-lg active:scale-[0.98]"
+                        >
+                          {editingJobId ? 'Update Vacancy' : 'Publish Vacancy'}
+                        </button>
+                      </div>
                     </div>
                   </form>
                 </div>
@@ -1040,12 +1515,26 @@ export default function AdminPanel() {
                             </div>
                           </div>
                         </div>
-                        <button 
-                          onClick={() => handleDeleteJob(job.id, job.title)}
-                          className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
-                        >
-                          <Trash2 size={16} />
-                        </button>
+                        <div className="flex items-center gap-1.5">
+                          <button 
+                            onClick={() => handleStartEditJob(job)}
+                            className={`p-2 rounded-lg transition-all ${
+                              editingJobId === job.id 
+                                ? 'text-blue-600 bg-blue-50' 
+                                : 'text-slate-400 hover:text-blue-600 hover:bg-blue-50'
+                            }`}
+                            title="Edit vacancy parameters"
+                          >
+                            <PenTool size={16} />
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteJob(job.id, job.title)}
+                            className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                            title="Purge vacancy listing"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
                       </div>
                     ))
                   )}
@@ -1870,6 +2359,672 @@ export default function AdminPanel() {
                     </div>
                   </div>
                 ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* TAB 9.5: ENGINEERING DIVISIONS */}
+        {activeTab === 'divisions' && (
+          <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-black text-slate-900 tracking-tight uppercase">Engineering Divisions & Machine Assets</h2>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1">Manage corporate engineering divisions, service checklists, and physical machine imagery</p>
+              </div>
+              <div className="flex gap-3">
+                {divisions.length === 0 && (
+                  <button 
+                    onClick={handleSeedDivisions}
+                    disabled={isLoading}
+                    className="flex items-center gap-2 px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm cursor-pointer"
+                  >
+                    <RefreshCw size={14} className={isLoading ? 'animate-spin' : ''} /> Seed Defaults
+                  </button>
+                )}
+                {!isAddingDivision && !editingDivisionId && (
+                  <button 
+                    onClick={() => {
+                      setIsAddingDivision(true);
+                      setEditingDivisionId(null);
+                      setNewDivision({
+                        title: '',
+                        desc: '',
+                        icon: 'Settings',
+                        badge: 'ISO-9001 COMPLIANT',
+                        color: 'from-blue-600 to-indigo-600',
+                        order: divisions.length + 1,
+                        bulletPoints: [],
+                        machines: []
+                      });
+                    }}
+                    className="flex items-center gap-2 px-5 py-3 bg-[#002b5c] hover:bg-[#002b5c]/90 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-md cursor-pointer"
+                  >
+                    <Plus size={14} /> New Division
+                  </button>
+                )}
+              </div>
+            </header>
+
+            {/* FORM VIEW */}
+            {(isAddingDivision || editingDivisionId) ? (
+              <form onSubmit={handleSaveDivision} className="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm space-y-8 max-w-5xl">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                  <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider">
+                    {editingDivisionId ? 'Re-calibrate Division Node' : 'Establish New Division Node'}
+                  </h3>
+                  <button 
+                    type="button"
+                    onClick={() => {
+                      setIsAddingDivision(false);
+                      setEditingDivisionId(null);
+                    }}
+                    className="text-slate-400 hover:text-slate-600 text-xs font-bold uppercase tracking-wider cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-1">Division Title</label>
+                    <input 
+                      type="text" 
+                      required
+                      placeholder="e.g. Mechanical Engineering"
+                      value={newDivision.title}
+                      onChange={e => setNewDivision({...newDivision, title: e.target.value})}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 font-bold focus:border-blue-500 focus:bg-white transition-all outline-none"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-1">Quality Badge</label>
+                      <input 
+                        type="text" 
+                        required
+                        placeholder="e.g. ISO-9001 COMPLIANT"
+                        value={newDivision.badge}
+                        onChange={e => setNewDivision({...newDivision, badge: e.target.value})}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 font-bold focus:border-blue-500 focus:bg-white transition-all outline-none"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-1">Display Order</label>
+                      <input 
+                        type="number" 
+                        required
+                        min="1"
+                        value={newDivision.order}
+                        onChange={e => setNewDivision({...newDivision, order: parseInt(e.target.value) || 1})}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 font-bold focus:border-blue-500 focus:bg-white transition-all outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 md:col-span-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-1">Division Description</label>
+                    <textarea 
+                      required
+                      rows={3}
+                      placeholder="Describe the capabilities, standards, and outputs of this division..."
+                      value={newDivision.desc}
+                      onChange={e => setNewDivision({...newDivision, desc: e.target.value})}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 font-medium focus:border-blue-500 focus:bg-white transition-all outline-none resize-none"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-1">Representative Icon</label>
+                    <select
+                      value={newDivision.icon}
+                      onChange={e => setNewDivision({...newDivision, icon: e.target.value})}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 font-bold focus:border-blue-500 focus:bg-white transition-all outline-none"
+                    >
+                      <option value="Settings">Settings (Mechanical)</option>
+                      <option value="Cpu">Cpu (Electronics)</option>
+                      <option value="Bot">Bot (Automation & Robotics)</option>
+                      <option value="Compass">Compass (UAV & Drone)</option>
+                      <option value="Layers">Layers (Aerospace)</option>
+                      <option value="ShieldAlert">ShieldAlert (Defense)</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-1">Theme Gradient (Tailwind Classes)</label>
+                    <input 
+                      type="text" 
+                      placeholder="e.g. from-blue-600 to-indigo-600"
+                      value={newDivision.color}
+                      onChange={e => setNewDivision({...newDivision, color: e.target.value})}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 font-bold focus:border-blue-500 focus:bg-white transition-all outline-none"
+                    />
+                  </div>
+                </div>
+
+                {/* DYNAMIC LIST: BULLET POINTS / SERVICES */}
+                <div className="space-y-4 border-t border-slate-100 pt-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider">Division Core Services & Standards</h4>
+                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Checklist items rendered as cards in the division preview</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const currentPoints = newDivision.bulletPoints || [];
+                        setNewDivision({
+                          ...newDivision,
+                          bulletPoints: [...currentPoints, { label: '', desc: '', imageUrl: '' }]
+                        });
+                      }}
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all cursor-pointer"
+                    >
+                      <Plus size={12} /> Add Service
+                    </button>
+                  </div>
+
+                  <div className="space-y-4">
+                    {(!newDivision.bulletPoints || newDivision.bulletPoints.length === 0) ? (
+                      <div className="p-6 bg-slate-50 border border-dashed border-slate-200 rounded-2xl text-center">
+                        <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">No service cards configured yet. Create one to populate your services portfolio.</p>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {newDivision.bulletPoints.map((bp: any, idx: number) => (
+                          <div key={idx} className="relative p-5 bg-slate-50/50 rounded-2xl border border-slate-200/65 space-y-3">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const list = [...newDivision.bulletPoints];
+                                list.splice(idx, 1);
+                                setNewDivision({...newDivision, bulletPoints: list});
+                              }}
+                              className="absolute top-4 right-4 text-red-400 hover:text-red-600 transition-colors cursor-pointer"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                            <span className="text-[9px] font-mono text-slate-400 uppercase tracking-widest block font-bold">Service CARD #{idx + 1}</span>
+                            
+                            <div className="space-y-3">
+                              <input 
+                                type="text" 
+                                required
+                                placeholder="Service Title (e.g. 3D CAD Modeling)"
+                                value={bp.label}
+                                onChange={e => {
+                                  const list = [...newDivision.bulletPoints];
+                                  list[idx] = { ...list[idx], label: e.target.value };
+                                  setNewDivision({...newDivision, bulletPoints: list});
+                                }}
+                                className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 font-bold focus:border-blue-500 outline-none"
+                              />
+                              <textarea 
+                                required
+                                rows={2}
+                                placeholder="Short description of the service metrics or outputs..."
+                                value={bp.desc}
+                                onChange={e => {
+                                  const list = [...newDivision.bulletPoints];
+                                  list[idx] = { ...list[idx], desc: e.target.value };
+                                  setNewDivision({...newDivision, bulletPoints: list});
+                                }}
+                                className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 font-medium focus:border-blue-500 outline-none resize-none"
+                              />
+                              <input 
+                                type="text" 
+                                placeholder="Image URL (Unsplash or direct URL) - Optional"
+                                value={bp.imageUrl || ''}
+                                onChange={e => {
+                                  const list = [...newDivision.bulletPoints];
+                                  list[idx] = { ...list[idx], imageUrl: e.target.value };
+                                  setNewDivision({...newDivision, bulletPoints: list});
+                                }}
+                                className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 font-medium focus:border-blue-500 outline-none"
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* DYNAMIC LIST: INDIVIDUAL MACHINES */}
+                <div className="space-y-4 border-t border-slate-100 pt-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider">Related Machine Assets & Equipment</h4>
+                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Listed machines with individual illustrative imagery displayed below core services</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const currentMachines = newDivision.machines || [];
+                        setNewDivision({
+                          ...newDivision,
+                          machines: [...currentMachines, { name: '', desc: '', imageUrl: '' }]
+                        });
+                      }}
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all cursor-pointer"
+                    >
+                      <Plus size={12} /> Add Machine
+                    </button>
+                  </div>
+
+                  <div className="space-y-4">
+                    {(!newDivision.machines || newDivision.machines.length === 0) ? (
+                      <div className="p-6 bg-slate-50 border border-dashed border-slate-200 rounded-2xl text-center">
+                        <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">No machine assets configured for this division yet. Add related equipment below.</p>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {newDivision.machines.map((m: any, idx: number) => (
+                          <div key={idx} className="relative p-5 bg-slate-50/50 rounded-2xl border border-slate-200/65 space-y-3">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const list = [...newDivision.machines];
+                                list.splice(idx, 1);
+                                setNewDivision({...newDivision, machines: list});
+                              }}
+                              className="absolute top-4 right-4 text-red-400 hover:text-red-600 transition-colors cursor-pointer"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                            <span className="text-[9px] font-mono text-slate-400 uppercase tracking-widest block font-bold">Machine Equipment #{idx + 1}</span>
+                            
+                            <div className="space-y-3">
+                              <input 
+                                type="text" 
+                                required
+                                placeholder="Machine Name (e.g. 5-Axis CNC Milling Machine)"
+                                value={m.name}
+                                onChange={e => {
+                                  const list = [...newDivision.machines];
+                                  list[idx] = { ...list[idx], name: e.target.value };
+                                  setNewDivision({...newDivision, machines: list});
+                                }}
+                                className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 font-bold focus:border-blue-500 outline-none"
+                              />
+                              <input 
+                                type="text" 
+                                required
+                                placeholder="Machine Image URL (Unsplash or direct URL)"
+                                value={m.imageUrl}
+                                onChange={e => {
+                                  const list = [...newDivision.machines];
+                                  list[idx] = { ...list[idx], imageUrl: e.target.value };
+                                  setNewDivision({...newDivision, machines: list});
+                                }}
+                                className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 font-medium focus:border-blue-500 outline-none"
+                              />
+                              <textarea 
+                                required
+                                rows={2}
+                                placeholder="Specs or machine operational description..."
+                                value={m.desc}
+                                onChange={e => {
+                                  const list = [...newDivision.machines];
+                                  list[idx] = { ...list[idx], desc: e.target.value };
+                                  setNewDivision({...newDivision, machines: list});
+                                }}
+                                className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 font-medium focus:border-blue-500 outline-none resize-none"
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* SAVE BUTTONS */}
+                <div className="flex justify-end gap-3 border-t border-slate-100 pt-6">
+                  <button 
+                    type="button"
+                    onClick={() => {
+                      setIsAddingDivision(false);
+                      setEditingDivisionId(null);
+                    }}
+                    className="px-5 py-3 border border-slate-200 hover:bg-slate-50 text-slate-600 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer"
+                  >
+                    Discard Changes
+                  </button>
+                  <button 
+                    type="submit"
+                    disabled={isLoading}
+                    className="flex items-center gap-2 px-6 py-3 bg-[#002b5c] hover:bg-[#002b5c]/95 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-md cursor-pointer"
+                  >
+                    <Save size={14} /> {editingDivisionId ? 'Calibrate Node' : 'Establish Node'}
+                  </button>
+                </div>
+              </form>
+            ) : (
+              /* LIST VIEW */
+              <div className="space-y-6 max-w-5xl animate-in fade-in duration-300">
+                {divisions.length === 0 ? (
+                  <div className="bg-white border border-slate-200 rounded-3xl p-16 text-center space-y-6 max-w-md mx-auto">
+                    <div className="w-16 h-16 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center mx-auto text-slate-400">
+                      <Layers size={28} />
+                    </div>
+                    <div className="space-y-2">
+                      <h3 className="text-sm font-black text-[#002b5c] uppercase tracking-wide">Infrastructure Empty</h3>
+                      <p className="text-xs text-slate-400 font-medium leading-relaxed">There are no dynamic engineering divisions in the database. Use seed defaults or create a new custom division node.</p>
+                    </div>
+                    <div className="flex justify-center gap-3 pt-2">
+                      <button 
+                        onClick={handleSeedDivisions}
+                        disabled={isLoading}
+                        className="px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm cursor-pointer"
+                      >
+                        Seed Default Divisions Set
+                      </button>
+                      <button 
+                        onClick={() => {
+                          setIsAddingDivision(true);
+                          setNewDivision({
+                            title: '',
+                            desc: '',
+                            icon: 'Settings',
+                            badge: 'ISO-9001 COMPLIANT',
+                            color: 'from-blue-600 to-indigo-600',
+                            order: 1,
+                            bulletPoints: [],
+                            machines: []
+                          });
+                        }}
+                        className="px-5 py-3 bg-[#002b5c] hover:bg-[#002b5c]/90 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm cursor-pointer"
+                      >
+                        Add Custom
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {divisions.map((div: any) => {
+                      return (
+                        <div key={div.id} className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+                          <div className="space-y-4">
+                            <div className="flex items-start justify-between">
+                              <span className="text-[10px] font-mono font-bold text-white bg-[#002b5c] px-2.5 py-0.5 rounded-full uppercase tracking-widest animate-pulse">
+                                {div.badge}
+                              </span>
+                              <span className="text-[10px] font-mono text-slate-400 font-bold">
+                                ORDER #{div.order}
+                              </span>
+                            </div>
+
+                            <div className="space-y-2">
+                              <h3 className="text-base font-black text-[#002b5c] uppercase tracking-wide">
+                                {div.title}
+                              </h3>
+                              <p className="text-xs text-slate-400 leading-relaxed font-semibold line-clamp-3">
+                                {div.desc}
+                              </p>
+                            </div>
+
+                            <div className="flex gap-4 border-t border-slate-100 pt-4">
+                              <div className="space-y-0.5">
+                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Core Services</span>
+                                <span className="text-xs font-sans font-black text-slate-700">{div.bulletPoints?.length || 0} Cards</span>
+                              </div>
+                              <div className="space-y-0.5">
+                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Machine Assets</span>
+                                <span className="text-xs font-sans font-black text-[#002b5c]">{div.machines?.length || 0} Equipped</span>
+                              </div>
+                              <div className="space-y-0.5">
+                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Icon Class</span>
+                                <span className="text-xs font-mono font-bold text-slate-500">{div.icon}</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="flex justify-end gap-2 border-t border-slate-100 pt-4 mt-6">
+                            <button
+                              onClick={() => {
+                                setEditingDivisionId(div.id);
+                                setNewDivision({
+                                  title: div.title || '',
+                                  desc: div.desc || '',
+                                  icon: div.icon || 'Settings',
+                                  badge: div.badge || 'ISO-9001 COMPLIANT',
+                                  color: div.color || 'from-blue-600 to-indigo-600',
+                                  order: div.order || 1,
+                                  bulletPoints: div.bulletPoints || [],
+                                  machines: div.machines || []
+                                });
+                              }}
+                              className="px-4 py-2 hover:bg-slate-50 border border-slate-200 text-slate-600 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all cursor-pointer"
+                            >
+                              Edit Profile
+                            </button>
+                            <button
+                              onClick={() => handleDeleteDivision(div.id)}
+                              className="px-4 py-2 hover:bg-red-50 hover:border-red-200 border border-slate-200 text-red-500 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all cursor-pointer"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* TAB 9.8: RESEARCH & INNOVATION */}
+        {activeTab === 'research' && (
+          <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-black text-slate-900 tracking-tight uppercase">Research & Innovation Cards</h2>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1">Manage technical innovation focus areas, custom imagery, and graphic markers</p>
+              </div>
+              <div className="flex gap-3">
+                {researchCards.length === 0 && (
+                  <button 
+                    onClick={seedResearchCards}
+                    disabled={isLoading}
+                    className="flex items-center gap-2 px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm cursor-pointer"
+                  >
+                    <RefreshCw size={14} className={isLoading ? 'animate-spin' : ''} /> Seed Defaults
+                  </button>
+                )}
+                {!isAddingResearch && !editingResearchId && (
+                  <button 
+                    onClick={() => {
+                      setIsAddingResearch(true);
+                      setEditingResearchId(null);
+                      setNewResearch({ title: '', desc: '', imageUrl: '', iconName: 'Cpu' });
+                    }}
+                    className="flex items-center gap-2 px-5 py-3 bg-[#002b5c] hover:bg-blue-800 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-md cursor-pointer"
+                  >
+                    <Plus size={14} /> Add Focus Area
+                  </button>
+                )}
+              </div>
+            </header>
+
+            {(isAddingResearch || editingResearchId) ? (
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-white p-8 rounded-3xl border border-slate-100 shadow-xl space-y-6"
+              >
+                <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                  <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider">
+                    {editingResearchId ? `Edit Focus Area: ${newResearch.title}` : 'Create Research Focus Area'}
+                  </h3>
+                  <button 
+                    type="button"
+                    onClick={() => {
+                      setIsAddingResearch(false);
+                      setEditingResearchId(null);
+                    }}
+                    className="text-xs text-slate-400 hover:text-slate-600 font-bold uppercase tracking-wider"
+                  >
+                    Cancel
+                  </button>
+                </div>
+
+                <form onSubmit={handleSaveResearchCard} className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Title</label>
+                      <input 
+                        type="text"
+                        required
+                        value={newResearch.title}
+                        onChange={e => setNewResearch({ ...newResearch, title: e.target.value })}
+                        className="w-full bg-slate-50 border border-slate-200 focus:border-[#002b5c] focus:bg-white focus:outline-none rounded-xl px-4 py-3 text-xs font-bold text-slate-800 transition-all"
+                        placeholder="e.g. AI Integrated Engineering Systems"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Marker Icon</label>
+                      <select 
+                        value={newResearch.iconName}
+                        onChange={e => setNewResearch({ ...newResearch, iconName: e.target.value })}
+                        className="w-full bg-slate-50 border border-slate-200 focus:border-[#002b5c] focus:bg-white focus:outline-none rounded-xl px-4 py-3 text-xs font-bold text-slate-800 transition-all"
+                      >
+                        <option value="Cpu">Cpu (AI / Tech)</option>
+                        <option value="Compass">Compass (Navigation / UAV)</option>
+                        <option value="Shield">Shield (Defense / Security)</option>
+                        <option value="Radio">Radio (IoT / Telemetry)</option>
+                        <option value="Activity">Activity (Diagnostics / Sensors)</option>
+                        <option value="Sparkles">Sparkles (AI / Innovation)</option>
+                        <option value="Layers">Layers (Aerospace / Material)</option>
+                        <option value="HardDrive">HardDrive (Infrastructure)</option>
+                        <option value="Network">Network (Smart Grids)</option>
+                        <option value="FlaskConical">FlaskConical (Lab Science)</option>
+                        <option value="Hammer">Hammer (Manufacturing)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Background Image URL</label>
+                    <input 
+                      type="url"
+                      required
+                      value={newResearch.imageUrl}
+                      onChange={e => setNewResearch({ ...newResearch, imageUrl: e.target.value })}
+                      className="w-full bg-slate-50 border border-slate-200 focus:border-[#002b5c] focus:bg-white focus:outline-none rounded-xl px-4 py-3 text-xs font-bold text-slate-800 transition-all"
+                      placeholder="e.g. https://images.unsplash.com/photo-..."
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Detailed Description</label>
+                    <textarea 
+                      required
+                      rows={4}
+                      value={newResearch.desc}
+                      onChange={e => setNewResearch({ ...newResearch, desc: e.target.value })}
+                      className="w-full bg-slate-50 border border-slate-200 focus:border-[#002b5c] focus:bg-white focus:outline-none rounded-xl px-4 py-3 text-xs font-bold text-slate-800 transition-all"
+                      placeholder="Describe the research direction, outcomes, and computational savings..."
+                    />
+                  </div>
+
+                  <div className="flex justify-end gap-3 border-t border-slate-100 pt-6">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsAddingResearch(false);
+                        setEditingResearchId(null);
+                      }}
+                      className="px-5 py-3 hover:bg-slate-50 border border-slate-200 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isLoading}
+                      className="px-6 py-3 bg-[#002b5c] hover:bg-blue-800 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-md flex items-center gap-2 cursor-pointer"
+                    >
+                      {isLoading ? (
+                        <>
+                          <RefreshCw size={14} className="animate-spin" /> Writing...
+                        </>
+                      ) : (
+                        <>
+                          <Save size={14} /> Commit Changes
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </form>
+              </motion.div>
+            ) : (
+              <div className="space-y-6">
+                {researchCards.length === 0 ? (
+                  <div className="bg-white rounded-3xl border border-slate-100 p-12 text-center max-w-xl mx-auto space-y-4">
+                    <div className="w-16 h-16 rounded-full bg-indigo-50 text-indigo-500 flex items-center justify-center mx-auto">
+                      <FlaskConical size={28} />
+                    </div>
+                    <h3 className="text-base font-black text-slate-800 uppercase tracking-tight">Empty Database</h3>
+                    <p className="text-xs text-slate-400 font-medium leading-relaxed">
+                      There are no custom research focus areas in the database. Use seed defaults to populate immediately or click Add Focus Area.
+                    </p>
+                    <div className="pt-2">
+                      <button 
+                        onClick={seedResearchCards}
+                        disabled={isLoading}
+                        className="px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm cursor-pointer inline-flex items-center gap-2"
+                      >
+                        <RefreshCw size={14} className={isLoading ? 'animate-spin' : ''} /> Seed Focus Areas
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {researchCards.map((card: any) => {
+                      return (
+                        <div key={card.id} className="bg-white rounded-3xl border border-slate-100 shadow-sm p-6 flex flex-col justify-between hover:shadow-md transition-all">
+                          <div className="space-y-4">
+                            <div className="h-32 rounded-2xl overflow-hidden relative">
+                              <img src={card.imageUrl} alt={card.title} className="w-full h-full object-cover" />
+                              <div className="absolute top-3 left-3 px-3 py-1.5 bg-[#002b5c] text-white rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5">
+                                <span>{card.iconName}</span>
+                              </div>
+                            </div>
+                            <h4 className="text-sm font-black text-[#002b5c] uppercase tracking-tight">{card.title}</h4>
+                            <p className="text-xs text-slate-400 font-medium leading-relaxed line-clamp-3">{card.desc}</p>
+                          </div>
+
+                          <div className="flex justify-end gap-2 border-t border-slate-50 pt-4 mt-6">
+                            <button
+                              onClick={() => {
+                                setEditingResearchId(card.id);
+                                setNewResearch({
+                                  title: card.title || '',
+                                  desc: card.desc || '',
+                                  imageUrl: card.imageUrl || '',
+                                  iconName: card.iconName || 'Cpu'
+                                });
+                              }}
+                              className="px-3 py-2 hover:bg-slate-50 border border-slate-200 text-slate-600 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all cursor-pointer"
+                            >
+                              Edit Info
+                            </button>
+                            <button
+                              onClick={() => handleDeleteResearchCard(card.id, card.title)}
+                              className="px-3 py-2 hover:bg-red-50 hover:border-red-200 border border-slate-200 text-red-500 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all cursor-pointer"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             )}
           </div>

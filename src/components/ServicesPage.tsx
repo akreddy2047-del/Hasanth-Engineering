@@ -15,20 +15,43 @@ import CncImg from '../assets/images/cnc_milling_precision_1782203124738.jpg';
 import UavImg from '../assets/images/uav_drone_tech_research_1782203142482.jpg';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { db } from '../lib/firebase';
+import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 
 gsap.registerPlugin(ScrollTrigger);
+
+const iconMap: { [key: string]: any } = {
+  Settings: Settings,
+  Cpu: Cpu,
+  Bot: Bot,
+  Compass: Compass,
+  Layers: Layers,
+  ShieldAlert: ShieldAlert
+};
 
 export default function ServicesPage() {
   const [activeDivision, setActiveDivision] = useState<number>(0);
   const [selectedSpotlightIdx, setSelectedSpotlightIdx] = useState<number | null>(null);
   const spotlightSectionRef = useRef<HTMLDivElement>(null);
   const spotlightContainerRef = useRef<HTMLDivElement>(null);
+  const [liveDivisions, setLiveDivisions] = useState<any[]>([]);
 
   // Keep ScrollTrigger cleaning clean on unmount
   useEffect(() => {
     return () => {
       ScrollTrigger.getAll().forEach(st => st.kill());
     };
+  }, []);
+
+  useEffect(() => {
+    const q = query(collection(db, 'divisions'), orderBy('order', 'asc'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const loaded = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setLiveDivisions(loaded);
+    }, (error) => {
+      console.error("Error subscribing to divisions: ", error);
+    });
+    return () => unsubscribe();
   }, []);
 
   const servicesSchema = {
@@ -88,13 +111,13 @@ export default function ServicesPage() {
       color: 'from-blue-600 to-indigo-600',
       badge: 'ISO-9001 COMPLIANT',
       bulletPoints: [
-        { label: '3D CAD Modeling', desc: 'Symmetrical SolidWorks solid parts & multi-sheet components assemblies.' },
-        { label: 'Product Design', desc: 'Comprehensive concept blueprints turned into physically tight assemblies.' },
-        { label: 'Reverse Engineering', desc: 'Scan metric mappings transformed into physical production tolerances.' },
-        { label: 'Structural Design', desc: 'High strength, low stress structural design frame layouts.' },
-        { label: 'Sheet Metal Design', desc: 'Bending schedules, laser layout optimization, and high tolerance folds.' },
-        { label: 'Tool & Fixture Design', desc: 'Specialized physical jigs, inspection guides, and progression sets.' },
-        { label: 'Manufacturing Support', desc: 'Complete fabrication pathways with on-location CNC setup guidelines.' }
+        { label: '3D CAD Modeling', desc: 'Symmetrical SolidWorks solid parts & multi-sheet components assemblies.', imageUrl: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80' },
+        { label: 'Product Design', desc: 'Comprehensive concept blueprints turned into physically tight assemblies.', imageUrl: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80' },
+        { label: 'Reverse Engineering', desc: 'Scan metric mappings transformed into physical production tolerances.', imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80' },
+        { label: 'Structural Design', desc: 'High strength, low stress structural design frame layouts.', imageUrl: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=600&q=80' },
+        { label: 'Sheet Metal Design', desc: 'Bending schedules, laser layout optimization, and high tolerance folds.', imageUrl: 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&w=600&q=80' },
+        { label: 'Tool & Fixture Design', desc: 'Specialized physical jigs, inspection guides, and progression sets.', imageUrl: 'https://images.unsplash.com/photo-1563770660941-20978e870e26?auto=format&fit=crop&w=600&q=80' },
+        { label: 'Manufacturing Support', desc: 'Complete fabrication pathways with on-location CNC setup guidelines.', imageUrl: 'https://images.unsplash.com/photo-1616401784845-180882ba9ba8?auto=format&fit=crop&w=600&q=80' }
       ]
     },
     {
@@ -104,13 +127,13 @@ export default function ServicesPage() {
       color: 'from-blue-700 to-cyan-600',
       badge: 'IPC-A-610 CERTIFIED',
       bulletPoints: [
-        { label: 'PCB Design', desc: 'Controlled impedance, multi-layer RF, and high-frequency digital traces.' },
-        { label: 'Embedded Systems Development', desc: 'Bare-metal, low power C/C++ firmware nodes on ARM, STM32, ESP32.' },
-        { label: 'IoT Product Design', desc: 'Low-power end devices integrated with reliable cloud dashboards.' },
-        { label: 'Sensor Integration', desc: 'Low noise analog filters, dynamic SPI/I2C buses, and high-grain amplifications.' },
-        { label: 'Power Electronics', desc: 'High-efficiency buck converters, motor controllers, and smart fuse paths.' },
-        { label: 'Industrial Control Systems', desc: 'Opto-isolated interface signals, DIN rail enclosures, and MODBUS nodes.' },
-        { label: 'Electronics Prototyping', desc: 'Rapid PCB layout routing, component SMD soldering, and bench check metrics.' }
+        { label: 'PCB Design', desc: 'Controlled impedance, multi-layer RF, and high-frequency digital traces.', imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80' },
+        { label: 'Embedded Systems Development', desc: 'Bare-metal, low power C/C++ firmware nodes on ARM, STM32, ESP32.', imageUrl: 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?auto=format&fit=crop&w=600&q=80' },
+        { label: 'IoT Product Design', desc: 'Low-power end devices integrated with reliable cloud dashboards.', imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80' },
+        { label: 'Sensor Integration', desc: 'Low noise analog filters, dynamic SPI/I2C buses, and high-grain amplifications.', imageUrl: 'https://images.unsplash.com/photo-1555664424-778a1e5e1b48?auto=format&fit=crop&w=600&q=80' },
+        { label: 'Power Electronics', desc: 'High-efficiency buck converters, motor controllers, and smart fuse paths.', imageUrl: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=600&q=80' },
+        { label: 'Industrial Control Systems', desc: 'Opto-isolated interface signals, DIN rail enclosures, and MODBUS nodes.', imageUrl: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=600&q=80' },
+        { label: 'Electronics Prototyping', desc: 'Rapid PCB layout routing, component SMD soldering, and bench check metrics.', imageUrl: 'https://images.unsplash.com/photo-1563770660941-20978e870e26?auto=format&fit=crop&w=600&q=80' }
       ]
     },
     {
@@ -120,11 +143,11 @@ export default function ServicesPage() {
       color: 'from-indigo-600 to-blue-800',
       badge: 'SCADA CAPABLE',
       bulletPoints: [
-        { label: 'Industrial Automation', desc: 'Centralized plant layout controls and modular automation setups.' },
-        { label: 'PLC Programming', desc: 'Ladder logic development on Siemens, Allen Bradley, and Delta modules.' },
-        { label: 'Robotic Systems', desc: 'Pre-program axis coordinate pathways for multi-joint pickerarms.' },
-        { label: 'Machine Vision Systems', desc: 'In-line defect checking cameras using smart AI contrast detection.' },
-        { label: 'Smart Factory Solutions', desc: 'Integrated Industrial Internet of Things (IIoT) monitoring setups.' }
+        { label: 'Industrial Automation', desc: 'Centralized plant layout controls and modular automation setups.', imageUrl: 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&w=600&q=80' },
+        { label: 'PLC Programming', desc: 'Ladder logic development on Siemens, Allen Bradley, and Delta modules.', imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80' },
+        { label: 'Robotic Systems', desc: 'Pre-program axis coordinate pathways for multi-joint pickerarms.', imageUrl: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80' },
+        { label: 'Machine Vision Systems', desc: 'In-line defect checking cameras using smart AI contrast detection.', imageUrl: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80' },
+        { label: 'Smart Factory Solutions', desc: 'Integrated Industrial Internet of Things (IIoT) monitoring setups.', imageUrl: 'https://images.unsplash.com/photo-1616401784845-180882ba9ba8?auto=format&fit=crop&w=600&q=80' }
       ]
     },
     {
@@ -134,11 +157,11 @@ export default function ServicesPage() {
       color: 'from-blue-600 to-sky-600',
       badge: 'DGCA COMPLIANT ASSURANCE',
       bulletPoints: [
-        { label: 'Drone Design', desc: 'High structural integrity carbon fiber frames with optimized aeromechanics.' },
-        { label: 'Flight Control Integration', desc: 'ArduPilot, PX4 payload tuning with fail-safe telemetry routing.' },
-        { label: 'Payload Development', desc: 'Gimbal assemblies, custom multispectral sensors, and releases.' },
-        { label: 'Surveillance Systems', desc: 'Live long-range visual telemetry feedback with military-grade encryption.' },
-        { label: 'Agricultural Drone Solutions', desc: 'Liquid spray drone setups, multi-hectare flight optimization curves.' }
+        { label: 'Drone Design', desc: 'High structural integrity carbon fiber frames with optimized aeromechanics.', imageUrl: 'https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=600&q=80' },
+        { label: 'Flight Control Integration', desc: 'ArduPilot, PX4 payload tuning with fail-safe telemetry routing.', imageUrl: 'https://images.unsplash.com/photo-1527977966376-1c8408f9f108?auto=format&fit=crop&w=600&q=80' },
+        { label: 'Payload Development', desc: 'Gimbal assemblies, custom multispectral sensors, and releases.', imageUrl: 'https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=600&q=80' },
+        { label: 'Surveillance Systems', desc: 'Live long-range visual telemetry feedback with military-grade encryption.', imageUrl: 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&w=600&q=80' },
+        { label: 'Agricultural Drone Solutions', desc: 'Liquid spray drone setups, multi-hectare flight optimization curves.', imageUrl: 'https://images.unsplash.com/photo-1473968512647-3e447244af8f?auto=format&fit=crop&w=600&q=80' }
       ]
     },
     {
@@ -148,11 +171,11 @@ export default function ServicesPage() {
       color: 'from-blue-900 to-blue-750',
       badge: 'AS9100 STANDARDS',
       bulletPoints: [
-        { label: 'Aircraft Component Design', desc: 'Aviation brackets, ducts, flaps, and structural component modeling.' },
-        { label: 'CAD & CAE Analysis', desc: 'Linear structural stresses, vibration sweeps, and fatigue lifetime margins.' },
-        { label: 'Aerospace Manufacturing Support', desc: 'Strategic assembly material planning and inspection templates.' },
-        { label: 'Maintenance Engineering Support', desc: 'Repair coordinate drawings and system overhaul diagnostic reviews.' },
-        { label: 'Structural Analysis', desc: 'High-strength shear margins, buckle margins, and lightweight optimizations.' }
+        { label: 'Aircraft Component Design', desc: 'Aviation brackets, ducts, flaps, and structural component modeling.', imageUrl: 'https://images.unsplash.com/photo-1517976487492-5750f3195933?auto=format&fit=crop&w=600&q=80' },
+        { label: 'CAD & CAE Analysis', desc: 'Linear structural stresses, vibration sweeps, and fatigue lifetime margins.', imageUrl: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&w=600&q=80' },
+        { label: 'Aerospace Manufacturing Support', desc: 'Strategic assembly material planning and inspection templates.', imageUrl: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=600&q=80' },
+        { label: 'Maintenance Engineering Support', desc: 'Repair coordinate drawings and system overhaul diagnostic reviews.', imageUrl: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80' },
+        { label: 'Structural Analysis', desc: 'High-strength shear margins, buckle margins, and lightweight optimizations.', imageUrl: 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&w=600&q=80' }
       ]
     },
     {
@@ -162,14 +185,27 @@ export default function ServicesPage() {
       color: 'from-blue-950 to-indigo-900',
       badge: 'MIL-STD COMPLIANT',
       bulletPoints: [
-        { label: 'Surveillance Systems', desc: 'Ultra-low latency night vision, radio frequency scanners, and track solutions.' },
-        { label: 'Sensor Fusion Solutions', desc: 'Coordinated GPS, IMUs, laser sensors mapping to a single output.' },
-        { label: 'UAV Payload Systems', desc: 'Rugged release relays, payload enclosures, and remote controls.' },
-        { label: 'Electro-Mechanical Systems', desc: 'Mil-spec actuator packages, drive gear matrices, and isolation cases.' },
-        { label: 'Advanced Engineering Prototypes', desc: 'Solderable mil-connectors, heavy shock housings, and physical test jigs.' }
+        { label: 'Surveillance Systems', desc: 'Ultra-low latency night vision, radio frequency scanners, and track solutions.', imageUrl: 'https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=600&q=80' },
+        { label: 'Sensor Fusion Solutions', desc: 'Coordinated GPS, IMUs, laser sensors mapping to a single output.', imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80' },
+        { label: 'UAV Payload Systems', desc: 'Rugged release relays, payload enclosures, and remote controls.', imageUrl: 'https://images.unsplash.com/photo-1527977966376-1c8408f9f108?auto=format&fit=crop&w=600&q=80' },
+        { label: 'Electro-Mechanical Systems', desc: 'Mil-spec actuator packages, drive gear matrices, and isolation cases.', imageUrl: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80' },
+        { label: 'Advanced Engineering Prototypes', desc: 'Solderable mil-connectors, heavy shock housings, and physical test jigs.', imageUrl: 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&w=600&q=80' }
       ]
     }
   ];
+
+  const finalDivisions: any[] = liveDivisions.length > 0 ? liveDivisions.map(div => ({
+    title: div.title,
+    desc: div.desc,
+    icon: iconMap[div.icon] || Settings,
+    color: div.color || 'from-blue-600 to-indigo-600',
+    badge: div.badge || 'ISO-9001 COMPLIANT',
+    bulletPoints: div.bulletPoints || [],
+    machines: div.machines || []
+  })) : divisions;
+
+  const currentActiveIdx = activeDivision >= finalDivisions.length ? 0 : activeDivision;
+  const activeDivObj = finalDivisions[currentActiveIdx];
 
   const spotlights = [
     {
@@ -383,9 +419,9 @@ export default function ServicesPage() {
                 Select core division
               </span>
               <div className="space-y-3.5">
-                {divisions.map((div, idx) => {
+                {finalDivisions.map((div, idx) => {
                   const IconComponent = div.icon;
-                  const isActive = activeDivision === idx;
+                  const isActive = currentActiveIdx === idx;
                   return (
                     <button
                       key={idx}
@@ -428,7 +464,7 @@ export default function ServicesPage() {
             <div className="lg:col-span-8">
               <AnimatePresence mode="wait">
                 <motion.div
-                  key={activeDivision}
+                  key={currentActiveIdx}
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -15 }}
@@ -437,7 +473,7 @@ export default function ServicesPage() {
                 >
                   {/* Visual watermark icon background */}
                   <div className="absolute right-6 top-6 opacity-[0.035] text-[#002b5c] pointer-events-none select-none">
-                    {React.createElement(divisions[activeDivision].icon, { size: 160 })}
+                    {React.createElement(activeDivObj.icon, { size: 160 })}
                   </div>
 
                   <div className="relative z-10 space-y-10">
@@ -446,7 +482,7 @@ export default function ServicesPage() {
                     <div className="space-y-4">
                       <div className="flex items-center gap-3">
                         <span className="text-[10px] font-mono text-white bg-[#002b5c] px-3.5 py-1 rounded-full font-bold uppercase tracking-widest">
-                          {divisions[activeDivision].badge}
+                          {activeDivObj.badge}
                         </span>
                         <span className="text-[10px] text-slate-400 font-mono uppercase tracking-widest">
                           EST. 2023 • Hyderabad CORE
@@ -454,11 +490,11 @@ export default function ServicesPage() {
                       </div>
                       
                       <h2 className="text-3xl sm:text-4xl font-sans font-black uppercase tracking-tight text-[#002b5c] leading-none">
-                        {divisions[activeDivision].title}
+                        {activeDivObj.title}
                       </h2>
                       
                       <p className="text-sm sm:text-base text-slate-500 font-semibold leading-relaxed max-w-2xl">
-                        {divisions[activeDivision].desc}
+                        {activeDivObj.desc}
                       </p>
                     </div>
 
@@ -469,26 +505,84 @@ export default function ServicesPage() {
                       </span>
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {divisions[activeDivision].bulletPoints.map((item, id) => (
+                        {activeDivObj.bulletPoints.map((item: any, id: number) => (
                           <div 
                             key={id} 
-                            className="flex gap-4 p-5 bg-slate-50/50 hover:bg-blue-50/20 rounded-2xl border border-slate-100 hover:border-[#002b5c]/35 transition-all duration-300 group"
+                            className="flex flex-col bg-slate-50/50 hover:bg-blue-50/20 rounded-2xl border border-slate-100 hover:border-[#002b5c]/35 transition-all duration-300 group overflow-hidden"
                           >
-                            <div className="w-7 h-7 rounded-full bg-white border border-slate-200 group-hover:border-[#002b5c]/50 flex items-center justify-center shrink-0 shadow-sm text-[#002b5c] transition-colors mt-0.5">
-                              <CheckCircle2 size={13} strokeWidth={2.5} />
-                            </div>
-                            <div className="space-y-1.5">
-                              <h4 className="text-xs font-sans font-black text-[#002b5c] uppercase tracking-wide transition-colors leading-tight">
-                                {item.label}
-                              </h4>
-                              <p className="text-[11px] text-slate-500 leading-relaxed font-semibold">
-                                {item.desc}
-                              </p>
+                            {item.imageUrl && (
+                              <div className="h-32 w-full overflow-hidden bg-slate-150 relative">
+                                <img 
+                                  src={item.imageUrl} 
+                                  alt={item.label} 
+                                  className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
+                                  referrerPolicy="no-referrer"
+                                />
+                                <div className="absolute top-2.5 right-2.5 bg-white/90 backdrop-blur-sm text-[#002b5c] text-[8px] font-mono font-bold uppercase px-2 py-0.5 rounded-full shadow-sm">
+                                  SERVICE PORTFOLIO
+                                </div>
+                              </div>
+                            )}
+                            <div className="p-5 flex gap-4 items-start flex-1">
+                              <div className="w-7 h-7 rounded-full bg-white border border-slate-200 group-hover:border-[#002b5c]/50 flex items-center justify-center shrink-0 shadow-sm text-[#002b5c] transition-colors mt-0.5">
+                                <CheckCircle2 size={13} strokeWidth={2.5} />
+                              </div>
+                              <div className="space-y-1.5 flex-1">
+                                <h4 className="text-xs font-sans font-black text-[#002b5c] uppercase tracking-wide transition-colors leading-tight">
+                                  {item.label}
+                                </h4>
+                                <p className="text-[11px] text-slate-500 leading-relaxed font-semibold">
+                                  {item.desc}
+                                </p>
+                              </div>
                             </div>
                           </div>
                         ))}
                       </div>
                     </div>
+
+                    {/* Machine Assets Display Panel */}
+                    {activeDivObj.machines && activeDivObj.machines.length > 0 && (
+                      <div className="space-y-6 border-t border-slate-100 pt-10">
+                        <div>
+                          <span className="text-[10px] font-mono text-[#002b5c] font-black uppercase tracking-widest block border-b border-blue-100 pb-2">
+                            Related Machine Assets & Equipment
+                          </span>
+                          <p className="text-[11px] text-slate-400 font-bold uppercase tracking-widest mt-1.5">
+                            Physically calibrated manufacturing machinery located inside our Balanagar facility
+                          </p>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {activeDivObj.machines.map((machine: any, mIdx: number) => (
+                            <div 
+                              key={mIdx}
+                              className="bg-slate-50 border border-slate-100 rounded-2xl overflow-hidden hover:shadow-lg hover:border-blue-200 transition-all duration-300 group/machine"
+                            >
+                              <div className="h-44 w-full relative bg-slate-200 overflow-hidden">
+                                <img 
+                                  src={machine.imageUrl || 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80'} 
+                                  alt={machine.name}
+                                  className="w-full h-full object-cover transform group-hover/machine:scale-105 transition-transform duration-500"
+                                  referrerPolicy="no-referrer"
+                                />
+                                <div className="absolute top-3 left-3 bg-[#002b5c] text-white text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded-full">
+                                  ACTIVE EQ
+                                </div>
+                              </div>
+                              <div className="p-5 space-y-2">
+                                <h4 className="text-sm font-sans font-black text-[#002b5c] uppercase tracking-wide leading-tight">
+                                  {machine.name}
+                                </h4>
+                                <p className="text-xs text-slate-500 leading-relaxed font-semibold">
+                                  {machine.desc}
+                                </p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
 
                     {/* Operational Quality Assurance Standard - Removed */}
                     

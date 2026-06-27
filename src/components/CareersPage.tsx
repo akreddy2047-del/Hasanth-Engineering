@@ -12,7 +12,7 @@ import { useSiteConfig } from '../hooks/useSiteConfig';
 import { db } from '../lib/firebase';
 import { collection, onSnapshot, addDoc, serverTimestamp, query, orderBy } from 'firebase/firestore';
 
-export default function CareersPage() {
+export default function CareersPage({ onPageChange }: { onPageChange?: (pageId: string) => void }) {
   const [copied, setCopied] = useState(false);
   const { showToast } = useToast();
   const { config } = useSiteConfig();
@@ -141,9 +141,23 @@ export default function CareersPage() {
         
         {/* Positions List */}
         <div className="lg:col-span-8 space-y-8">
-          <span className="text-[10px] font-sans text-slate-400 font-bold uppercase tracking-widest block mb-4 border-b border-slate-100 pb-2">
-            Available Positions
-          </span>
+          <div className="flex items-center justify-between mb-4 border-b border-slate-100 pb-2">
+            <span className="text-[10px] font-sans text-slate-400 font-bold uppercase tracking-widest block">
+              Available Positions
+            </span>
+            {onPageChange && (
+              <button
+                onClick={() => {
+                  localStorage.setItem('adminActiveTab', 'jobs');
+                  onPageChange('admin');
+                }}
+                className="text-[10px] font-sans text-blue-600 hover:text-blue-800 font-bold uppercase tracking-widest flex items-center gap-1 cursor-pointer transition-colors"
+              >
+                <span>Manage Postings</span>
+                <ArrowRight size={10} className="stroke-[2.5]" />
+              </button>
+            )}
+          </div>
 
           {jobs.length > 0 ? (
             <StaggerContainer key={jobs.length} className="space-y-8 animate-fade-in">

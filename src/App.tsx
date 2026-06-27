@@ -28,6 +28,8 @@ import ContactSection from './components/ContactSection';
 import LegalPage from './components/LegalPage';
 
 import { ConsultationModal, StickyWhatsApp, LiveRippleText, PrecisionBackdrop } from './components/Common';
+import { db } from './lib/firebase';
+import { doc, onSnapshot } from 'firebase/firestore';
 import { MagneticCard } from './components/MagneticCard';
 import BlueprintModal from './components/BlueprintModal';
 import { GSAPSection } from './components/GSAPSection';
@@ -51,6 +53,44 @@ interface SubpageHeaderProps {
 }
 
 function SubpageHeader({ category, title, description, badge }: SubpageHeaderProps) {
+  const [dynamicContent, setDynamicContent] = useState<any>(null);
+
+  useEffect(() => {
+    const pageIdMap: Record<string, string> = {
+      'careers': 'careers',
+      'open positions': 'careers',
+      'engineering logs': 'blog',
+      'knowledge hub': 'blog',
+      'operational domains': 'industries',
+      'industrial divisions': 'divisions',
+      'innovative initiatives': 'research',
+      'pioneering tech': 'research',
+      'divisions': 'divisions',
+      'capabilities': 'services',
+      'operational capabilities': 'services',
+      'services': 'services',
+      'about': 'about',
+      'global footprint': 'about',
+      'engineering showcase': 'projects',
+      'projects': 'projects',
+      'privacy': 'privacy',
+      'terms': 'terms'
+    };
+    
+    const pageId = pageIdMap[category.toLowerCase()] || pageIdMap[title.toLowerCase()] || null;
+    if (!pageId) return;
+
+    const unsub = onSnapshot(doc(db, 'page_content', pageId), (docSnap) => {
+      if (docSnap.exists()) {
+        setDynamicContent(docSnap.data());
+      }
+    });
+    return () => unsub();
+  }, [category, title]);
+
+  const displayTitle = dynamicContent?.title || title;
+  const displayDescription = dynamicContent?.subtitle || dynamicContent?.content || description;
+
   return (
     <div className="relative bg-[#000b18] border-b border-[#001f3f]/50 py-20 px-4 overflow-hidden">
       <PrecisionBackdrop />
@@ -69,10 +109,10 @@ function SubpageHeader({ category, title, description, badge }: SubpageHeaderPro
             <span>{category}</span>
           </div>
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-sans font-black text-white uppercase tracking-tight leading-none block">
-            {title}
+            {displayTitle}
           </h1>
           <p className="text-xs sm:text-sm text-white/80 max-w-2xl leading-relaxed font-semibold">
-            {description}
+            {displayDescription}
           </p>
         </motion.div>
         
@@ -642,7 +682,7 @@ export default function App() {
                 description="Join a legacy of high-performance developers, mechanical designers, and aerospace system builders."
                 badge="Join Us"
               />
-              <CareersPage />
+              <CareersPage onPageChange={setCurrentPage} />
             </div>
           )}
 

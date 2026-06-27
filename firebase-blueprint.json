@@ -165,11 +165,68 @@
       "properties": {
         "whatsappNumber": { "type": "string" },
         "whatsappMessage": { "type": "string" },
+        "contactPhone": { "type": "string" },
+        "contactEmail": { "type": "string" },
+        "contactAddress": { "type": "string" },
+        "contactAddressShort": { "type": "string" },
         "lastUpdated": { "type": "string", "format": "date-time" }
       }
+    },
+    "Division": {
+      "title": "Engineering Division",
+      "description": "An engineering division with core services and listed machine components.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "desc": { "type": "string" },
+        "icon": { "type": "string" },
+        "badge": { "type": "string" },
+        "color": { "type": "string" },
+        "order": { "type": "number" },
+        "bulletPoints": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": { "type": "string" },
+              "desc": { "type": "string" },
+              "imageUrl": { "type": "string" }
+            }
+          }
+        },
+        "machines": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "desc": { "type": "string" },
+              "imageUrl": { "type": "string" }
+            }
+          }
+        }
+      },
+      "required": ["title", "desc", "icon", "badge", "color", "order"]
+    },
+    "ResearchCard": {
+      "title": "Research Focus Area",
+      "description": "Core investigative and research focus areas.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "desc": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "iconName": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "desc", "imageUrl", "iconName", "timestamp"]
     }
   },
   "firestore": {
+    "/research/{researchId}": {
+      "schema": "ResearchCard",
+      "description": "Research and creative tech focus areas"
+    },
     "/jobs/{jobId}": {
       "schema": "Job",
       "description": "Job postings"
@@ -209,6 +266,10 @@
     "/site_config/{configId}": {
       "schema": "SiteConfig",
       "description": "Global application settings"
+    },
+    "/divisions/{divisionId}": {
+      "schema": "Division",
+      "description": "Engineering divisions with core services and machine images"
     }
   }
 }

@@ -167,6 +167,16 @@ export default function Footer({ onOpenConsultation, onPageChange }: FooterProps
 
           <div className="flex gap-4 items-center">
             <button 
+              onClick={() => {
+                localStorage.setItem('adminActiveTab', 'dashboard');
+                handleLinksScroll('admin');
+              }}
+              className="hover:text-white transition-colors cursor-pointer uppercase tracking-widest font-bold border-b border-transparent hover:border-white/20 pb-0.5 text-blue-400"
+            >
+              Admin Portal
+            </button>
+            <span className="text-white/20">•</span>
+            <button 
               onClick={() => handleLinksScroll('privacy')}
               className="hover:text-white transition-colors cursor-pointer uppercase tracking-widest font-bold border-b border-transparent hover:border-white/20 pb-0.5"
             >

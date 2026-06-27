@@ -36,10 +36,19 @@ export default function LegalPage({ type }: LegalPageProps) {
     async function fetchData() {
       setLoading(true);
       try {
-        const docRef = doc(db, 'legal', type);
+        const docRef = doc(db, 'page_content', type);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          setData(docSnap.data() as LegalContent);
+          const rawData = docSnap.data();
+          setData({
+            content: rawData.content || '',
+            lastUpdated: rawData.lastUpdated,
+            sections: (rawData.sections || []).map((sec: any) => ({
+              title: sec.heading || sec.title || '',
+              body: sec.body || '',
+              icon: sec.id || sec.icon || 'Shield'
+            }))
+          });
         }
       } catch (err) {
         console.error("Error fetching legal content:", err);
